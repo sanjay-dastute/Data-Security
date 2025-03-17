@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: quantumtrust-backend
+  namespace: quantumtrust
+  labels:
+    app: quantumtrust-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: quantumtrust-backend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quantumtrust-backend-ingress
+  namespace: quantumtrust
+  annotations:
+    kubernetes.io/ingress.class: "azure/application-gateway"
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-protocol: "http"
+    appgw.ingress.kubernetes.io/health-probe-path: "/api/health"
+    appgw.ingress.kubernetes.io/health-probe-status-codes: "200-399"
+spec:
+  rules:
+  - host: api.quantumtrust.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: quantumtrust-backend
+            port:
+              number: 8000
+  tls:
+  - hosts:
+    - api.quantumtrust.example.com
+    secretName: quantumtrust-tls-secret

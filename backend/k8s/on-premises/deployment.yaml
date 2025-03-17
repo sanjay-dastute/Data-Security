@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantumtrust-backend
+  namespace: quantumtrust
+  labels:
+    app: quantumtrust-backend
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: quantumtrust-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: quantumtrust-backend
+    spec:
+      containers:
+      - name: quantumtrust-backend
+        image: ${REGISTRY_URL}/quantumtrust-backend:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: db-host
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: db-port
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: db-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: db-password
+        - name: DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: db-database
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: jwt-secret
+        - name: MASTER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: quantumtrust-secrets
+              key: master-api-key
+        - name: FABRIC_CONNECTION_PROFILE
+          value: "/app/config/fabric/connection-profile.json"
+        - name: FABRIC_WALLET_PATH
+          value: "/app/config/fabric/wallet"
+        - name: FABRIC_CHANNEL_NAME
+          value: "quantumtrust"
+        - name: FABRIC_CONTRACT_NAME
+          value: "keymanagement"
+        - name: USE_HTTPS
+          value: "true"
+        - name: SSL_KEY_PATH
+          value: "/app/ssl/private-key.pem"
+        - name: SSL_CERT_PATH
+          value: "/app/ssl/public-certificate.pem"
+        - name: CORS_ORIGINS
+          value: "https://quantumtrust.example.com"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        volumeMounts:
+        - name: ssl-certs
+          mountPath: /app/ssl
+          readOnly: true
+        - name: fabric-config
+          mountPath: /app/config/fabric
+          readOnly: true
+        - name: temp-storage
+          mountPath: /app/temp
+      volumes:
+      - name: ssl-certs
+        secret:
+          secretName: quantumtrust-ssl
+      - name: fabric-config
+        configMap:
+          name: quantumtrust-fabric-config
+      - name: temp-storage
+        emptyDir: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - quantumtrust-backend
+              topologyKey: "kubernetes.io/hostname"
