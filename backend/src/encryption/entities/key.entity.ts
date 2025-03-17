@@ -7,15 +7,19 @@ export enum KeyType {
 }
 
 export enum KeyStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  COMPROMISED = 'compromised',
-  EXPIRED = 'expired',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  COMPROMISED = 'COMPROMISED',
+  EXPIRED = 'EXPIRED',
+  RECOVERY_PENDING = 'RECOVERY_PENDING',
 }
 
 @Entity('keys')
 export class Key {
   @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ name: 'key_id', nullable: true })
   key_id: string;
 
   @Column()
@@ -27,6 +31,15 @@ export class Key {
 
   @Column({ nullable: true })
   organization_id: string;
+
+  @Column({ nullable: true })
+  name: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({ nullable: true })
+  created_by: string;
 
   @Column({
     type: 'enum',
@@ -48,6 +61,12 @@ export class Key {
   @CreateDateColumn()
   created_at: Date;
 
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @Column({ nullable: true })
+  updated_by: string;
+
   @Column({ nullable: true })
   expires_at: Date;
 
@@ -61,7 +80,7 @@ export class Key {
   shards: Record<string, string>;
 
   @Column({ nullable: true })
-  shard_threshold: number;
+  threshold: number;
 
   @Column({ default: 0 })
   timer_interval: number;

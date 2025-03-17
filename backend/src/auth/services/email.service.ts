@@ -122,4 +122,44 @@ export class EmailService {
   generateVerificationToken(): string {
     return crypto.randomBytes(32).toString('hex');
   }
+
+  async sendShardApprovalRequest(email: string, holderName: string, keyName: string, approvalId: string): Promise<boolean> {
+    const approvalUrl = `${this.configService.get('FRONTEND_URL') || 'http://localhost:3000'}/key-recovery/approve?id=${approvalId}`;
+    
+    try {
+      const info = await this.transporter.sendMail({
+        from: `"QuantumTrust Security" <${this.configService.get('SMTP_FROM') || 'noreply@quantumtrust.com'}>`,
+        to: email,
+        subject: 'Key Recovery Shard Approval Request',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Key Recovery Approval Request</h2>
+            <p>Dear ${holderName},</p>
+            <p>We received a request to approve the recovery of encryption key "${keyName}". As a key shard holder, your approval is required to complete the recovery process.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${approvalUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Review and Approve</a>
+            </div>
+            <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+            <p>${approvalUrl}</p>
+            <p>This link will expire in 24 hours.</p>
+            <p>If you didn't expect this request or have concerns, please contact your administrator immediately.</p>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eaeaea;">
+            <p style="color: #666; font-size: 12px;">© ${new Date().getFullYear()} QuantumTrust Data Security. All rights reserved.</p>
+          </div>
+        `,
+      });
+      
+      console.log('Email sent: %s', info.messageId);
+      
+      // For development, log the test URL
+      if (this.configService.get('NODE_ENV') !== 'production') {
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error sending shard approval request email:', error);
+      return false;
+    }
+  }
 }
