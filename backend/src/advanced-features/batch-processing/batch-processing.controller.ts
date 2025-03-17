@@ -6,6 +6,7 @@ import { UserRole } from '../../user-management/entities/user.entity';
 import { BatchProcessingService } from './batch-processing.service';
 import { BlockchainService } from '../../encryption/services/blockchain.service';
 import { StartBatchProcessingDto, BatchProcessingStatusDto } from './dto/batch-processing.dto';
+import { BatchProcessStatus } from './entities/batch-process.entity';
 import { Request } from 'express';
 
 @Controller('batch')
@@ -80,7 +81,7 @@ export class BatchProcessingController {
     @Req() req: Request,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-    @Query('status') status?: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled',
+    @Query('status') status?: BatchProcessStatus,
   ) {
     try {
       return await this.batchProcessingService.listBatchProcesses(

@@ -31,7 +31,7 @@ export class ProfileController {
     // Verify current password
     const isPasswordValid = await bcrypt.compare(
       passwordData.currentPassword,
-      user.password_hash,
+      user.details?.password_hash || '',
     );
     
     if (!isPasswordValid) {
@@ -53,7 +53,7 @@ export class ProfileController {
     const passwordHash = await bcrypt.hash(passwordData.newPassword, 10);
     
     // Update password
-    await this.userService.update(req.user.userId, { password_hash: passwordHash });
+    await this.userService.update(req.user.userId, { details: { password_hash: passwordHash } });
     
     return { message: 'Password updated successfully' };
   }

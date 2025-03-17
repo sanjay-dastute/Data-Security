@@ -8,7 +8,7 @@ import { UserRole } from '../../types/user';
 
 const DeploymentPage = () => {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuth() || { user: null, loading: false };
 
   // Redirect if not admin
   React.useEffect(() => {
