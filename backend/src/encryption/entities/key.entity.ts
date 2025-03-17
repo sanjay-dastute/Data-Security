@@ -82,6 +82,10 @@ export class Key {
   @Column({ nullable: true })
   threshold: number;
 
+  get shard_threshold(): number {
+    return this.threshold;
+  }
+
   @Column({ default: 0 })
   timer_interval: number;
 }
