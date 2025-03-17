@@ -6,9 +6,11 @@ import { TemporaryMetadataController } from './controllers/temporary-metadata.co
 import { FileUploadController } from './controllers/file-upload.controller';
 import { DataEncryptionController } from './controllers/data-encryption.controller';
 import { BatchProcessingController } from './controllers/batch-processing.controller';
+import { SelfDestructController } from './controllers/self-destruct.controller';
 import { TemporaryMetadataService } from './services/temporary-metadata.service';
 import { FileParserService } from './services/file-parser.service';
 import { StorageService } from './services/storage.service';
+import { SelfDestructScriptGenerator } from './utils/self-destruct';
 import { EncryptionModule } from '../encryption/encryption.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -38,11 +40,13 @@ import { v4 as uuidv4 } from 'uuid';
     FileUploadController,
     DataEncryptionController,
     BatchProcessingController,
+    SelfDestructController,
   ],
   providers: [
     TemporaryMetadataService,
     FileParserService,
     StorageService,
+    SelfDestructScriptGenerator,
   ],
   exports: [
     TemporaryMetadataService,
