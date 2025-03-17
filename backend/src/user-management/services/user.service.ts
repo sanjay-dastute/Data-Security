@@ -33,6 +33,42 @@ export class UserService {
       limit,
     };
   }
+  
+  async findByOrganization(organizationId: string, page = 1, limit = 10): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+    
+    const [users, total] = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.organization_id = :organizationId', { organizationId })
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+    
+    return {
+      users: users.map(this.mapToUserResponse),
+      total,
+      page,
+      limit,
+    };
+  }
+  
+  async findByApprovalStatus(status: string, page = 1, limit = 10): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+    
+    const [users, total] = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.approvalStatus = :status', { status })
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+    
+    return {
+      users: users.map(this.mapToUserResponse),
+      total,
+      page,
+      limit,
+    };
+  }
 
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await this.usersRepository.findOne({ where: { user_id: id } });
