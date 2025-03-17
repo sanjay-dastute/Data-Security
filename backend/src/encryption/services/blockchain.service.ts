@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KeyType } from '../dto/key.dto';
 
-interface KeyEvent {
+export type KeyEvent = {
   key_id: string;
   user_id: string;
   organization_id?: string;
-  event_type: 'created' | 'updated' | 'rotated' | 'deactivated' | 'shards_created' | 'recovered';
+  event_type: 'created' | 'updated' | 'deleted' | 'rotated' | 'used' | 'deactivated' | 'shards_created' | 'recovered' | 'started' | 'cancelled' | 'recovery_requested' | 'recovery_approved';
   timestamp: Date;
-  metadata: Record<string, any>;
-}
+  metadata?: Record<string, any>;
+};
 
 interface LogEvent {
   user_id: string;

@@ -61,15 +61,30 @@ export class ApiIntegrationController {
       const clientAddress = req.clientAddress || { ip: req.ip, mac: 'unknown' };
       
       // Encrypt data
-      const encryptedData = await this.encryptionService.encryptData(
+      const encryptionResult = await this.encryptionService.encryptData(
         data,
-        organization.id,
+        organization.organization_id,
         null, // No specific user ID for API requests
       );
       
       // Store encrypted data based on organization storage configuration
       const storageConfig = organization.settings?.storage_config || { type: 'local' };
-      const storageResult = await this.storageService.storeData(encryptedData, storageConfig);
+      const fileName = 'api-data.json';
+      const storageType = storageConfig.type || 'local';
+      
+      // Extract the encrypted data from the encryption result
+      const encryptedDataBuffer = typeof encryptionResult.encryptedData === 'string' 
+        ? Buffer.from(encryptionResult.encryptedData) 
+        : Buffer.from(JSON.stringify(encryptionResult.encryptedData));
+      
+      const storageResult = await this.storageService.storeData(
+        encryptedDataBuffer,
+        fileName,
+        storageType,
+        storageConfig,
+        'api',
+        organization.organization_id
+      );
       
       // Log the encryption event
       await this.blockchainService.logEvent({
@@ -77,20 +92,20 @@ export class ApiIntegrationController {
         event_type: 'api_encryption',
         timestamp: new Date(),
         metadata: {
-          organization_id: organization.id,
+          organization_id: organization.organization_id,
           ip: clientAddress.ip,
           mac: clientAddress.mac,
           storage_type: storageConfig.type,
-          storage_id: storageResult.id,
+          storage_id: storageResult.storage_path,
         },
       });
       
       return {
         success: true,
         message: 'Data encrypted successfully',
-        storage_id: storageResult.id,
+        storage_id: storageResult.storage_path,
         storage_type: storageConfig.type,
-        storage_location: storageResult.location,
+        storage_location: storageResult.storage_path,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
@@ -153,8 +168,7 @@ export class ApiIntegrationController {
       // Decrypt data
       const decryptedData = await this.encryptionService.decryptData(
         encryptedData,
-        organization.id,
-        null, // No specific user ID for API requests
+        organization.organization_id
       );
       
       // Log the decryption event
@@ -163,7 +177,7 @@ export class ApiIntegrationController {
         event_type: 'api_decryption',
         timestamp: new Date(),
         metadata: {
-          organization_id: organization.id,
+          organization_id: organization.organization_id,
           ip: clientAddress.ip,
           mac: clientAddress.mac,
           storage_type: storageConfig.type,

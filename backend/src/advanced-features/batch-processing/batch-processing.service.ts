@@ -8,6 +8,8 @@ import { KeyService } from '../../encryption/services/key.service';
 import { UserService } from '../../user-management/services/user.service';
 import { TemporaryMetadataService } from '../../data-handling/services/temporary-metadata.service';
 import { StorageService } from '../../data-handling/services/storage.service';
+import { UserRole } from '../../user-management/entities/user.entity';
+import { StorageType } from '../../data-handling/dto/temporary-metadata.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -94,7 +96,7 @@ export class BatchProcessingService {
       // Check if user has access to the batch process
       if (batchProcess.user_id !== userId) {
         const user = await this.userService.findOne(userId);
-        if (user.organization_id !== batchProcess.organization_id && user.role !== 'ADMIN') {
+        if (user.organization_id !== batchProcess.organization_id && user.role !== UserRole.ADMIN) {
           throw new UnauthorizedException('You do not have access to this batch process');
         }
       }
@@ -127,7 +129,7 @@ export class BatchProcessingService {
       // Check if user has access to the batch process
       if (batchProcess.user_id !== userId) {
         const user = await this.userService.findOne(userId);
-        if (user.organization_id !== batchProcess.organization_id && user.role !== 'ADMIN') {
+        if (user.organization_id !== batchProcess.organization_id && user.role !== UserRole.ADMIN) {
           throw new UnauthorizedException('You do not have access to this batch process');
         }
       }
@@ -168,9 +170,9 @@ export class BatchProcessingService {
       const query: any = {};
       
       // Filter by user or organization
-      if (user.role === 'ADMIN') {
+      if (user.role === UserRole.ADMIN) {
         // Admin can see all batch processes
-      } else if (user.role === 'ORG_ADMIN') {
+      } else if (user.role === UserRole.ORG_ADMIN) {
         // Org admin can see all batch processes in their organization
         query.organization_id = user.organization_id;
       } else {
@@ -260,26 +262,37 @@ export class BatchProcessingService {
           }
 
           // Encrypt file
-          const encryptionResult = await this.encryptionService.encryptData({
-            data: file.data,
-            fields: batchProcess.fields,
-            keyId: batchProcess.key_id,
-          });
+          const encryptionResult = await this.encryptionService.encryptData(
+            file.data,
+            batchProcess.key_id,
+            batchProcess.fields
+          );
 
           // Store encrypted file
-          const storageResult = await this.storageService.storeData({
-            data: encryptionResult.encryptedData,
-            fileName: file.file_name,
-            contentType: file.content_type,
-            storageConfig: batchProcess.storage_config,
-          });
+          // Convert encryptedData to Buffer if it's not already
+          const encryptedDataBuffer = typeof encryptionResult.encryptedData === 'string' 
+            ? Buffer.from(encryptionResult.encryptedData) 
+            : Buffer.from(JSON.stringify(encryptionResult.encryptedData));
+            
+          // Determine storage type from config or default to AWS S3
+          const storageType = batchProcess.storage_config?.type 
+            ? StorageType[batchProcess.storage_config.type.toUpperCase()] 
+            : StorageType.AWS_S3;
+            
+          const storageResult = await this.storageService.storeData(
+            encryptedDataBuffer,
+            file.file_name,
+            storageType,
+            batchProcess.storage_config || {},
+            batchProcess.user_id
+          );
 
           // Add result
           results.push({
             fileId,
             fileName: file.file_name,
             status: 'completed',
-            encryptedFileUrl: storageResult.url,
+            encryptedFileUrl: storageResult.storage_path,
           });
 
           // Delete temporary file
