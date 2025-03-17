@@ -208,7 +208,7 @@ export class EnvironmentAgnosticService {
         const readStream = fs.createReadStream(inputFilePath, { highWaterMark: chunkSize });
         const writeStream = fs.createWriteStream(outputFilePath);
         
-        readStream.on('data', async (chunk) => {
+        readStream.on('data', async (chunk: Buffer) => {
           // Pause the read stream while processing the chunk
           readStream.pause();
           
