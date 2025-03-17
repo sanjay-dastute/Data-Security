@@ -276,7 +276,7 @@ export class DeploymentErrorHandlerService {
       this.errorHistory.set(jobId, []);
     }
     
-    const errors = this.errorHistory.get(jobId);
+    const errors = this.errorHistory.get(jobId) || [];
     errors.push(error);
     
     // Trim error history if it exceeds the maximum size
