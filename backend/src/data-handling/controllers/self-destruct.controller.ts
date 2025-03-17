@@ -5,6 +5,7 @@ import { Roles } from '../../user-management/decorators/roles.decorator';
 import { UserRole } from '../../user-management/entities/user.entity';
 import { SelfDestructScriptGenerator } from '../utils/self-destruct';
 import { BlockchainService } from '../../encryption/services/blockchain.service';
+import { GenerateScriptDto, LogBreachDto } from '../interfaces/self-destruct.interface';
 
 @Controller('self-destruct')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -17,12 +18,7 @@ export class SelfDestructController {
   @Post('generate')
   @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
   async generateScript(
-    @Body() body: { 
-      platform: 'windows' | 'linux' | 'macos' | 'javascript';
-      triggerCondition: string;
-      filePattern: string;
-      logEndpoint?: string;
-    },
+    @Body() body: GenerateScriptDto,
     @Request() req,
   ) {
     try {
@@ -69,12 +65,7 @@ export class SelfDestructController {
 
   @Post('log-breach')
   async logBreach(
-    @Body() body: { 
-      script_id: string;
-      ip: string;
-      mac: string;
-      platform: string;
-    },
+    @Body() body: LogBreachDto,
   ) {
     try {
       // Log breach to blockchain
