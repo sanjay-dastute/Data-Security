@@ -6,6 +6,13 @@ export enum KeyType {
   SIGNATURE = 'signature',
 }
 
+export enum KeyStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  COMPROMISED = 'compromised',
+  EXPIRED = 'expired',
+}
+
 @Entity('keys')
 export class Key {
   @PrimaryGeneratedColumn('uuid')
@@ -18,6 +25,9 @@ export class Key {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @Column({ nullable: true })
+  organization_id: string;
+
   @Column({
     type: 'enum',
     enum: KeyType,
@@ -27,6 +37,13 @@ export class Key {
 
   @Column()
   key_data: string;
+
+  @Column({
+    type: 'enum',
+    enum: KeyStatus,
+    default: KeyStatus.ACTIVE,
+  })
+  status: KeyStatus;
 
   @CreateDateColumn()
   created_at: Date;
@@ -42,6 +59,9 @@ export class Key {
 
   @Column({ type: 'json', nullable: true })
   shards: Record<string, string>;
+
+  @Column({ nullable: true })
+  shard_threshold: number;
 
   @Column({ default: 0 })
   timer_interval: number;
