@@ -12,6 +12,8 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { DataHandlingModule } from './data-handling/data-handling.module';
 import { AdvancedFeaturesModule } from './advanced-features/advanced-features.module';
 import { DeploymentModule } from './deployment/deployment.module';
+import { CommonModule } from './common/common.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -45,6 +47,10 @@ import { DeploymentModule } from './deployment/deployment.module';
       sortSchema: true,
       playground: process.env.NODE_ENV !== 'production',
     }),
+    
+    // Core modules
+    CommonModule,
+    HealthModule,
     
     // Feature modules
     AuthModule,
