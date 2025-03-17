@@ -10,6 +10,13 @@ interface KeyEvent {
   metadata: Record<string, any>;
 }
 
+interface LogEvent {
+  user_id: string;
+  event_type: string;
+  timestamp: Date;
+  metadata: Record<string, any>;
+}
+
 @Injectable()
 export class BlockchainService {
   private readonly logger = new Logger(BlockchainService.name);
@@ -195,5 +202,71 @@ export class BlockchainService {
 
   private queryFromLocalStorage(keyId: string): KeyEvent[] {
     return this.localStorageEvents.filter(event => event.key_id === keyId);
+  }
+  
+  // General event logging methods for security events
+  private localStorageLogEvents: LogEvent[] = [];
+  
+  async logEvent(event: LogEvent): Promise<string> {
+    if (!this.isConfigured) {
+      this.logger.warn('Blockchain is not configured, logging to local storage');
+      return this.logEventToLocalStorage(event);
+    }
+    
+    try {
+      // In a real implementation, we would use the Fabric SDK to submit a transaction
+      // For now, we simulate the transaction
+      this.logger.log(`Logging event to blockchain: ${event.event_type} for user ${event.user_id}`);
+      
+      // Simulate Fabric transaction
+      const txId = await this.simulateFabricTransaction('logEvent', [JSON.stringify(event)]);
+      
+      return txId;
+    } catch (error) {
+      this.logger.error(`Failed to log event to blockchain: ${error.message}`);
+      
+      // Fallback to local storage
+      return this.logEventToLocalStorage(event);
+    }
+  }
+  
+  private logEventToLocalStorage(event: LogEvent): string {
+    const eventId = `local_${Math.random().toString(36).substring(2, 15)}`;
+    this.localStorageLogEvents.push(event);
+    this.logger.log(`Logged event to local storage: ${event.event_type} for user ${event.user_id}`);
+    return eventId;
+  }
+  
+  async queryEvents(userId: string, eventType?: string): Promise<LogEvent[]> {
+    if (!this.isConfigured) {
+      this.logger.warn('Blockchain is not configured, querying from local storage');
+      return this.queryEventsFromLocalStorage(userId, eventType);
+    }
+    
+    try {
+      // In a real implementation, we would use the Fabric SDK to evaluate a transaction
+      // For now, we simulate the query
+      this.logger.log(`Querying events from blockchain for user ${userId}`);
+      
+      // Simulate Fabric query
+      const result = await this.simulateFabricQuery('getEvents', [userId, eventType || '']);
+      
+      return JSON.parse(result);
+    } catch (error) {
+      this.logger.error(`Failed to query events from blockchain: ${error.message}`);
+      
+      // Fallback to local storage
+      return this.queryEventsFromLocalStorage(userId, eventType);
+    }
+  }
+  
+  private queryEventsFromLocalStorage(userId: string, eventType?: string): LogEvent[] {
+    let events = this.localStorageLogEvents.filter(event => event.user_id === userId);
+    
+    if (eventType) {
+      events = events.filter(event => event.event_type === eventType);
+    }
+    
+    return events;
   }
 }
