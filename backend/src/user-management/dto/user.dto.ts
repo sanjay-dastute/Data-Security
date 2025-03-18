@@ -75,8 +75,8 @@ export class UserResponseDto {
   mfa_enabled: boolean;
   details: Record<string, any>;
   approved_addresses: Array<{ ip: string; mac: string }>;
-  approvalStatus: string;
-  isActivated: boolean;
+  approval_status: string;
+  is_active: boolean;
   created_at: Date;
   updated_at: Date;
 }
