@@ -10,11 +10,15 @@ import {
   Paper,
   Alert,
   Link as MuiLink,
-  Divider
+  Divider,
+  CircularProgress,
+  useTheme
 } from '@mui/material';
 
 export default function Register() {
   const router = useRouter();
+  const theme = useTheme();
+  
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -66,7 +70,7 @@ export default function Register() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        bgcolor: theme.palette.background.default
       }}
     >
       <Container maxWidth="sm">
@@ -88,7 +92,7 @@ export default function Register() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
             }
           }}
         >
@@ -98,7 +102,7 @@ export default function Register() {
             gutterBottom 
             sx={{ 
               fontWeight: 'bold', 
-              color: 'primary.dark',
+              color: theme.palette.secondary.main,
               mb: 1
             }}
           >
@@ -108,7 +112,7 @@ export default function Register() {
             variant="body1" 
             sx={{ 
               mb: 3, 
-              color: 'text.secondary' 
+              color: theme.palette.text.secondary 
             }}
           >
             Create a new account
@@ -120,9 +124,9 @@ export default function Register() {
               sx={{ 
                 width: '100%', 
                 mb: 3,
-                borderLeft: '4px solid #EF4444',
+                borderLeft: `4px solid ${theme.palette.error.main}`,
                 '& .MuiAlert-icon': {
-                  color: '#991B1B'
+                  color: theme.palette.error.dark
                 }
               }}
             >
@@ -153,15 +157,15 @@ export default function Register() {
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
                   '&:hover fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                     borderWidth: 2,
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                 },
               }}
             />
@@ -181,15 +185,15 @@ export default function Register() {
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
                   '&:hover fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                     borderWidth: 2,
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                 },
               }}
             />
@@ -209,15 +213,15 @@ export default function Register() {
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
                   '&:hover fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                     borderWidth: 2,
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                 },
               }}
             />
@@ -237,15 +241,15 @@ export default function Register() {
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
                   '&:hover fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                     borderWidth: 2,
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                 },
               }}
             />
@@ -262,15 +266,15 @@ export default function Register() {
                 mb: 3,
                 '& .MuiOutlinedInput-root': {
                   '&:hover fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                    borderColor: theme.palette.primary.main,
                     borderWidth: 2,
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                 },
               }}
             />
@@ -284,11 +288,11 @@ export default function Register() {
                 mt: 2,
                 mb: 3,
                 py: 1.5,
-                background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                color: '#FFFFFF',
+                background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                color: theme.palette.common.white,
                 fontWeight: 'bold',
                 '&:hover': {
-                  background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                   transform: 'scale(1.02)',
                   transition: 'transform 0.2s'
                 },
@@ -297,21 +301,28 @@ export default function Register() {
                 }
               }}
             >
-              {loading ? 'Processing...' : 'Register'}
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Processing...
+                </Box>
+              ) : (
+                'Register'
+              )}
             </Button>
 
-            <Divider sx={{ mb: 2, borderColor: 'primary.light' }} />
+            <Divider sx={{ mb: 2, borderColor: theme.palette.primary.light }} />
 
             <Box sx={{ textAlign: 'center' }}>
-              <Link href="/login" passHref>
+              <Link href="/login" passHref legacyBehavior>
                 <MuiLink 
                   variant="body2" 
                   sx={{ 
-                    color: 'primary.main',
+                    color: theme.palette.primary.main,
                     fontWeight: 'medium',
                     textDecoration: 'none',
                     '&:hover': {
-                      color: 'primary.dark',
+                      color: theme.palette.secondary.main,
                       textDecoration: 'underline'
                     }
                   }}
