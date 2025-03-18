@@ -37,15 +37,20 @@ db.serialize(() => {
       FOREIGN KEY (organizationId) REFERENCES organizations (id)
     )
   `);
+});
 
-  // Insert test organization
-  const orgId = uuidv4();
-  db.run(`
-    INSERT OR IGNORE INTO organizations (id, name, email, phone)
-    VALUES (?, ?, ?, ?)
-  `, [orgId, 'Test Organization', 'test@org.com', '1234567890']);
-
-  // Insert test users
+// Insert test organization
+const orgId = uuidv4();
+db.run(`
+  INSERT OR IGNORE INTO organizations (id, name, email, phone)
+  VALUES (?, ?, ?, ?)
+`, [orgId, 'Test Organization', 'test@org.com', '1234567890'], function(err) {
+  if (err) {
+    console.error('Error inserting organization:', err.message);
+    return;
+  }
+  
+  // Insert test users after organization is created
   Promise.all([
     bcrypt.hash('Admin@123', 10),
     bcrypt.hash('Org@123', 10),
@@ -64,7 +69,9 @@ db.serialize(() => {
       'ADMIN',
       1,
       'approved'
-    ]);
+    ], function(err) {
+      if (err) console.error('Error inserting admin user:', err.message);
+    });
 
     // Org admin user
     db.run(`
@@ -80,7 +87,9 @@ db.serialize(() => {
       orgId,
       1,
       'approved'
-    ]);
+    ], function(err) {
+      if (err) console.error('Error inserting org admin user:', err.message);
+    });
 
     // Regular user
     db.run(`
@@ -96,11 +105,15 @@ db.serialize(() => {
       orgId,
       1,
       'approved'
-    ]);
-
-    console.log('Database initialized with test data');
+    ], function(err) {
+      if (err) console.error('Error inserting regular user:', err.message);
+      else console.log('Database initialized with test data');
+      
+      // Close the database connection after all operations are complete
+      db.close();
+    });
+  }).catch(err => {
+    console.error('Error hashing passwords:', err);
+    db.close();
   });
 });
-
-// Close the database connection
-db.close();

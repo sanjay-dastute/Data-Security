@@ -1,39 +1,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import {
   Box,
-  Container,
-  Typography,
-  TextField,
   Button,
+  Container,
+  TextField,
+  Typography,
   Paper,
   Alert,
-  Link as MuiLink,
-  CircularProgress,
-  Divider,
-  useTheme
 } from '@mui/material';
 
 export default function Login() {
   const router = useRouter();
-  const theme = useTheme();
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    mfaCode: '',
-  });
-  const [showMfa, setShowMfa] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,269 +23,106 @@ export default function Login() {
     setError('');
 
     try {
-      // In a real implementation, this would call the backend API
-      // For now, we'll simulate a successful login
-      if (!showMfa) {
-        // First step: validate username/password
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // Check if MFA is required
-        if (formData.username === 'admin') {
-          setShowMfa(true);
-          setLoading(false);
-          return;
-        }
-      } else {
-        // Second step: validate MFA code
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // Validate MFA code
-        if (formData.mfaCode !== '123456') {
-          throw new Error('Invalid MFA code');
-        }
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
 
-      // Determine redirect based on role
-      let redirectPath = '/user/dashboard';
-      if (formData.username === 'admin') {
-        redirectPath = '/admin/dashboard';
-      } else if (formData.username.includes('org-admin')) {
-        redirectPath = '/org-admin/dashboard';
-      }
+      // Store user info and token
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('userRole', data.user.role);
 
-      // Redirect to appropriate dashboard
-      router.push(redirectPath);
+      // Redirect based on role
+      switch (data.user.role) {
+        case 'ADMIN':
+          router.push('/dashboard/admin');
+          break;
+        case 'ORG_ADMIN':
+          router.push('/dashboard/org-admin');
+          break;
+        case 'ORG_USER':
+          router.push('/dashboard/user');
+          break;
+        default:
+          router.push('/dashboard');
+      }
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || 'An error occurred during login');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        bgcolor: theme.palette.background.default,
-        color: theme.palette.text.primary
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            borderRadius: '10px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
-            }
-          }}
-        >
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 'bold', 
-              color: theme.palette.secondary.main,
-              mb: 1
-            }}
-          >
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+          <Typography component="h1" variant="h4" align="center" gutterBottom>
             QuantumTrust Data Security
           </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              mb: 3, 
-              color: theme.palette.text.secondary 
-            }}
-          >
-            Sign in to your account
+          <Typography component="h2" variant="h5" align="center" gutterBottom>
+            Login
           </Typography>
-
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                width: '100%', 
-                mb: 3,
-                borderLeft: `4px solid ${theme.palette.error.main}`,
-                '& .MuiAlert-icon': {
-                  color: theme.palette.error.dark
-                }
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-
-          <Box 
-            component="form" 
-            onSubmit={handleSubmit} 
-            sx={{ 
-              width: '100%',
-              mt: 1
-            }}
-          >
-            {!showMfa ? (
-              <>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="username"
-                  label="Username or Email"
-                  name="username"
-                  autoComplete="username"
-                  autoFocus
-                  value={formData.username}
-                  onChange={handleChange}
-                  sx={{
-                    mb: 2,
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                       borderColor: theme.palette.primary.main,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: theme.palette.primary.main,
-                        borderWidth: 2,
-                      },
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: theme.palette.secondary.main,
-                    },
-                  }}
-                />
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  sx={{
-                    mb: 3,
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                       borderColor: theme.palette.primary.main,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: theme.palette.primary.main,
-                        borderWidth: 2,
-                      },
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: theme.palette.secondary.main,
-                    },
-                  }}
-                />
-              </>
-            ) : (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="mfaCode"
-                label="MFA Code"
-                type="text"
-                id="mfaCode"
-                placeholder="Enter 6-digit code"
-                value={formData.mfaCode}
-                onChange={handleChange}
-                sx={{
-                  mb: 3,
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: theme.palette.primary.main,
-                      borderWidth: 2,
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: theme.palette.secondary.main,
-                  },
-                }}
-              />
-            )}
-
+          
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
+              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
-              aria-label={showMfa ? "Verify MFA code" : "Sign in"}
-              sx={{
-                mt: 2,
-                mb: 3,
-                py: 1.5,
-                background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
-                color: theme.palette.common.white,
-                fontWeight: 'bold',
-                '&:hover': {
-                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
-                  transform: 'scale(1.02)',
-                  transition: 'transform 0.2s'
-                },
-                '&.Mui-disabled': {
-                  opacity: 0.7
-                }
-              }}
             >
-              {loading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                  Loading...
-                </Box>
-              ) : (
-                showMfa ? 'Verify' : 'Sign in'
-              )}
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </Box>
-
-          <Divider sx={{ width: '100%', mb: 2, borderColor: theme.palette.primary.light }} />
-
-          <Box sx={{ textAlign: 'center' }}>
-            <Link href="/register" passHref legacyBehavior>
-              <MuiLink 
-                variant="body2" 
-                sx={{ 
-                  color: theme.palette.primary.main,
-                  fontWeight: 'medium',
-                  textDecoration: 'none',
-                  '&:hover': {
-                    color: theme.palette.secondary.main,
-                    textDecoration: 'underline'
-                  }
-                }}
-              >
-                Don't have an account? Register
-              </MuiLink>
-            </Link>
-          </Box>
+          
+          <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+            Test credentials:
+            <br />
+            Admin: admin1 / Admin@123
+            <br />
+            Org Admin: orgadmin1 / Org@123
+            <br />
+            User: user1 / User@123
+          </Typography>
         </Paper>
-      </Container>
-    </Box>
+      </Box>
+    </Container>
   );
 }

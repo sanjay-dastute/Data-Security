@@ -8,8 +8,8 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build:minimal
+RUN npm run build:simplified
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:minimal"]
+CMD ["npm", "run", "start:simplified"]

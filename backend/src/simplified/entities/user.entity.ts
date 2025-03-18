@@ -56,7 +56,7 @@ export class User {
     enum: ApprovalStatus,
     default: ApprovalStatus.PENDING,
   })
-  approval_status: ApprovalStatus | string;
+  approval_status: ApprovalStatus;
 
   @CreateDateColumn()
   created_at: Date;
