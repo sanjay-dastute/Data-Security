@@ -263,7 +263,7 @@ export class BatchProcessingService {
 
           // Encrypt file
           const encryptionResult = await this.encryptionService.encryptData(
-            file.data,
+            file.file_content,
             batchProcess.key_id,
             batchProcess.fields
           );
