@@ -33,7 +33,7 @@ export class OrganizationService {
   }
 
   async findOne(id: string): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -56,7 +56,6 @@ export class OrganizationService {
     const newOrganization = this.organizationsRepository.create({
       ...createOrganizationDto,
       settings: createOrganizationDto.settings || {},
-      profile: createOrganizationDto.profile || {},
     });
     
     const savedOrganization = await this.organizationsRepository.save(newOrganization);
@@ -65,7 +64,7 @@ export class OrganizationService {
   }
 
   async update(id: string, updateOrganizationDto: UpdateOrganizationDto): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -91,7 +90,7 @@ export class OrganizationService {
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -99,7 +98,7 @@ export class OrganizationService {
     
     // Check if organization has users
     const usersCount = await this.usersRepository.count({
-      where: { organization_id: id },
+      where: { id },
     });
     
     if (usersCount > 0) {
@@ -120,7 +119,7 @@ export class OrganizationService {
     
     // Check if organization exists
     const organization = await this.organizationsRepository.findOne({
-      where: { organization_id: organizationId },
+      where: { id: organizationId },
     });
     
     if (!organization) {
@@ -144,18 +143,32 @@ export class OrganizationService {
 
   private mapToOrganizationResponse(organization: Organization): OrganizationResponseDto {
     return {
-      organization_id: organization.organization_id,
+      organization_id: organization.id,
       name: organization.name,
       admin_user_id: organization.admin_user_id,
       settings: organization.settings,
-      profile: organization.profile,
+      profile: {}, // Organization entity doesn't have profile, but DTO requires it
       created_at: organization.created_at,
       updated_at: organization.updated_at,
     };
   }
 
   private mapToUserResponse(user: User): UserResponseDto {
-    const { password_hash, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    const { password, ...userResponse } = user;
+    return {
+      user_id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      organization_id: user.organizationId,
+      permissions: user.permissions,
+      mfa_enabled: user.mfa_enabled,
+      details: user.details,
+      approved_addresses: user.approved_addresses,
+      approvalStatus: user.approval_status,
+      isActivated: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
   }
 }
