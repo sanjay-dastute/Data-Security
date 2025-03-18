@@ -1,32 +1,61 @@
 import { createTheme } from '@mui/material/styles';
 
+// Define color constants for consistent usage
+const COLORS = {
+  PRIMARY_BLUE: '#1E3A8A',
+  SECONDARY_BLUE: '#3B82F6',
+  LIGHT_BLUE: '#BFDBFE',
+  WHITE: '#FFFFFF',
+  BLACK: '#333333',
+  GRAY: '#666666',
+  LIGHT_GRAY: '#F9FAFB',
+  ERROR: '#EF4444',
+  ERROR_DARK: '#991B1B'
+};
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3B82F6',     // Secondary Blue
-      dark: '#1E3A8A',     // Primary Blue
-      light: '#BFDBFE',    // Light Blue
+      main: COLORS.SECONDARY_BLUE,
+      dark: COLORS.PRIMARY_BLUE,
+      light: COLORS.LIGHT_BLUE,
     },
     secondary: {
-      main: '#1E3A8A',     // Primary Blue
-      light: '#3B82F6',    // Secondary Blue
+      main: COLORS.PRIMARY_BLUE,
+      light: COLORS.SECONDARY_BLUE,
     },
     background: {
-      default: '#FFFFFF',
-      paper: 'rgba(191, 219, 254, 0.1)', // Light Blue with 10% opacity
+      default: COLORS.WHITE,
+      paper: `rgba(191, 219, 254, 0.1)`, // Light Blue with 10% opacity
     },
     text: {
-      primary: '#333333',
-      secondary: '#666666',
+      primary: COLORS.BLACK,
+      secondary: COLORS.GRAY,
     },
+    error: {
+      main: COLORS.ERROR,
+      dark: COLORS.ERROR_DARK,
+    }
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',
+    h4: {
+      fontWeight: 700,
+      fontSize: '24px',
+    },
     h5: {
       fontWeight: 600,
+      fontSize: '20px',
     },
     h6: {
       fontWeight: 600,
+      fontSize: '18px',
+    },
+    body1: {
+      fontSize: '14px',
+    },
+    body2: {
+      fontSize: '14px',
     },
   },
   spacing: 8,
@@ -37,22 +66,46 @@ const theme = createTheme({
           borderRadius: 8,
           textTransform: 'none',
           padding: '12px 24px',
+          fontWeight: 'bold',
+          transition: 'transform 0.2s',
+          '&:hover': {
+            transform: 'scale(1.02)',
+          },
         },
         contained: {
-          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-          color: '#FFFFFF',
+          background: `linear-gradient(to right, ${COLORS.PRIMARY_BLUE}, ${COLORS.SECONDARY_BLUE})`,
+          color: COLORS.WHITE,
           '&:hover': {
-            background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+            background: `linear-gradient(to right, ${COLORS.PRIMARY_BLUE}, #4B92FF)`,
           },
         },
         outlined: {
-          borderColor: '#3B82F6',
-          color: '#3B82F6',
+          borderColor: COLORS.SECONDARY_BLUE,
+          color: COLORS.SECONDARY_BLUE,
           '&:hover': {
-            backgroundColor: '#BFDBFE',
-            borderColor: '#1E3A8A',
-            color: '#1E3A8A',
+            backgroundColor: COLORS.LIGHT_BLUE,
+            borderColor: COLORS.PRIMARY_BLUE,
+            color: COLORS.PRIMARY_BLUE,
           },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(to right, ${COLORS.PRIMARY_BLUE}, ${COLORS.SECONDARY_BLUE})`
+          }
         },
       },
     },
@@ -61,14 +114,14 @@ const theme = createTheme({
         root: {
           borderRadius: 10,
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-          border: '1px solid #BFDBFE',
+          border: `1px solid ${COLORS.LIGHT_BLUE}`,
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+          background: `linear-gradient(to right, ${COLORS.PRIMARY_BLUE}, ${COLORS.SECONDARY_BLUE})`,
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         },
       },
@@ -76,9 +129,9 @@ const theme = createTheme({
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1E3A8A',
+          backgroundColor: COLORS.PRIMARY_BLUE,
           '& .MuiTableCell-head': {
-            color: '#FFFFFF',
+            color: COLORS.WHITE,
             fontWeight: 'bold',
           },
         },
@@ -88,10 +141,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '&:nth-of-type(odd)': {
-            backgroundColor: '#F9FAFB',
+            backgroundColor: COLORS.LIGHT_GRAY,
           },
           '&:hover': {
-            backgroundColor: '#BFDBFE',
+            backgroundColor: COLORS.LIGHT_BLUE,
           },
         },
       },
@@ -101,15 +154,15 @@ const theme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '&:hover fieldset': {
-              borderColor: '#3B82F6',
+              borderColor: COLORS.SECONDARY_BLUE,
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#3B82F6',
+              borderColor: COLORS.SECONDARY_BLUE,
               borderWidth: 2,
             },
           },
           '& .MuiInputLabel-root.Mui-focused': {
-            color: '#1E3A8A',
+            color: COLORS.PRIMARY_BLUE,
           },
         },
       },
@@ -118,9 +171,55 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '&.MuiChip-colorSuccess': {
-            backgroundColor: '#BFDBFE',
-            color: '#1E3A8A',
+            backgroundColor: COLORS.LIGHT_BLUE,
+            color: COLORS.PRIMARY_BLUE,
           },
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 6,
+          padding: 12,
+        },
+        standardError: {
+          backgroundColor: '#FEE2E2',
+          color: COLORS.ERROR_DARK,
+          borderLeft: `4px solid ${COLORS.ERROR}`,
+        },
+        standardSuccess: {
+          backgroundColor: COLORS.LIGHT_BLUE,
+          color: COLORS.PRIMARY_BLUE,
+          borderLeft: `4px solid ${COLORS.SECONDARY_BLUE}`,
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: COLORS.LIGHT_BLUE,
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: COLORS.SECONDARY_BLUE,
+          fontWeight: 'medium',
+          textDecoration: 'none',
+          '&:hover': {
+            color: COLORS.PRIMARY_BLUE,
+            textDecoration: 'underline',
+          },
+        },
+      },
+    },
+    MuiAvatar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: COLORS.LIGHT_BLUE,
+          color: COLORS.PRIMARY_BLUE,
         },
       },
     },
