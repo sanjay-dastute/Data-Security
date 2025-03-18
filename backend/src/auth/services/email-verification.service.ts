@@ -17,7 +17,7 @@ export class EmailVerificationService {
   ) {}
 
   async sendVerificationEmail(userId: string): Promise<boolean> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       throw new NotFoundException('User not found');
@@ -57,7 +57,7 @@ export class EmailVerificationService {
       return false;
     }
     
-    return this.sendVerificationEmail(user.user_id);
+    return this.sendVerificationEmail(user.id);
   }
 
   async verifyEmail(token: string): Promise<boolean> {
@@ -80,7 +80,7 @@ export class EmailVerificationService {
     
     // Get user
     const user = await this.usersRepository.findOne({
-      where: { user_id: verificationToken.user_id },
+      where: { id: verificationToken.user_id },
     });
     
     if (!user) {
@@ -115,7 +115,7 @@ export class EmailVerificationService {
     
     // Save token to database
     const resetToken = this.tokensRepository.create({
-      user_id: user.user_id,
+      user_id: user.id,
       token,
       type: 'password_reset',
       expires_at: expiresAt,
@@ -148,7 +148,7 @@ export class EmailVerificationService {
     
     // Get user
     const user = await this.usersRepository.findOne({
-      where: { user_id: resetToken.user_id },
+      where: { id: resetToken.user_id },
     });
     
     if (!user) {
@@ -159,7 +159,7 @@ export class EmailVerificationService {
     const passwordHash = await bcrypt.hash(newPassword, 10);
     
     // Update user password
-    user.password_hash = passwordHash;
+    user.password = passwordHash;
     await this.usersRepository.save(user);
     
     // Mark token as used
