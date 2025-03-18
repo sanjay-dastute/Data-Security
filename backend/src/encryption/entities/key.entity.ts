@@ -1,36 +1,42 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('encryption_keys')
 export class Key {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  userId: string;
+  user_id: string;
 
   @Column({ nullable: true })
-  organizationId: string;
+  organization_id: string;
 
   @Column()
-  algorithm: string;
+  key_id: string;
 
   @Column({ type: 'text' })
-  encryptedKey: string;
-
-  @Column({ type: 'text', nullable: true })
-  metadata: string; // JSON string for SQLite compatibility
-
-  @Column({ default: true })
-  isActive: boolean;
+  encrypted_key: string;
 
   @Column({ nullable: true })
-  rotationDate: Date;
+  key_hash: string;
+
+  @Column({ default: false })
+  is_active: boolean;
 
   @Column({ nullable: true })
-  expirationDate: Date;
+  expires_at: Date;
+
+  @Column({ nullable: true, type: 'simple-json' })
+  metadata: any;
+
+  @Column({ default: false })
+  is_recovery_key: boolean;
+
+  @Column({ default: false })
+  is_hsm_backed: boolean;
 
   @Column({ nullable: true })
-  previousKeyId: string;
+  hsm_key_id: string;
 
   @CreateDateColumn()
   created_at: Date;

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from '../src/user-management/entities/user.entity';
+import { User, UserRole, ApprovalStatus } from '../src/user-management/entities/user.entity';
 import { Organization } from '../src/user-management/entities/organization.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -31,7 +31,7 @@ async function bootstrap() {
     adminUser.role = UserRole.ADMIN;
     adminUser.approved_addresses = [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }];
     adminUser.is_active = true;
-    adminUser.approval_status = 'approved';
+    adminUser.approval_status = ApprovalStatus.APPROVED;
     
     await userRepository.save(adminUser);
     
@@ -44,7 +44,7 @@ async function bootstrap() {
     orgAdminUser.organizationId = savedOrg.id;
     orgAdminUser.approved_addresses = [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }];
     orgAdminUser.is_active = true;
-    orgAdminUser.approval_status = 'approved';
+    orgAdminUser.approval_status = ApprovalStatus.APPROVED;
     
     await userRepository.save(orgAdminUser);
     
@@ -57,7 +57,7 @@ async function bootstrap() {
     regularUser.organizationId = savedOrg.id;
     regularUser.approved_addresses = [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }];
     regularUser.is_active = true;
-    regularUser.approval_status = 'approved';
+    regularUser.approval_status = ApprovalStatus.APPROVED;
     
     await userRepository.save(regularUser);
     

@@ -1,40 +1,31 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('temporary_metadata')
 export class TemporaryMetadata {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true })
-  dataId: string;
+  @Column()
+  user_id: string;
 
   @Column({ nullable: true })
-  fileType: string;
+  organization_id: string;
 
   @Column()
-  userId: string;
+  session_id: string;
 
-  @Column({ type: 'text', nullable: true })
-  fieldsEncrypted: string; // JSON string for SQLite compatibility
+  @Column({ type: 'text' })
+  metadata: string;
+
+  @Column({ default: false })
+  is_processed: boolean;
 
   @Column({ nullable: true })
-  encryptedFilePath: string;
-
-  @Column({ nullable: true })
-  selfDestructScript: string;
-
-  @Column({ type: 'text', nullable: true })
-  storageConfig: string; // JSON string for SQLite compatibility
+  expires_at: Date;
 
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @Column({ default: false })
-  processed: boolean;
-
-  @Column({ nullable: true })
-  expiresAt: Date;
 }

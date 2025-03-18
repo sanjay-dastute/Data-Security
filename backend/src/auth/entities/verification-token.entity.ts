@@ -12,14 +12,8 @@ export class VerificationToken {
   token: string;
 
   @Column()
-  type: 'email_verification' | 'password_reset';
+  expires_at: Date;
 
   @CreateDateColumn()
   created_at: Date;
-
-  @Column({ type: 'timestamp' })
-  expires_at: Date;
-
-  @Column({ default: false })
-  used: boolean;
 }
