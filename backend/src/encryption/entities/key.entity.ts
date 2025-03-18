@@ -1,67 +1,60 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../user-management/entities/user.entity';
+import { Organization } from '../../user-management/entities/organization.entity';
 
-export enum KeyAlgorithm {
-  AES_256_GCM = 'AES-256-GCM',
-  RSA_4096 = 'RSA-4096',
-  ECDSA_P384 = 'ECDSA-P384',
-  KYBER_768 = 'KYBER-768',
-  DILITHIUM_3 = 'DILITHIUM-3',
+export enum KeyStatus {
+  ACTIVE = 'ACTIVE',
+  EXPIRED = 'EXPIRED',
+  REVOKED = 'REVOKED'
 }
 
-@Entity('keys')
+@Entity()
 export class Key {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, default: 'Encryption Key' })
+  @Column()
   name: string;
 
+  @Column({ type: 'text' })
+  encrypted_key: string;
+
+  @Column({ type: 'text', nullable: true })
+  public_key: string;
+
   @Column({
-    type: 'enum',
-    enum: KeyAlgorithm,
-    default: KeyAlgorithm.AES_256_GCM,
+    type: 'simple-enum',
+    enum: KeyStatus,
+    default: KeyStatus.ACTIVE
   })
-  algorithm: KeyAlgorithm;
+  status: KeyStatus;
 
-  @Column({ name: 'user_id', nullable: true })
-  user_id: string;
+  @Column({ nullable: true })
+  expiration_time: Date;
 
-  @Column({ name: 'organization_id', nullable: true })
-  organization_id: string;
+  @Column({ nullable: true })
+  userId: string;
 
-  @Column({ name: 'key_material', type: 'text', nullable: false })
-  key_material: string;
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
-  @Column({ name: 'is_hsm_backed', default: false })
-  is_hsm_backed: boolean;
+  @Column({ nullable: true })
+  organizationId: string;
 
-  @Column({ name: 'is_active', default: true })
-  is_active: boolean;
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'organizationId' })
+  organization: Organization;
 
-  @Column({ name: 'is_revoked', default: false })
-  is_revoked: boolean;
+  @Column({ type: 'text', nullable: true })
+  metadata: string; // Store JSON as string for SQLite compatibility
 
-  @Column({ name: 'revocation_reason', nullable: true })
-  revocation_reason: string;
+  @Column({ nullable: true })
+  blockchain_reference: string;
 
-  @Column({ name: 'expires_at', type: 'timestamp', nullable: true })
-  expires_at: Date;
-
-  @Column({ name: 'last_rotated_at', type: 'timestamp', nullable: true })
-  last_rotated_at: Date;
-
-  @Column({ name: 'rotation_period', type: 'int', default: 30 })
-  rotation_period: number;
-
-  @Column({ name: 'type', default: 'encryption' })
-  type: string;
-
-  @Column({ name: 'metadata', type: 'jsonb', nullable: true, default: '{}' })
-  metadata: any;
-
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   created_at: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn()
   updated_at: Date;
 }

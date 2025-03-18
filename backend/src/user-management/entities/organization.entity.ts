@@ -1,22 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('organizations')
+@Entity()
 export class Organization {
   @PrimaryGeneratedColumn('uuid')
-  organization_id: string;
+  id: string;
 
   @Column()
   name: string;
 
+  @Column()
+  email: string;
+
   @Column({ nullable: true })
-  admin_user_id: string;
+  phone: string;
 
-  @Column({ type: 'json', default: {} })
-  settings: Record<string, any>;
+  @Column({ type: 'text', nullable: true })
+  settings: string; // Store JSON as string for SQLite compatibility
 
-  @Column({ type: 'json', default: {} })
-  profile: Record<string, any>;
+  @Column({ nullable: true })
+  api_key: string;
 
   @OneToMany(() => User, user => user.organization)
   users: User[];

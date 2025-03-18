@@ -1,36 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../user-management/entities/user.entity';
 
-@Entity('temporary_metadata')
+@Entity()
 export class TemporaryMetadata {
   @PrimaryGeneratedColumn('uuid')
-  data_id: string;
+  id: string;
 
   @Column()
-  user_id: string;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  file_id: string;
 
   @Column()
   file_name: string;
 
-  @Column()
-  file_type: string;
+  @Column({ type: 'text' })
+  metadata: string; // Store JSON as string for SQLite compatibility
 
   @Column({ nullable: true })
-  encrypted_file_path: string;
+  userId: string;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column({ default: false })
+  is_processed: boolean;
+
+  @Column({ default: 3600 }) // Default 1 hour TTL
+  ttl_seconds: number;
 
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: 'json', default: [] })
-  fields_encrypted: string[];
-
-  @Column({ nullable: true })
-  self_destruct_script: string;
-
-  @Column({ type: 'json', default: {} })
-  storage_config: Record<string, any>;
+  @UpdateDateColumn()
+  updated_at: Date;
 }
