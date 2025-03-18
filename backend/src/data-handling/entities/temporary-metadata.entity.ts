@@ -23,6 +23,30 @@ export class TemporaryMetadata {
   @Column({ nullable: true })
   expires_at: Date;
 
+  @Column({ nullable: true })
+  originalName: string;
+
+  @Column({ nullable: true })
+  fileType: string;
+
+  @Column({ nullable: true })
+  filePath: string;
+
+  @Column({ nullable: true })
+  fileSize: number;
+
+  @Column({ nullable: true })
+  recordCount: number;
+
+  @Column({ nullable: true, type: 'text' })
+  fields: string;
+
+  @Column({ nullable: true, type: 'text' })
+  sampleData: string;
+
+  @Column({ nullable: true })
+  processed_at: Date;
+
   @CreateDateColumn()
   created_at: Date;
 
