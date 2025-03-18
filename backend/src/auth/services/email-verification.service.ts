@@ -24,7 +24,7 @@ export class EmailVerificationService {
     }
     
     // Check if user is already verified
-    if (user.isActivated) {
+    if (user.is_active) {
       return false;
     }
     
@@ -53,7 +53,7 @@ export class EmailVerificationService {
   async resendVerificationEmail(email: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({ where: { email } });
     
-    if (!user || user.isActivated) {
+    if (!user || user.is_active) {
       return false;
     }
     
@@ -88,7 +88,7 @@ export class EmailVerificationService {
     }
     
     // Mark user as verified
-    user.isActivated = true;
+    user.is_active = true;
     await this.usersRepository.save(user);
     
     // Mark token as used
