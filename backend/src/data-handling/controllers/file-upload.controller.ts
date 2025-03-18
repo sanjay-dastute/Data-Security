@@ -58,6 +58,8 @@ export class FileUploadController {
         user_id: req.user.userId,
         fields_encrypted: availableFields,
         encrypted_file_path: file.path,
+        session_id: req.session?.id || 'default-session',
+        metadata: JSON.stringify({ originalUpload: true }),
       });
 
       return {
