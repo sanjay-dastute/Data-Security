@@ -64,6 +64,7 @@ export class Organization {
       email_alerts: boolean;
       webhook_url?: string;
     };
+    api_key?: string;
   };
 
   @OneToMany(() => User, user => user.organization)
