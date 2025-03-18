@@ -6,6 +6,9 @@ export class TemporaryMetadata {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ nullable: true })
+  data_id: string;
+
   @Column()
   user_id: string;
 
@@ -38,6 +41,9 @@ export class TemporaryMetadata {
   file_path: string;
 
   @Column({ nullable: true })
+  file_name: string;
+
+  @Column({ nullable: true })
   file_size: number;
 
   @Column({ nullable: true })
@@ -63,6 +69,9 @@ export class TemporaryMetadata {
 
   @Column({ nullable: true })
   self_destruct_script: string;
+
+  @Column({ nullable: true })
+  encrypted_file_path: string;
 
   @Column({ type: 'json', default: {} })
   storage_config: Record<string, any>;
