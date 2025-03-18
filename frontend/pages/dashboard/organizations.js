@@ -168,27 +168,27 @@ export default function Organizations() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-gradient-to-r from-indigo-900 to-blue-500 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-indigo-600">QuantumTrust</h1>
+                <h1 className="text-xl font-bold text-white">QuantumTrust</h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link href="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard" className="border-transparent text-gray-100 hover:border-gray-100 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Dashboard
                 </Link>
-                <Link href="/dashboard/files" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard/files" className="border-transparent text-gray-100 hover:border-gray-100 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Files
                 </Link>
-                <Link href="/dashboard/keys" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard/keys" className="border-transparent text-gray-100 hover:border-gray-100 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Keys
                 </Link>
-                <Link href="/dashboard/users" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard/users" className="border-transparent text-gray-100 hover:border-gray-100 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Users
                 </Link>
-                <Link href="/dashboard/organizations" className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard/organizations" className="border-white text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Organizations
                 </Link>
               </div>
@@ -196,7 +196,7 @@ export default function Organizations() {
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <div className="ml-3 relative">
                 <div className="flex items-center space-x-4">
-                  <Link href="/dashboard/profile" className="text-gray-500 hover:text-gray-700">
+                  <Link href="/dashboard/profile" className="text-gray-100 hover:text-white">
                     Profile
                   </Link>
                   <button
@@ -204,7 +204,7 @@ export default function Organizations() {
                       localStorage.removeItem('token');
                       router.push('/login');
                     }}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-100 hover:text-white"
                   >
                     Logout
                   </button>
@@ -220,10 +220,10 @@ export default function Organizations() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="md:flex md:items-center md:justify-between">
               <div className="flex-1 min-w-0">
-                <h1 className="text-3xl font-bold text-gray-900">Organizations</h1>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-900 to-blue-500 bg-clip-text text-transparent">Organizations</h1>
               </div>
               <div className="mt-4 flex md:mt-0 md:ml-4">
-                <Link href="/dashboard/organizations/create" className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <Link href="/dashboard/organizations/create" className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-900 to-blue-500 hover:from-indigo-800 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   Add Organization
                 </Link>
               </div>
