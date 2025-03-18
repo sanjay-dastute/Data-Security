@@ -12,12 +12,14 @@ import {
   Link as MuiLink,
   CircularProgress,
   Avatar,
-  Divider
+  Divider,
+  useTheme
 } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 
 export default function ResendVerification() {
   const router = useRouter();
+  const theme = useTheme();
   
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
@@ -54,7 +56,7 @@ export default function ResendVerification() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        bgcolor: theme.palette.background.default
       }}
     >
       <Container maxWidth="sm">
@@ -76,7 +78,7 @@ export default function ResendVerification() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
             }
           }}
         >
@@ -86,7 +88,7 @@ export default function ResendVerification() {
             gutterBottom 
             sx={{ 
               fontWeight: 'bold', 
-              color: 'primary.dark',
+              color: theme.palette.secondary.main,
               mb: 1
             }}
           >
@@ -96,7 +98,7 @@ export default function ResendVerification() {
             variant="body1" 
             sx={{ 
               mb: 3, 
-              color: 'text.secondary' 
+              color: theme.palette.text.secondary 
             }}
           >
             Resend Verification Email
@@ -109,8 +111,8 @@ export default function ResendVerification() {
                   width: 64, 
                   height: 64, 
                   mx: 'auto',
-                  bgcolor: 'primary.light',
-                  color: 'primary.dark',
+                  bgcolor: theme.palette.primary.light,
+                  color: theme.palette.secondary.main,
                   mb: 2
                 }}
               >
@@ -120,7 +122,7 @@ export default function ResendVerification() {
                 variant="h5" 
                 sx={{ 
                   fontWeight: 600, 
-                  color: 'primary.dark',
+                  color: theme.palette.secondary.main,
                   mb: 2
                 }}
               >
@@ -132,7 +134,7 @@ export default function ResendVerification() {
               <Typography 
                 variant="body2" 
                 sx={{ 
-                  color: 'text.secondary',
+                  color: theme.palette.text.secondary,
                   mb: 4
                 }}
               >
@@ -142,15 +144,16 @@ export default function ResendVerification() {
                 component={Link}
                 href="/login"
                 variant="contained"
+                aria-label="Back to login page"
                 sx={{
                   mt: 2,
                   py: 1.5,
                   px: 4,
-                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                  color: '#FFFFFF',
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                  color: theme.palette.common.white,
                   fontWeight: 'bold',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                     transform: 'scale(1.02)',
                     transition: 'transform 0.2s'
                   }
@@ -174,9 +177,9 @@ export default function ResendVerification() {
                   sx={{ 
                     width: '100%', 
                     mb: 3,
-                    borderLeft: '4px solid #EF4444',
+                    borderLeft: `4px solid ${theme.palette.error.main}`,
                     '& .MuiAlert-icon': {
-                      color: '#991B1B'
+                      color: theme.palette.error.dark
                     }
                   }}
                 >
@@ -197,19 +200,20 @@ export default function ResendVerification() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
+                aria-label="Email address input"
                 sx={{
                   mb: 3,
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
-                      borderColor: 'primary.main',
+                      borderColor: theme.palette.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
+                      borderColor: theme.palette.primary.main,
                       borderWidth: 2,
                     },
                   },
                   '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.dark',
+                    color: theme.palette.secondary.main,
                   },
                 }}
               />
@@ -219,15 +223,16 @@ export default function ResendVerification() {
                 fullWidth
                 variant="contained"
                 disabled={status === 'loading'}
+                aria-label="Resend verification email"
                 sx={{
                   mt: 2,
                   mb: 3,
                   py: 1.5,
-                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                  color: '#FFFFFF',
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                  color: theme.palette.common.white,
                   fontWeight: 'bold',
                   '&:hover': {
-                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                     transform: 'scale(1.02)',
                     transition: 'transform 0.2s'
                   },
@@ -248,18 +253,19 @@ export default function ResendVerification() {
             </Box>
           )}
 
-          <Divider sx={{ width: '100%', mb: 2, borderColor: 'primary.light' }} />
+          <Divider sx={{ width: '100%', mb: 2, borderColor: theme.palette.primary.light }} />
 
           <Box sx={{ textAlign: 'center' }}>
             <Link href="/login" passHref legacyBehavior>
               <MuiLink 
                 variant="body2" 
+                aria-label="Back to login page"
                 sx={{ 
-                  color: 'primary.main',
+                  color: theme.palette.primary.main,
                   fontWeight: 'medium',
                   textDecoration: 'none',
                   '&:hover': {
-                    color: 'primary.dark',
+                    color: theme.palette.secondary.main,
                     textDecoration: 'underline'
                   }
                 }}
