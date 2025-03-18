@@ -40,7 +40,7 @@ export class OrganizationResponseDto {
   name: string;
   admin_user_id?: string;
   settings: Record<string, any>;
-  profile: Record<string, any>;
+  profile?: Record<string, any>; // Make profile optional since it doesn't exist in entity
   created_at: Date;
   updated_at: Date;
 }

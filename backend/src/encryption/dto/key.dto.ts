@@ -3,6 +3,10 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, IsNumber, IsDateStrin
 export enum KeyType {
   ENCRYPTION = 'encryption',
   SIGNATURE = 'signature',
+  SIGNING = 'signing',
+  MASTER = 'master',
+  RECOVERY = 'recovery',
+  SYMMETRIC = 'symmetric',
 }
 
 export class CreateKeyDto {

@@ -82,6 +82,8 @@ export class BatchProcessingController {
             user_id: req.user.userId,
             fields_encrypted: availableFields,
             encrypted_file_path: tempFilePath,
+            session_id: req.session?.id || 'batch-session',
+            metadata: JSON.stringify({ batchProcessing: true }),
           });
           
           results.push({

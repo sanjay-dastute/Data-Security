@@ -180,15 +180,21 @@ export class TemporaryMetadataService {
    */
   private mapToResponseDto(entity: TemporaryMetadata): TemporaryMetadataResponseDto {
     return {
+      id: entity.id,
       data_id: entity.data_id,
       file_name: entity.file_name,
       file_type: entity.file_type,
       user_id: entity.user_id,
+      organization_id: entity.organization_id,
+      session_id: entity.session_id,
+      metadata: entity.metadata,
+      is_processed: entity.is_processed,
       fields_encrypted: entity.fields_encrypted || [],
       encrypted_file_path: entity.encrypted_file_path,
       self_destruct_script: entity.self_destruct_script,
       storage_config: entity.storage_config || {},
       created_at: entity.created_at,
+      updated_at: entity.updated_at
     };
   }
 }

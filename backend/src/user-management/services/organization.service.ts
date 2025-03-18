@@ -33,7 +33,7 @@ export class OrganizationService {
   }
 
   async findOne(id: string): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -56,7 +56,6 @@ export class OrganizationService {
     const newOrganization = this.organizationsRepository.create({
       ...createOrganizationDto,
       settings: createOrganizationDto.settings || {},
-      profile: createOrganizationDto.profile || {},
     });
     
     const savedOrganization = await this.organizationsRepository.save(newOrganization);
@@ -65,7 +64,7 @@ export class OrganizationService {
   }
 
   async update(id: string, updateOrganizationDto: UpdateOrganizationDto): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -91,7 +90,7 @@ export class OrganizationService {
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
+    const organization = await this.organizationsRepository.findOne({ where: { id } });
     
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
@@ -99,7 +98,7 @@ export class OrganizationService {
     
     // Check if organization has users
     const usersCount = await this.usersRepository.count({
-      where: { organization_id: id },
+      where: { id },
     });
     
     if (usersCount > 0) {
@@ -112,7 +111,7 @@ export class OrganizationService {
   }
 
   async getOrganizationUsers(
-    organizationId: string,
+    organization_id: string,
     page = 1,
     limit = 10
   ): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
@@ -120,16 +119,16 @@ export class OrganizationService {
     
     // Check if organization exists
     const organization = await this.organizationsRepository.findOne({
-      where: { organization_id: organizationId },
+      where: { id: organization_id },
     });
     
     if (!organization) {
-      throw new NotFoundException(`Organization with ID ${organizationId} not found`);
+      throw new NotFoundException(`Organization with ID ${organization_id} not found`);
     }
     
     const [users, total] = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.organization_id = :organizationId', { organizationId })
+      .where('user.organization_id = :organization_id', { organization_id })
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -144,18 +143,32 @@ export class OrganizationService {
 
   private mapToOrganizationResponse(organization: Organization): OrganizationResponseDto {
     return {
-      organization_id: organization.organization_id,
+      organization_id: organization.id,
       name: organization.name,
       admin_user_id: organization.admin_user_id,
       settings: organization.settings,
-      profile: organization.profile,
+      profile: {}, // Organization entity doesn't have profile, but DTO requires it
       created_at: organization.created_at,
       updated_at: organization.updated_at,
     };
   }
 
   private mapToUserResponse(user: User): UserResponseDto {
-    const { password_hash, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    const { password, ...userResponse } = user;
+    return {
+      user_id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      organization_id: user.organization?.id,
+      permissions: user.permissions,
+      mfa_enabled: user.mfa_enabled,
+      details: user.details,
+      approved_addresses: user.approved_addresses,
+      approval_status: user.approval_status,
+      is_active: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
   }
 }
