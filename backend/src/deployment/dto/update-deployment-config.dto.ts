@@ -1,77 +1,72 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, ValidateNested, IsEnum, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
-import { 
-  CloudProvider, 
-  AwsCredentialsDto, 
-  AzureCredentialsDto, 
-  GcpCredentialsDto, 
-  OnPremisesCredentialsDto 
-} from './create-deployment-config.dto';
+import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
+import { DeploymentType } from '../entities/deployment-config.entity';
 
 export class UpdateDeploymentConfigDto {
-  @ApiProperty({ description: 'Configuration name', required: false })
-  @IsString()
   @IsOptional()
+  @IsString()
   name?: string;
 
-  @ApiProperty({ description: 'Configuration description', required: false })
-  @IsString()
   @IsOptional()
+  @IsString()
   description?: string;
 
-  @ApiProperty({ enum: CloudProvider, description: 'Cloud provider', required: false })
-  @IsEnum(CloudProvider)
   @IsOptional()
-  provider?: CloudProvider;
+  @IsEnum(DeploymentType)
+  deployment_type?: DeploymentType;
 
-  @ApiProperty({ description: 'AWS credentials', required: false })
-  @ValidateNested()
-  @Type(() => AwsCredentialsDto)
   @IsOptional()
-  awsCredentials?: AwsCredentialsDto;
-
-  @ApiProperty({ description: 'Azure credentials', required: false })
-  @ValidateNested()
-  @Type(() => AzureCredentialsDto)
-  @IsOptional()
-  azureCredentials?: AzureCredentialsDto;
-
-  @ApiProperty({ description: 'GCP credentials', required: false })
-  @ValidateNested()
-  @Type(() => GcpCredentialsDto)
-  @IsOptional()
-  gcpCredentials?: GcpCredentialsDto;
-
-  @ApiProperty({ description: 'On-premises credentials', required: false })
-  @ValidateNested()
-  @Type(() => OnPremisesCredentialsDto)
-  @IsOptional()
-  onPremisesCredentials?: OnPremisesCredentialsDto;
-
-  @ApiProperty({ description: 'Whether this is the default deployment configuration', required: false })
   @IsBoolean()
-  @IsOptional()
-  isDefault?: boolean;
+  is_active?: boolean;
 
-  @ApiProperty({ description: 'Number of replicas for deployment', required: false })
-  @IsNumber()
-  @Min(1)
-  @Max(10)
   @IsOptional()
-  replicas?: number;
+  @IsBoolean()
+  auto_scaling_enabled?: boolean;
 
-  @ApiProperty({ description: 'CPU limit for each pod (in cores)', required: false })
-  @IsNumber()
-  @Min(0.1)
-  @Max(4)
+  // AWS specific fields
   @IsOptional()
-  cpuLimit?: number;
+  @IsString()
+  aws_access_key_id?: string;
 
-  @ApiProperty({ description: 'Memory limit for each pod (in GB)', required: false })
-  @IsNumber()
-  @Min(0.5)
-  @Max(8)
   @IsOptional()
-  memoryLimit?: number;
+  @IsString()
+  aws_secret_access_key?: string;
+
+  @IsOptional()
+  @IsString()
+  aws_region?: string;
+
+  @IsOptional()
+  @IsString()
+  aws_s3_bucket?: string;
+
+  // Azure specific fields
+  @IsOptional()
+  @IsString()
+  azure_storage_connection_string?: string;
+
+  @IsOptional()
+  @IsString()
+  azure_container_name?: string;
+
+  // GCP specific fields
+  @IsOptional()
+  @IsString()
+  gcp_project_id?: string;
+
+  @IsOptional()
+  @IsString()
+  gcp_bucket_name?: string;
+
+  // On-premises specific fields
+  @IsOptional()
+  @IsString()
+  on_premises_sftp_host?: string;
+
+  @IsOptional()
+  @IsString()
+  on_premises_sftp_username?: string;
+
+  @IsOptional()
+  @IsString()
+  on_premises_sftp_password?: string;
 }

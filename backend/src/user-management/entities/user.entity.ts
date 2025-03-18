@@ -70,6 +70,18 @@ export class User {
   @Column({ default: false })
   mfa_enabled: boolean;
 
+  @Column({ nullable: true })
+  profile_image: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  job_title: string;
+
+  @Column({ nullable: true })
+  department: string;
+
   @CreateDateColumn()
   created_at: Date;
 

@@ -29,6 +29,18 @@ export class Organization {
   @Column({ default: true })
   is_active: boolean;
 
+  @Column({ nullable: true })
+  industry: string;
+
+  @Column({ nullable: true, type: 'text' })
+  description: string;
+
+  @Column({ nullable: true })
+  subscription_plan: string;
+
+  @Column({ nullable: true })
+  subscription_expiry: Date;
+
   @CreateDateColumn()
   created_at: Date;
 
