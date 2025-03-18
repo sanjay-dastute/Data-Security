@@ -57,6 +57,10 @@ export class TemporaryMetadataDto {
   @IsOptional()
   file_path?: string;
 
+  @IsString()
+  @IsOptional()
+  file_name?: string;
+
   @IsNumber()
   @IsOptional()
   file_size?: number;
@@ -85,6 +89,10 @@ export class TemporaryMetadataDto {
   @IsString()
   @IsOptional()
   self_destruct_script?: string;
+
+  @IsString()
+  @IsOptional()
+  encrypted_file_path?: string;
 
   @IsObject()
   @IsOptional()
@@ -111,6 +119,10 @@ export class UpdateTemporaryMetadataDto {
   @IsOptional()
   file_path?: string;
 
+  @IsString()
+  @IsOptional()
+  file_name?: string;
+
   @IsNumber()
   @IsOptional()
   file_size?: number;
@@ -140,6 +152,10 @@ export class UpdateTemporaryMetadataDto {
   @IsOptional()
   self_destruct_script?: string;
 
+  @IsString()
+  @IsOptional()
+  encrypted_file_path?: string;
+
   @IsObject()
   @IsOptional()
   storage_config?: Record<string, any>;
@@ -147,6 +163,7 @@ export class UpdateTemporaryMetadataDto {
 
 export class TemporaryMetadataResponseDto {
   id: string;
+  data_id: string;
   user_id: string;
   organization_id?: string;
   session_id: string;
@@ -156,6 +173,7 @@ export class TemporaryMetadataResponseDto {
   original_name?: string;
   file_type?: string;
   file_path?: string;
+  file_name?: string;
   file_size?: number;
   record_count?: number;
   fields?: string;
@@ -163,6 +181,7 @@ export class TemporaryMetadataResponseDto {
   processed_at?: Date;
   fields_encrypted: string[];
   self_destruct_script?: string;
+  encrypted_file_path?: string;
   storage_config: Record<string, any>;
   created_at: Date;
   updated_at: Date;
