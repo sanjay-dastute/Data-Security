@@ -225,7 +225,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       role: user.role,
-      organization_id: user.organization_id,
+      organization_id: user.organization?.id,
       permissions: user.permissions,
       mfa_enabled: user.mfa_enabled,
       details: user.details,
