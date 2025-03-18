@@ -230,14 +230,14 @@ const AdminDashboard = () => {
       label: 'Usage (%)',
       data: [systemHealth.cpu, systemHealth.memory, systemHealth.disk],
       backgroundColor: [
-        'rgba(54, 162, 235, 0.5)',
-        'rgba(255, 99, 132, 0.5)',
-        'rgba(255, 206, 86, 0.5)',
+        'rgba(59, 130, 246, 0.5)', // primary.main with opacity
+        'rgba(30, 58, 138, 0.5)',  // primary.dark with opacity
+        'rgba(191, 219, 254, 0.5)', // primary.light with opacity
       ],
       borderColor: [
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 99, 132, 1)',
-        'rgba(255, 206, 86, 1)',
+        'rgba(59, 130, 246, 1)', // primary.main
+        'rgba(30, 58, 138, 1)',  // primary.dark
+        'rgba(191, 219, 254, 1)', // primary.light
       ],
       borderWidth: 1,
     }],
@@ -254,16 +254,16 @@ const AdminDashboard = () => {
         filteredAlerts.filter(a => a.type === 'SELF_DESTRUCT').length,
       ],
       backgroundColor: [
-        'rgba(255, 99, 132, 0.5)',
-        'rgba(54, 162, 235, 0.5)',
-        'rgba(255, 206, 86, 0.5)',
-        'rgba(75, 192, 192, 0.5)',
+        'rgba(30, 58, 138, 0.5)',  // primary.dark with opacity
+        'rgba(59, 130, 246, 0.5)', // primary.main with opacity
+        'rgba(191, 219, 254, 0.5)', // primary.light with opacity
+        'rgba(255, 255, 255, 0.5)', // white with opacity
       ],
       borderColor: [
-        'rgba(255, 99, 132, 1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
+        'rgba(30, 58, 138, 1)',  // primary.dark
+        'rgba(59, 130, 246, 1)', // primary.main
+        'rgba(191, 219, 254, 1)', // primary.light
+        'rgba(255, 255, 255, 1)', // white
       ],
       borderWidth: 1,
     }],
@@ -271,13 +271,56 @@ const AdminDashboard = () => {
 
   return (
     <Container maxWidth="xl">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+      <Box sx={{ 
+        my: 4,
+        bgcolor: 'background.default',
+        borderRadius: 2,
+        p: 3,
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+      }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom 
+          sx={{ 
+            color: 'primary.dark',
+            fontWeight: 600,
+            mb: 3
+          }}
+        >
           Admin Dashboard
         </Typography>
         
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={currentTab} onChange={handleTabChange} aria-label="admin dashboard tabs">
+        <Box sx={{ 
+          borderBottom: 1, 
+          borderColor: 'primary.light', 
+          mb: 3,
+          bgcolor: 'background.paper',
+          borderRadius: '10px 10px 0 0',
+          p: 1
+        }}>
+          <Tabs 
+            value={currentTab} 
+            onChange={handleTabChange} 
+            aria-label="admin dashboard tabs"
+            sx={{ 
+              '& .MuiTabs-indicator': { 
+                backgroundColor: 'primary.main',
+                height: 3
+              },
+              '& .MuiTab-root': { 
+                color: 'text.secondary',
+                fontWeight: 500,
+                '&.Mui-selected': { 
+                  color: 'primary.main',
+                  fontWeight: 600
+                },
+                '&:hover': {
+                  color: 'primary.light'
+                }
+              }
+            }}
+          >
             <Tab label="User Management" />
             <Tab label="Organization Management" />
             <Tab label="System Health" />
@@ -297,13 +340,36 @@ const AdminDashboard = () => {
                   variant="outlined"
                   value={filters.userSearchTerm}
                   onChange={(e) => handleFilterChange('userSearchTerm', e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.dark',
+                    },
+                  }}
                 />
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Filter</InputLabel>
+                  <InputLabel sx={{ '&.Mui-focused': { color: 'primary.dark' } }}>Filter</InputLabel>
                   <Select
                     value={filters.userFilter}
                     label="Filter"
                     onChange={(e) => handleFilterChange('userFilter', e.target.value)}
+                    sx={{
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                    }}
                   >
                     <MenuItem value="all">All Users</MenuItem>
                     <MenuItem value="ADMIN">Admins</MenuItem>
@@ -315,6 +381,13 @@ const AdminDashboard = () => {
                   variant="contained" 
                   startIcon={<AddIcon />}
                   onClick={() => window.location.href = '/dashboard/users/new'}
+                  sx={{ 
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.05)',
+                    },
+                  }}
                 >
                   Add User
                 </Button>
@@ -328,73 +401,153 @@ const AdminDashboard = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper} 
+                sx={{ 
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  borderRadius: '10px',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Organization</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Username</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Email</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Role</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Organization</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Status</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.username}</TableCell>
-                        <TableCell>{user.email}</TableCell>
+                      <TableRow 
+                        key={user.id}
+                        sx={{
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: 'background.default',
+                          },
+                          '&:hover': {
+                            backgroundColor: 'primary.light',
+                            transition: 'background-color 0.2s ease',
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ color: 'text.primary' }}>{user.username}</TableCell>
+                        <TableCell sx={{ color: 'text.primary' }}>{user.email}</TableCell>
                         <TableCell>
                           <Chip 
                             label={user.role} 
-                            color={
-                              user.role === 'ADMIN' ? 'error' : 
-                              user.role === 'ORG_ADMIN' ? 'warning' : 'primary'
-                            }
+                            sx={{
+                              backgroundColor: user.role === 'ADMIN' ? 'error.light' : 
+                                            user.role === 'ORG_ADMIN' ? 'warning.light' : 'primary.light',
+                              color: user.role === 'ADMIN' ? 'error.dark' : 
+                                    user.role === 'ORG_ADMIN' ? 'warning.dark' : 'primary.dark',
+                              fontWeight: 500,
+                            }}
                             size="small"
                           />
                         </TableCell>
-                        <TableCell>{user.organization || 'N/A'}</TableCell>
+                        <TableCell sx={{ color: 'text.primary' }}>{user.organization || 'N/A'}</TableCell>
                         <TableCell>
                           <Chip 
                             label={user.status} 
-                            color={
-                              user.status === 'ACTIVE' ? 'success' : 
-                              user.status === 'PENDING' ? 'warning' : 'error'
-                            }
+                            sx={{
+                              backgroundColor: user.status === 'ACTIVE' ? 'success.light' : 
+                                            user.status === 'PENDING' ? 'warning.light' : 'error.light',
+                              color: user.status === 'ACTIVE' ? 'success.dark' : 
+                                    user.status === 'PENDING' ? 'warning.dark' : 'error.dark',
+                              fontWeight: 500,
+                            }}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             <IconButton 
-                              size="small" 
-                              color="primary"
+                              size="small"
+                              sx={{ 
+                                color: 'primary.main',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light',
+                                  transform: 'scale(1.1)'
+                                }
+                              }}
                               onClick={() => window.location.href = `/dashboard/users/edit/${user.id}`}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
                             {user.status === 'ACTIVE' ? (
                               <IconButton 
-                                size="small" 
-                                color="warning"
+                                size="small"
+                                sx={{ 
+                                  color: 'warning.main',
+                                  '&:hover': {
+                                    backgroundColor: 'warning.light',
+                                    transform: 'scale(1.1)'
+                                  }
+                                }}
                                 onClick={() => handleUserAction('deactivate', user.id)}
                               >
                                 <BlockIcon fontSize="small" />
                               </IconButton>
                             ) : (
                               <IconButton 
-                                size="small" 
-                                color="success"
+                                size="small"
+                                sx={{ 
+                                  color: 'success.main',
+                                  '&:hover': {
+                                    backgroundColor: 'success.light',
+                                    transform: 'scale(1.1)'
+                                  }
+                                }}
                                 onClick={() => handleUserAction('activate', user.id)}
                               >
                                 <CheckCircleIcon fontSize="small" />
                               </IconButton>
                             )}
                             <IconButton 
-                              size="small" 
-                              color="error"
+                              size="small"
+                              sx={{ 
+                                color: 'error.main',
+                                '&:hover': {
+                                  backgroundColor: 'error.light',
+                                  transform: 'scale(1.1)'
+                                }
+                              }}
                               onClick={() => handleUserAction('delete', user.id)}
                             >
                               <DeleteIcon fontSize="small" />
@@ -453,64 +606,141 @@ const AdminDashboard = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper}
+                sx={{ 
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  borderRadius: '10px',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Industry</TableCell>
-                      <TableCell>Users</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Created</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Name</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Industry</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Users</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Status</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Created</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredOrgs.map((org) => (
-                      <TableRow key={org.id}>
-                        <TableCell>{org.name}</TableCell>
-                        <TableCell>{org.industry}</TableCell>
-                        <TableCell>{org.user_count}</TableCell>
+                      <TableRow 
+                        key={org.id}
+                        sx={{
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: 'background.default',
+                          },
+                          '&:hover': {
+                            backgroundColor: 'primary.light',
+                            transition: 'background-color 0.2s ease',
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ color: 'text.primary' }}>{org.name}</TableCell>
+                        <TableCell sx={{ color: 'text.primary' }}>{org.industry}</TableCell>
+                        <TableCell sx={{ color: 'text.primary' }}>{org.user_count}</TableCell>
                         <TableCell>
                           <Chip 
                             label={org.status} 
-                            color={
-                              org.status === 'ACTIVE' ? 'success' : 
-                              org.status === 'PENDING' ? 'warning' : 'error'
-                            }
+                            sx={{
+                              backgroundColor: org.status === 'ACTIVE' ? 'success.light' : 
+                                            org.status === 'PENDING' ? 'warning.light' : 'error.light',
+                              color: org.status === 'ACTIVE' ? 'success.dark' : 
+                                    org.status === 'PENDING' ? 'warning.dark' : 'error.dark',
+                              fontWeight: 500,
+                            }}
                             size="small"
                           />
                         </TableCell>
-                        <TableCell>{new Date(org.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell sx={{ color: 'text.primary' }}>{new Date(org.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             <IconButton 
-                              size="small" 
-                              color="primary"
+                              size="small"
+                              sx={{ 
+                                color: 'primary.main',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light',
+                                  transform: 'scale(1.1)'
+                                }
+                              }}
                               onClick={() => window.location.href = `/dashboard/organizations/edit/${org.id}`}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
                             {org.status === 'ACTIVE' ? (
                               <IconButton 
-                                size="small" 
-                                color="warning"
+                                size="small"
+                                sx={{ 
+                                  color: 'warning.main',
+                                  '&:hover': {
+                                    backgroundColor: 'warning.light',
+                                    transform: 'scale(1.1)'
+                                  }
+                                }}
                                 onClick={() => handleOrgAction('suspend', org.id)}
                               >
                                 <BlockIcon fontSize="small" />
                               </IconButton>
                             ) : (
                               <IconButton 
-                                size="small" 
-                                color="success"
+                                size="small"
+                                sx={{ 
+                                  color: 'success.main',
+                                  '&:hover': {
+                                    backgroundColor: 'success.light',
+                                    transform: 'scale(1.1)'
+                                  }
+                                }}
                                 onClick={() => handleOrgAction('activate', org.id)}
                               >
                                 <CheckCircleIcon fontSize="small" />
                               </IconButton>
                             )}
                             <IconButton 
-                              size="small" 
-                              color="error"
+                              size="small"
+                              sx={{ 
+                                color: 'error.main',
+                                '&:hover': {
+                                  backgroundColor: 'error.light',
+                                  transform: 'scale(1.1)'
+                                }
+                              }}
                               onClick={() => handleOrgAction('delete', org.id)}
                             >
                               <DeleteIcon fontSize="small" />
@@ -535,6 +765,15 @@ const AdminDashboard = () => {
                 variant="outlined" 
                 startIcon={<RefreshIcon />}
                 onClick={fetchSystemHealth}
+                sx={{
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  '&:hover': {
+                    borderColor: 'primary.dark',
+                    backgroundColor: 'primary.light',
+                    transform: 'scale(1.05)',
+                  }
+                }}
               >
                 Refresh
               </Button>
@@ -549,8 +788,27 @@ const AdminDashboard = () => {
             ) : (
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Resource Usage</Typography>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: 2,
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      background: 'linear-gradient(to bottom right, rgba(191, 219, 254, 0.1), rgba(255, 255, 255, 1))'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{ 
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Resource Usage
+                    </Typography>
                     <Box sx={{ height: 300 }}>
                       <Bar 
                         data={systemHealthChartData} 
@@ -562,7 +820,35 @@ const AdminDashboard = () => {
                               max: 100,
                               title: {
                                 display: true,
-                                text: 'Percentage (%)'
+                                text: 'Percentage (%)',
+                                color: 'text.primary',
+                                font: {
+                                  weight: 500
+                                }
+                              },
+                              ticks: {
+                                color: 'text.primary'
+                              },
+                              grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                              }
+                            },
+                            x: {
+                              ticks: {
+                                color: 'text.primary'
+                              },
+                              grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                              }
+                            }
+                          },
+                          plugins: {
+                            legend: {
+                              labels: {
+                                color: 'text.primary',
+                                font: {
+                                  weight: 500
+                                }
                               }
                             }
                           }
@@ -572,14 +858,56 @@ const AdminDashboard = () => {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>System Statistics</Typography>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: 2,
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      background: 'linear-gradient(to bottom right, rgba(191, 219, 254, 0.1), rgba(255, 255, 255, 1))'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{ 
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      System Statistics
+                    </Typography>
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <Card>
+                        <Card sx={{ 
+                          bgcolor: 'background.paper',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                          border: '1px solid',
+                          borderColor: 'primary.light',
+                          borderRadius: 2
+                        }}>
                           <CardContent>
-                            <Typography variant="subtitle1" gutterBottom>System Uptime</Typography>
-                            <Typography variant="h4">{Math.floor(systemHealth.uptime / 86400)} days</Typography>
+                            <Typography 
+                              variant="subtitle1" 
+                              gutterBottom
+                              sx={{ 
+                                color: 'primary.main',
+                                fontWeight: 500
+                              }}
+                            >
+                              System Uptime
+                            </Typography>
+                            <Typography 
+                              variant="h4"
+                              sx={{ 
+                                color: 'text.primary',
+                                fontWeight: 600
+                              }}
+                            >
+                              {Math.floor(systemHealth.uptime / 86400)} days
+                            </Typography>
                             <Typography variant="body2" color="text.secondary">
                               {Math.floor((systemHealth.uptime % 86400) / 3600)} hours
                             </Typography>
@@ -587,10 +915,33 @@ const AdminDashboard = () => {
                         </Card>
                       </Grid>
                       <Grid item xs={6}>
-                        <Card>
+                        <Card sx={{ 
+                          bgcolor: 'background.paper',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                          border: '1px solid',
+                          borderColor: 'primary.light',
+                          borderRadius: 2
+                        }}>
                           <CardContent>
-                            <Typography variant="subtitle1" gutterBottom>Active Users</Typography>
-                            <Typography variant="h4">{systemHealth.activeUsers}</Typography>
+                            <Typography 
+                              variant="subtitle1" 
+                              gutterBottom
+                              sx={{ 
+                                color: 'primary.main',
+                                fontWeight: 500
+                              }}
+                            >
+                              Active Users
+                            </Typography>
+                            <Typography 
+                              variant="h4"
+                              sx={{ 
+                                color: 'text.primary',
+                                fontWeight: 600
+                              }}
+                            >
+                              {systemHealth.activeUsers}
+                            </Typography>
                             <Typography variant="body2" color="text.secondary">
                               Currently logged in
                             </Typography>
@@ -668,20 +1019,74 @@ const AdminDashboard = () => {
                   <Box sx={{ height: 300, overflowY: 'auto' }}>
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <Card sx={{ bgcolor: 'error.light' }}>
+                        <Card 
+                          sx={{ 
+                            bgcolor: 'error.light',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            border: '1px solid',
+                            borderColor: 'error.main',
+                            borderRadius: 2,
+                            transition: 'transform 0.2s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        >
                           <CardContent>
-                            <Typography variant="subtitle1" gutterBottom>High Severity</Typography>
-                            <Typography variant="h4">
+                            <Typography 
+                              variant="subtitle1" 
+                              gutterBottom
+                              sx={{ 
+                                color: 'error.dark',
+                                fontWeight: 500
+                              }}
+                            >
+                              High Severity
+                            </Typography>
+                            <Typography 
+                              variant="h4"
+                              sx={{ 
+                                color: 'error.dark',
+                                fontWeight: 600
+                              }}
+                            >
                               {filteredAlerts.filter(a => a.severity === 'HIGH').length}
                             </Typography>
                           </CardContent>
                         </Card>
                       </Grid>
                       <Grid item xs={6}>
-                        <Card sx={{ bgcolor: 'warning.light' }}>
+                        <Card 
+                          sx={{ 
+                            bgcolor: 'warning.light',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            border: '1px solid',
+                            borderColor: 'warning.main',
+                            borderRadius: 2,
+                            transition: 'transform 0.2s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        >
                           <CardContent>
-                            <Typography variant="subtitle1" gutterBottom>Medium Severity</Typography>
-                            <Typography variant="h4">
+                            <Typography 
+                              variant="subtitle1" 
+                              gutterBottom
+                              sx={{ 
+                                color: 'warning.dark',
+                                fontWeight: 500
+                              }}
+                            >
+                              Medium Severity
+                            </Typography>
+                            <Typography 
+                              variant="h4"
+                              sx={{ 
+                                color: 'warning.dark',
+                                fontWeight: 600
+                              }}
+                            >
                               {filteredAlerts.filter(a => a.severity === 'MEDIUM').length}
                             </Typography>
                           </CardContent>
@@ -697,47 +1102,112 @@ const AdminDashboard = () => {
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer 
+                    component={Paper}
+                    sx={{ 
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      borderRadius: '10px',
+                      overflow: 'hidden'
+                    }}
+                  >
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Type</TableCell>
-                          <TableCell>IP Address</TableCell>
-                          <TableCell>MAC Address</TableCell>
-                          <TableCell>Timestamp</TableCell>
-                          <TableCell>Severity</TableCell>
-                          <TableCell>Actions</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Type</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>IP Address</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>MAC Address</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Timestamp</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Severity</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {filteredAlerts.map((alert) => (
-                          <TableRow key={alert.id}>
-                            <TableCell>{alert.type}</TableCell>
-                            <TableCell>{alert.ip}</TableCell>
-                            <TableCell>{alert.mac}</TableCell>
-                            <TableCell>{new Date(alert.timestamp).toLocaleString()}</TableCell>
+                          <TableRow 
+                            key={alert.id}
+                            sx={{
+                              '&:nth-of-type(odd)': {
+                                backgroundColor: 'background.default',
+                              },
+                              '&:hover': {
+                                backgroundColor: 'primary.light',
+                                transition: 'background-color 0.2s ease',
+                              },
+                            }}
+                          >
+                            <TableCell sx={{ color: 'text.primary' }}>{alert.type}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{alert.ip}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{alert.mac}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{new Date(alert.timestamp).toLocaleString()}</TableCell>
                             <TableCell>
                               <Chip 
                                 label={alert.severity} 
-                                color={
-                                  alert.severity === 'HIGH' ? 'error' : 
-                                  alert.severity === 'MEDIUM' ? 'warning' : 'info'
-                                }
+                                sx={{
+                                  backgroundColor: alert.severity === 'HIGH' ? 'error.light' : 
+                                                alert.severity === 'MEDIUM' ? 'warning.light' : 'info.light',
+                                  color: alert.severity === 'HIGH' ? 'error.dark' : 
+                                        alert.severity === 'MEDIUM' ? 'warning.dark' : 'info.dark',
+                                  fontWeight: 500,
+                                }}
                                 size="small"
                               />
                             </TableCell>
                             <TableCell>
                               <Box sx={{ display: 'flex', gap: 1 }}>
                                 <IconButton 
-                                  size="small" 
-                                  color="success"
+                                  size="small"
+                                  sx={{ 
+                                    color: 'success.main',
+                                    '&:hover': {
+                                      backgroundColor: 'success.light',
+                                      transform: 'scale(1.1)'
+                                    }
+                                  }}
                                   onClick={() => handleAlertAction('resolve', alert.id)}
                                 >
                                   <CheckCircleIcon fontSize="small" />
                                 </IconButton>
                                 <IconButton 
-                                  size="small" 
-                                  color="error"
+                                  size="small"
+                                  sx={{ 
+                                    color: 'error.main',
+                                    '&:hover': {
+                                      backgroundColor: 'error.light',
+                                      transform: 'scale(1.1)'
+                                    }
+                                  }}
                                   onClick={() => handleAlertAction('delete', alert.id)}
                                 >
                                   <DeleteIcon fontSize="small" />
