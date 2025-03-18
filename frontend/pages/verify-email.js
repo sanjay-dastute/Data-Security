@@ -10,13 +10,15 @@ import {
   Avatar,
   Stack,
   CircularProgress,
-  Divider
+  Divider,
+  useTheme
 } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
 export default function VerifyEmail() {
   const router = useRouter();
+  const theme = useTheme();
   const { token } = router.query;
   
   const [verificationStatus, setVerificationStatus] = useState('verifying');
@@ -53,7 +55,7 @@ export default function VerifyEmail() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        bgcolor: theme.palette.background.default
       }}
     >
       <Container maxWidth="sm">
@@ -75,7 +77,7 @@ export default function VerifyEmail() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
             }
           }}
         >
@@ -85,7 +87,7 @@ export default function VerifyEmail() {
             gutterBottom 
             sx={{ 
               fontWeight: 'bold', 
-              color: 'primary.dark',
+              color: theme.palette.secondary.main,
               mb: 1
             }}
           >
@@ -95,7 +97,7 @@ export default function VerifyEmail() {
             variant="body1" 
             sx={{ 
               mb: 3, 
-              color: 'text.secondary' 
+              color: theme.palette.text.secondary 
             }}
           >
             Email Verification
@@ -107,11 +109,12 @@ export default function VerifyEmail() {
                 <CircularProgress 
                   size={48} 
                   sx={{ 
-                    color: 'primary.main',
+                    color: theme.palette.primary.main,
                     mb: 3
                   }} 
+                  aria-label="Verifying email"
                 />
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
                   Verifying your email address...
                 </Typography>
               </Box>
@@ -124,8 +127,8 @@ export default function VerifyEmail() {
                     width: 64, 
                     height: 64, 
                     mx: 'auto',
-                    bgcolor: 'primary.light',
-                    color: 'primary.dark',
+                    bgcolor: theme.palette.primary.light,
+                    color: theme.palette.secondary.main,
                     mb: 2
                   }}
                 >
@@ -135,7 +138,7 @@ export default function VerifyEmail() {
                   variant="h5" 
                   sx={{ 
                     fontWeight: 600, 
-                    color: 'primary.dark',
+                    color: theme.palette.secondary.main,
                     mb: 2
                   }}
                 >
@@ -148,15 +151,16 @@ export default function VerifyEmail() {
                   <Button
                     component="a"
                     variant="contained"
+                    aria-label="Go to login page"
                     sx={{
                       mt: 2,
                       py: 1.5,
                       px: 4,
-                      background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                      color: '#FFFFFF',
+                      background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                      color: theme.palette.common.white,
                       fontWeight: 'bold',
                       '&:hover': {
-                        background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                        background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                         transform: 'scale(1.02)',
                         transition: 'transform 0.2s'
                       }
@@ -175,8 +179,8 @@ export default function VerifyEmail() {
                     width: 64, 
                     height: 64, 
                     mx: 'auto',
-                    bgcolor: '#FEE2E2',
-                    color: '#991B1B',
+                    bgcolor: theme.palette.error.light,
+                    color: theme.palette.error.dark,
                     mb: 2
                   }}
                 >
@@ -186,7 +190,7 @@ export default function VerifyEmail() {
                   variant="h5" 
                   sx={{ 
                     fontWeight: 600, 
-                    color: '#991B1B',
+                    color: theme.palette.error.dark,
                     mb: 2
                   }}
                 >
@@ -202,13 +206,14 @@ export default function VerifyEmail() {
                       component="a"
                       variant="contained"
                       fullWidth
+                      aria-label="Go to login page"
                       sx={{
                         py: 1.5,
-                        background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                        color: '#FFFFFF',
+                        background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                        color: theme.palette.common.white,
                         fontWeight: 'bold',
                         '&:hover': {
-                          background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                          background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                           transform: 'scale(1.02)',
                           transition: 'transform 0.2s'
                         }
@@ -222,16 +227,16 @@ export default function VerifyEmail() {
                       component="a"
                       variant="outlined"
                       fullWidth
+                      aria-label="Resend verification email"
                       sx={{
                         py: 1.5,
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
                         fontWeight: 'bold',
                         '&:hover': {
-                          borderColor: 'primary.dark',
-                          backgroundColor: 'primary.light',
-                          opacity: 0.1,
-                          color: 'primary.dark',
+                          borderColor: theme.palette.secondary.main,
+                          backgroundColor: `${theme.palette.primary.light}1A`, // 10% opacity
+                          color: theme.palette.secondary.main,
                           transform: 'scale(1.02)',
                           transition: 'transform 0.2s'
                         }
