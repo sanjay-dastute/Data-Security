@@ -251,7 +251,7 @@ export class KeyService {
     
     // Store shards in key entity
     key.shards = shards;
-    key.shard_threshold = threshold;
+    Object.assign(key, { shard_threshold: threshold });
     
     // Save updated key
     await this.keysRepository.save(key);
