@@ -375,20 +375,44 @@ const OrgAdminDashboard = () => {
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
               <Typography variant="h6">Organization Users</Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
+             <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                   size="small"
                   label="Search Users"
                   variant="outlined"
                   value={userSearchTerm}
                   onChange={(e) => setUserSearchTerm(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.main'
+                    }
+                  }}
                 />
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Filter</InputLabel>
+                  <InputLabel sx={{ color: 'text.secondary' }}>Filter</InputLabel>
                   <Select
                     value={userFilter}
                     label="Filter"
                     onChange={(e) => setUserFilter(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.light'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      }
+                    }}
                   >
                     <MenuItem value="all">All Users</MenuItem>
                     <MenuItem value="ACTIVE">Active</MenuItem>
@@ -400,6 +424,14 @@ const OrgAdminDashboard = () => {
                   variant="contained" 
                   startIcon={<AddIcon />}
                   onClick={() => window.location.href = '/dashboard/users/new'}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    }
+                  }}
                 >
                   Add User
                 </Button>
@@ -576,34 +608,92 @@ const OrgAdminDashboard = () => {
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer 
+                    component={Paper}
+                    sx={{ 
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      borderRadius: '10px',
+                      overflow: 'hidden'
+                    }}
+                  >
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Key ID</TableCell>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Created By</TableCell>
-                          <TableCell>Created At</TableCell>
-                          <TableCell>Expires At</TableCell>
-                          <TableCell>Status</TableCell>
-                          <TableCell>Actions</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Key ID</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Name</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Created By</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Created At</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Expires At</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Status</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {filteredKeys.map((key) => (
-                          <TableRow key={key.id}>
-                            <TableCell>{key.id.substring(0, 8)}...</TableCell>
-                            <TableCell>{key.name}</TableCell>
-                            <TableCell>{key.created_by}</TableCell>
-                            <TableCell>{new Date(key.created_at).toLocaleString()}</TableCell>
-                            <TableCell>{key.expires_at ? new Date(key.expires_at).toLocaleString() : 'Never'}</TableCell>
+                          <TableRow 
+                            key={key.id}
+                            sx={{
+                              '&:nth-of-type(odd)': {
+                                backgroundColor: 'background.paper'
+                              },
+                              '&:hover': {
+                                backgroundColor: 'primary.light',
+                                transition: 'background-color 0.2s'
+                              }
+                            }}
+                          >
+                            <TableCell sx={{ color: 'text.primary' }}>{key.id.substring(0, 8)}...</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.name}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.created_by}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{new Date(key.created_at).toLocaleString()}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.expires_at ? new Date(key.expires_at).toLocaleString() : 'Never'}</TableCell>
                             <TableCell>
                               <Chip 
                                 label={key.status} 
-                                color={
-                                  key.status === 'ACTIVE' ? 'success' : 
-                                  key.status === 'EXPIRED' ? 'warning' : 'error'
-                                }
+                                sx={{ 
+                                  backgroundColor: key.status === 'ACTIVE' ? 'success.light' : 
+                                                 key.status === 'EXPIRED' ? 'warning.light' : 'error.light',
+                                  color: key.status === 'ACTIVE' ? 'success.dark' : 
+                                        key.status === 'EXPIRED' ? 'warning.dark' : 'error.dark',
+                                  fontWeight: 500
+                                }}
                                 size="small"
                               />
                             </TableCell>
@@ -611,16 +701,30 @@ const OrgAdminDashboard = () => {
                               <Box sx={{ display: 'flex', gap: 1 }}>
                                 {key.status === 'ACTIVE' && (
                                   <IconButton 
-                                    size="small" 
-                                    color="warning"
+                                    size="small"
+                                    sx={{
+                                      color: 'warning.main',
+                                      '&:hover': {
+                                        backgroundColor: 'warning.light',
+                                        transform: 'scale(1.1)',
+                                        transition: 'transform 0.2s'
+                                      }
+                                    }}
                                     onClick={() => handleKeyAction('revoke', key.id)}
                                   >
                                     <BlockIcon fontSize="small" />
                                   </IconButton>
                                 )}
                                 <IconButton 
-                                  size="small" 
-                                  color="error"
+                                  size="small"
+                                  sx={{
+                                    color: 'error.main',
+                                    '&:hover': {
+                                      backgroundColor: 'error.light',
+                                      transform: 'scale(1.1)',
+                                      transition: 'transform 0.2s'
+                                    }
+                                  }}
                                   onClick={() => handleKeyAction('delete', key.id)}
                                 >
                                   <DeleteIcon fontSize="small" />
