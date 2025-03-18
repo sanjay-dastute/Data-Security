@@ -870,15 +870,44 @@ const OrgAdminDashboard = () => {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Storage Configuration</Typography>
-                    <Box sx={{ mb: 2 }}>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Storage Configuration
+                    </Typography>
+                    <Box sx={{ mb: 3 }}>
                       <FormControl fullWidth>
-                        <InputLabel>Storage Type</InputLabel>
+                        <InputLabel sx={{ color: 'text.secondary' }}>Storage Type</InputLabel>
                         <Select
                           value={encryptionSettings.storageType}
                           label="Storage Type"
                           onChange={(e) => handleSettingsChange('storageType', e.target.value)}
+                          sx={{
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.light'
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.main'
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.main'
+                            }
+                          }}
                         >
                           <MenuItem value="AWS_S3">AWS S3</MenuItem>
                           <MenuItem value="AZURE_BLOB">Azure Blob Storage</MenuItem>
