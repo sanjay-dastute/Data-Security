@@ -224,20 +224,55 @@ const BatchProcessing = () => {
   
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{ 
+          color: 'primary.dark',
+          fontWeight: 'bold',
+          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 2
+        }}
+      >
         Batch Processing
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography 
+        variant="body1" 
+        paragraph
+        sx={{ 
+          color: 'text.secondary',
+          mb: 3
+        }}
+      >
         Process multiple files in batch for encryption. Select fields to encrypt and configure storage options.
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
       
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              mb: 3,
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{
+                color: 'primary.dark',
+                fontWeight: 600,
+                mb: 2
+              }}
+            >
               File Upload
             </Typography>
             
@@ -247,6 +282,18 @@ const BatchProcessing = () => {
                 component="label"
                 startIcon={<CloudUploadIcon />}
                 disabled={processingStatus.isProcessing}
+                sx={{
+                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  },
+                  '&.Mui-disabled': {
+                    background: '#E5E7EB',
+                    color: '#9CA3AF'
+                  }
+                }}
               >
                 Upload Files
                 <input
@@ -260,11 +307,27 @@ const BatchProcessing = () => {
             
             {files.length > 0 && (
               <Box>
-                <Typography variant="subtitle1" gutterBottom>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom
+                  sx={{
+                    color: 'primary.dark',
+                    fontWeight: 500,
+                    mb: 2
+                  }}
+                >
                   Uploaded Files ({files.length})
                 </Typography>
                 
-                <List>
+                <List sx={{ 
+                  '& .MuiListItem-root': {
+                    borderRadius: '6px',
+                    mb: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(191, 219, 254, 0.2)'
+                    }
+                  }
+                }}>
                   {files.map((file, index) => (
                     <ListItem
                       key={index}
@@ -272,19 +335,31 @@ const BatchProcessing = () => {
                       secondaryAction={
                         <Button
                           size="small"
-                          color="error"
                           onClick={() => removeFile(index)}
                           disabled={processingStatus.isProcessing}
+                          sx={{
+                            color: '#EF4444',
+                            '&:hover': {
+                              backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                            },
+                            '&.Mui-disabled': {
+                              color: '#9CA3AF'
+                            }
+                          }}
                         >
                           Remove
                         </Button>
                       }
                     >
                       <ListItemIcon>
-                        <DataObjectIcon />
+                        <DataObjectIcon sx={{ color: 'primary.main' }} />
                       </ListItemIcon>
                       <ListItemText
-                        primary={file.name}
+                        primary={
+                          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                            {file.name}
+                          </Typography>
+                        }
                         secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
                         onClick={() => handleFileSelect(file)}
                         sx={{ cursor: 'pointer' }}
@@ -297,22 +372,54 @@ const BatchProcessing = () => {
           </Paper>
           
           {selectedFile && (
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper 
+              sx={{ 
+                p: 3, 
+                mb: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{
+                  color: 'primary.dark',
+                  fontWeight: 600,
+                  mb: 2
+                }}
+              >
                 Field Selection
               </Typography>
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 500,
+                  mb: 2
+                }}
+              >
                 {selectedFile.name}
               </Typography>
               
               {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                  <CircularProgress />
+                  <CircularProgress sx={{ color: 'primary.main' }} />
                 </Box>
               ) : (
                 <>
-                  <Typography variant="body2" paragraph>
+                  <Typography 
+                    variant="body2" 
+                    paragraph
+                    sx={{ 
+                      color: 'text.secondary',
+                      mb: 2
+                    }}
+                  >
                     Select fields to encrypt:
                   </Typography>
                   
@@ -325,15 +432,31 @@ const BatchProcessing = () => {
                               checked={selectedFields.includes(field.name)}
                               onChange={() => handleFieldSelection(field.name)}
                               disabled={processingStatus.isProcessing}
+                              sx={{
+                                color: 'primary.light',
+                                '&.Mui-checked': {
+                                  color: 'primary.main',
+                                },
+                                '&:hover': {
+                                  backgroundColor: 'rgba(191, 219, 254, 0.2)'
+                                }
+                              }}
                             />
                           }
                           label={
                             <Box>
-                              {field.name}
+                              <Typography sx={{ color: 'text.primary', display: 'inline' }}>
+                                {field.name}
+                              </Typography>
                               <Chip
                                 label={field.type}
                                 size="small"
-                                sx={{ ml: 1 }}
+                                sx={{ 
+                                  ml: 1,
+                                  backgroundColor: 'rgba(191, 219, 254, 0.5)',
+                                  color: 'primary.dark',
+                                  fontWeight: 500
+                                }}
                               />
                             </Box>
                           }
@@ -342,13 +465,26 @@ const BatchProcessing = () => {
                     ))}
                   </Grid>
                   
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 3 }}>
                     <Button
                       variant="outlined"
                       startIcon={<FilterListIcon />}
                       onClick={() => setSelectedFields(fileFields.map(field => field.name))}
                       disabled={processingStatus.isProcessing}
-                      sx={{ mr: 1 }}
+                      sx={{ 
+                        mr: 1,
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        '&:hover': {
+                          backgroundColor: 'primary.light',
+                          borderColor: 'primary.dark',
+                          color: 'primary.dark',
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: '#E5E7EB',
+                          color: '#9CA3AF'
+                        }
+                      }}
                     >
                       Select All
                     </Button>
@@ -356,6 +492,19 @@ const BatchProcessing = () => {
                       variant="outlined"
                       onClick={() => setSelectedFields([])}
                       disabled={processingStatus.isProcessing}
+                      sx={{ 
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        '&:hover': {
+                          backgroundColor: 'primary.light',
+                          borderColor: 'primary.dark',
+                          color: 'primary.dark',
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: '#E5E7EB',
+                          color: '#9CA3AF'
+                        }
+                      }}
                     >
                       Clear Selection
                     </Button>
@@ -365,20 +514,50 @@ const BatchProcessing = () => {
             </Paper>
           )}
           
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper 
+            sx={{ 
+              p: 3,
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{
+                color: 'primary.dark',
+                fontWeight: 600,
+                mb: 2
+              }}
+            >
               Storage Configuration
             </Typography>
             
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel>Storage Type</InputLabel>
+                  <InputLabel sx={{ color: 'text.secondary' }}>Storage Type</InputLabel>
                   <Select
                     value={storageConfig.type}
                     onChange={(e) => handleStorageConfigChange('type', e.target.value)}
                     label="Storage Type"
                     disabled={processingStatus.isProcessing}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.light'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#E5E7EB'
+                      }
+                    }}
                   >
                     <MenuItem value="AWS_S3">AWS S3</MenuItem>
                     <MenuItem value="AZURE_BLOB">Azure Blob Storage</MenuItem>
@@ -400,6 +579,23 @@ const BatchProcessing = () => {
                       value={storageConfig.bucketName}
                       onChange={(e) => handleStorageConfigChange('bucketName', e.target.value)}
                       disabled={processingStatus.isProcessing}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                            borderWidth: 2,
+                          },
+                          '&.Mui-disabled fieldset': {
+                            borderColor: '#E5E7EB'
+                          }
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: 'primary.dark',
+                        },
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -409,6 +605,23 @@ const BatchProcessing = () => {
                       value={storageConfig.region}
                       onChange={(e) => handleStorageConfigChange('region', e.target.value)}
                       disabled={processingStatus.isProcessing}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                            borderWidth: 2,
+                          },
+                          '&.Mui-disabled fieldset': {
+                            borderColor: '#E5E7EB'
+                          }
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: 'primary.dark',
+                        },
+                      }}
                     />
                   </Grid>
                 </>
@@ -422,44 +635,120 @@ const BatchProcessing = () => {
                   onChange={(e) => handleStorageConfigChange('path', e.target.value)}
                   disabled={processingStatus.isProcessing}
                   helperText="Path where encrypted files will be stored"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                      '&.Mui-disabled fieldset': {
+                        borderColor: '#E5E7EB'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.dark',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: 'text.secondary',
+                      marginTop: 1
+                    }
+                  }}
                 />
               </Grid>
             </Grid>
           </Paper>
           
           {processingStatus.isProcessing && (
-            <Paper sx={{ p: 3, mt: 3 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper 
+              sx={{ 
+                p: 3, 
+                mt: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{
+                  color: 'primary.dark',
+                  fontWeight: 600,
+                  mb: 2
+                }}
+              >
                 Processing Status
               </Typography>
               
-              <Box sx={{ mb: 2 }}>
-                <LinearProgress variant="determinate" value={processingStatus.progress} />
+              <Box sx={{ mb: 3 }}>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={processingStatus.progress} 
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: 'rgba(191, 219, 254, 0.3)',
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 4,
+                      background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+                    }
+                  }}
+                />
               </Box>
               
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Typography variant="body2">
+                  <Typography 
+                    variant="body2"
+                    sx={{ 
+                      color: 'text.primary',
+                      fontWeight: 500
+                    }}
+                  >
                     Progress: {processingStatus.progress}%
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2" align="right">
+                  <Typography 
+                    variant="body2" 
+                    align="right"
+                    sx={{ 
+                      color: 'text.primary',
+                      fontWeight: 500
+                    }}
+                  >
                     Estimated time remaining: {formatTime(processingStatus.estimatedTime)}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2">
+                  <Typography 
+                    variant="body2"
+                    sx={{ 
+                      color: 'text.primary',
+                      fontWeight: 500
+                    }}
+                  >
                     Processed files: {processingStatus.processedFiles} / {processingStatus.totalFiles}
                   </Typography>
                 </Grid>
               </Grid>
               
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 3 }}>
                 <Button
                   variant="outlined"
-                  color="error"
                   onClick={cancelBatchProcessing}
+                  sx={{
+                    borderColor: '#EF4444',
+                    color: '#EF4444',
+                    '&:hover': {
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      borderColor: '#DC2626'
+                    }
+                  }}
                 >
                   Cancel Processing
                 </Button>
@@ -470,7 +759,6 @@ const BatchProcessing = () => {
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               variant="contained"
-              color="primary"
               startIcon={<LockIcon />}
               onClick={startBatchProcessing}
               disabled={
@@ -478,6 +766,18 @@ const BatchProcessing = () => {
                 files.length === 0 ||
                 selectedFields.length === 0
               }
+              sx={{
+                background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                '&:hover': {
+                  background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                  transform: 'scale(1.02)',
+                  transition: 'transform 0.2s'
+                },
+                '&.Mui-disabled': {
+                  background: '#E5E7EB',
+                  color: '#9CA3AF'
+                }
+              }}
             >
               Start Batch Processing
             </Button>

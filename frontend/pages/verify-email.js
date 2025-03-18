@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Paper,
+  Avatar,
+  Stack,
+  CircularProgress,
+  Divider,
+  useTheme
+} from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function VerifyEmail() {
   const router = useRouter();
+  const theme = useTheme();
   const { token } = router.query;
   
   const [verificationStatus, setVerificationStatus] = useState('verifying');
@@ -34,59 +49,208 @@ export default function VerifyEmail() {
   }, [token]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">QuantumTrust Data Security</h1>
-          <p className="mt-2 text-gray-600">Email Verification</p>
-        </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: theme.palette.background.default
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            borderRadius: '10px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
+            }
+          }}
+        >
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: theme.palette.secondary.main,
+              mb: 1
+            }}
+          >
+            QuantumTrust Data Security
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              mb: 3, 
+              color: theme.palette.text.secondary 
+            }}
+          >
+            Email Verification
+          </Typography>
 
-        <div className="mt-8">
-          {verificationStatus === 'verifying' && (
-            <div className="text-center">
-              <div className="inline-block w-8 h-8 border-4 border-t-indigo-500 border-gray-200 rounded-full animate-spin"></div>
-              <p className="mt-4 text-gray-600">Verifying your email address...</p>
-            </div>
-          )}
+          <Box sx={{ mt: 3, width: '100%', textAlign: 'center' }}>
+            {verificationStatus === 'verifying' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <CircularProgress 
+                  size={48} 
+                  sx={{ 
+                    color: theme.palette.primary.main,
+                    mb: 3
+                  }} 
+                  aria-label="Verifying email"
+                />
+                <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+                  Verifying your email address...
+                </Typography>
+              </Box>
+            )}
 
-          {verificationStatus === 'success' && (
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
-                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <h2 className="mt-4 text-xl font-semibold text-gray-900">Email Verified Successfully</h2>
-              <p className="mt-2 text-gray-600">Your email has been verified. You can now log in to your account.</p>
-              <div className="mt-6">
-                <Link href="/login" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Go to Login
+            {verificationStatus === 'success' && (
+              <Box sx={{ textAlign: 'center' }}>
+                <Avatar 
+                  sx={{ 
+                    width: 64, 
+                    height: 64, 
+                    mx: 'auto',
+                    bgcolor: theme.palette.primary.light,
+                    color: theme.palette.secondary.main,
+                    mb: 2
+                  }}
+                >
+                  <CheckIcon fontSize="large" />
+                </Avatar>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.secondary.main,
+                    mb: 2
+                  }}
+                >
+                  Email Verified Successfully
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 4 }}>
+                  Your email has been verified. You can now log in to your account.
+                </Typography>
+                <Link href="/login" passHref legacyBehavior>
+                  <Button
+                    component="a"
+                    variant="contained"
+                    aria-label="Go to login page"
+                    sx={{
+                      mt: 2,
+                      py: 1.5,
+                      px: 4,
+                      background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                      color: theme.palette.common.white,
+                      fontWeight: 'bold',
+                      '&:hover': {
+                        background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                        transform: 'scale(1.02)',
+                        transition: 'transform 0.2s'
+                      }
+                    }}
+                  >
+                    Go to Login
+                  </Button>
                 </Link>
-              </div>
-            </div>
-          )}
+              </Box>
+            )}
 
-          {verificationStatus === 'error' && (
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full">
-                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </div>
-              <h2 className="mt-4 text-xl font-semibold text-gray-900">Verification Failed</h2>
-              <p className="mt-2 text-gray-600">{error}</p>
-              <div className="mt-6 space-y-4">
-                <Link href="/login" className="block text-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Go to Login
-                </Link>
-                <Link href="/resend-verification" className="block text-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-600 rounded-md shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Resend Verification Email
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+            {verificationStatus === 'error' && (
+              <Box sx={{ textAlign: 'center' }}>
+                <Avatar 
+                  sx={{ 
+                    width: 64, 
+                    height: 64, 
+                    mx: 'auto',
+                    bgcolor: theme.palette.error.light,
+                    color: theme.palette.error.dark,
+                    mb: 2
+                  }}
+                >
+                  <CloseIcon fontSize="large" />
+                </Avatar>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: theme.palette.error.dark,
+                    mb: 2
+                  }}
+                >
+                  Verification Failed
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 4 }}>
+                  {error}
+                </Typography>
+                
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                  <Link href="/login" passHref legacyBehavior>
+                    <Button
+                      component="a"
+                      variant="contained"
+                      fullWidth
+                      aria-label="Go to login page"
+                      sx={{
+                        py: 1.5,
+                        background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                        color: theme.palette.common.white,
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                          transform: 'scale(1.02)',
+                          transition: 'transform 0.2s'
+                        }
+                      }}
+                    >
+                      Go to Login
+                    </Button>
+                  </Link>
+                  <Link href="/resend-verification" passHref legacyBehavior>
+                    <Button
+                      component="a"
+                      variant="outlined"
+                      fullWidth
+                      aria-label="Resend verification email"
+                      sx={{
+                        py: 1.5,
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          borderColor: theme.palette.secondary.main,
+                          backgroundColor: `${theme.palette.primary.light}1A`, // 10% opacity
+                          color: theme.palette.secondary.main,
+                          transform: 'scale(1.02)',
+                          transition: 'transform 0.2s'
+                        }
+                      }}
+                    >
+                      Resend Verification Email
+                    </Button>
+                  </Link>
+                </Stack>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

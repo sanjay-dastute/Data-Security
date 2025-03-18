@@ -298,20 +298,54 @@ const SelectiveEncryption = () => {
   
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 1
+        }}
+      >
         Selective Field Encryption
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography 
+        variant="body1" 
+        paragraph
+        sx={{ 
+          color: 'text.secondary',
+          mb: 2
+        }}
+      >
         Upload a file, view its contents, select specific fields to encrypt, and download the encrypted file.
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2, borderLeft: '4px solid #EF4444' }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2, borderLeft: '4px solid', borderColor: 'primary.main' }}>{success}</Alert>}
       
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ 
+                fontWeight: 'bold',
+                color: 'primary.dark',
+                mb: 2
+              }}
+            >
               File Upload
             </Typography>
             
@@ -321,6 +355,19 @@ const SelectiveEncryption = () => {
                 component="label"
                 startIcon={<CloudUploadIcon />}
                 disabled={viewLoading || encryptLoading}
+                sx={{
+                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                  color: '#FFFFFF',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.7
+                  }
+                }}
               >
                 Upload File
                 <input
@@ -332,17 +379,31 @@ const SelectiveEncryption = () => {
             </Box>
             
             {file && (
-              <Box>
-                <Typography variant="subtitle1" gutterBottom>
+              <Box sx={{ 
+                p: 2, 
+                borderRadius: '8px', 
+                bgcolor: 'rgba(191, 219, 254, 0.1)',
+                border: '1px dashed',
+                borderColor: 'primary.light'
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 'bold',
+                    color: 'primary.main',
+                    mb: 1
+                  }}
+                >
                   Uploaded File
                 </Typography>
                 
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>
                       <strong>Name:</strong> {file.name}
                     </Typography>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>
                       <strong>Size:</strong> {(file.size / 1024 / 1024).toFixed(2)} MB
                     </Typography>
                     <Typography variant="body2">
@@ -355,8 +416,20 @@ const SelectiveEncryption = () => {
                       startIcon={<VisibilityIcon />}
                       onClick={viewFileData}
                       disabled={viewLoading || encryptLoading}
+                      sx={{
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        '&:hover': {
+                          backgroundColor: 'primary.light',
+                          borderColor: 'primary.dark',
+                          color: 'primary.dark'
+                        },
+                        '&.Mui-disabled': {
+                          opacity: 0.5
+                        }
+                      }}
                     >
-                      {viewLoading ? <CircularProgress size={24} /> : 'View Data'}
+                      {viewLoading ? <CircularProgress size={24} sx={{ color: 'primary.main' }} /> : 'View Data'}
                     </Button>
                   </Grid>
                 </Grid>
@@ -366,42 +439,109 @@ const SelectiveEncryption = () => {
           
           {fileData && (
             <>
-              <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper 
+                sx={{ 
+                  p: 3, 
+                  mb: 3, 
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid',
+                  borderColor: 'primary.light'
+                }}
+              >
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 'bold',
+                    color: 'primary.dark',
+                    mb: 2
+                  }}
+                >
                   Data Preview
                 </Typography>
                 
                 {renderDataTable()}
               </Paper>
               
-              <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper 
+                sx={{ 
+                  p: 3, 
+                  mb: 3, 
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid',
+                  borderColor: 'primary.light'
+                }}
+              >
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 'bold',
+                    color: 'primary.dark',
+                    mb: 1
+                  }}
+                >
                   Field Selection
                 </Typography>
                 
-                <Typography variant="body2" paragraph>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ 
+                    color: 'text.secondary',
+                    mb: 2
+                  }}
+                >
                   Select fields to encrypt:
                 </Typography>
                 
                 <Grid container spacing={2}>
                   {fields.map((field, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        p: 1,
+                        borderRadius: '6px',
+                        '&:hover': {
+                          bgcolor: 'rgba(191, 219, 254, 0.2)'
+                        }
+                      }}>
                         <Checkbox
                           checked={selectedFields.includes(field.name)}
                           onChange={() => handleFieldSelection(field.name)}
                           disabled={encryptLoading}
+                          sx={{
+                            color: 'primary.main',
+                            '&.Mui-checked': {
+                              color: 'primary.main',
+                            },
+                          }}
                         />
                         <Box>
-                          <Typography variant="body2">{field.name}</Typography>
+                          <Typography 
+                            variant="body2"
+                            sx={{ 
+                              fontWeight: selectedFields.includes(field.name) ? 'bold' : 'normal',
+                              color: selectedFields.includes(field.name) ? 'primary.dark' : 'text.primary'
+                            }}
+                          >
+                            {field.name}
+                          </Typography>
                           <Chip
                             label={field.type}
                             size="small"
                             color={selectedFields.includes(field.name) ? 'primary' : 'default'}
+                            sx={{
+                              mt: 0.5,
+                              fontSize: '0.7rem'
+                            }}
                           />
                         </Box>
                         <Tooltip title={`Example: ${String(field.example).substring(0, 50)}${String(field.example).length > 50 ? '...' : ''}`}>
-                          <IconButton size="small">
+                          <IconButton size="small" sx={{ color: 'primary.main', ml: 'auto' }}>
                             <InfoIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -410,13 +550,24 @@ const SelectiveEncryption = () => {
                   ))}
                 </Grid>
                 
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
                   <Button
                     variant="outlined"
                     startIcon={<FilterListIcon />}
                     onClick={() => setSelectedFields(fields.map(field => field.name))}
                     disabled={encryptLoading}
-                    sx={{ mr: 1 }}
+                    sx={{
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                      '&:hover': {
+                        backgroundColor: 'primary.light',
+                        borderColor: 'primary.dark',
+                        color: 'primary.dark'
+                      },
+                      '&.Mui-disabled': {
+                        opacity: 0.5
+                      }
+                    }}
                   >
                     Select All
                   </Button>
@@ -424,6 +575,18 @@ const SelectiveEncryption = () => {
                     variant="outlined"
                     onClick={() => setSelectedFields([])}
                     disabled={encryptLoading}
+                    sx={{
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                      '&:hover': {
+                        backgroundColor: 'primary.light',
+                        borderColor: 'primary.dark',
+                        color: 'primary.dark'
+                      },
+                      '&.Mui-disabled': {
+                        opacity: 0.5
+                      }
+                    }}
                   >
                     Clear Selection
                   </Button>
@@ -433,32 +596,78 @@ const SelectiveEncryption = () => {
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
                 <Button
                   variant="contained"
-                  color="primary"
                   startIcon={<LockIcon />}
                   onClick={encryptSelectedFields}
                   disabled={encryptLoading || selectedFields.length === 0}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    color: '#FFFFFF',
+                    fontWeight: 'bold',
+                    px: 3,
+                    py: 1.2,
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.7
+                    }
+                  }}
                 >
-                  {encryptLoading ? <CircularProgress size={24} /> : 'Encrypt Selected Fields'}
+                  {encryptLoading ? <CircularProgress size={24} sx={{ color: '#FFFFFF' }} /> : 'Encrypt Selected Fields'}
                 </Button>
               </Box>
               
               {encryptedFileUrl && (
-                <Paper sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>
+                <Paper 
+                  sx={{ 
+                    p: 3, 
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid',
+                    borderColor: 'primary.light',
+                    bgcolor: 'rgba(191, 219, 254, 0.1)'
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom
+                    sx={{ 
+                      fontWeight: 'bold',
+                      color: 'primary.dark',
+                      mb: 2
+                    }}
+                  >
                     Encrypted File
                   </Typography>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="body1">
+                    <Typography 
+                      variant="body1"
+                      sx={{ 
+                        color: 'text.primary',
+                        fontWeight: 'medium'
+                      }}
+                    >
                       Your file has been encrypted successfully!
                     </Typography>
                     
                     <Button
                       variant="contained"
-                      color="primary"
                       startIcon={<DownloadIcon />}
                       href={encryptedFileUrl}
                       download
+                      sx={{
+                        background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                        color: '#FFFFFF',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                          transform: 'scale(1.02)',
+                          transition: 'transform 0.2s'
+                        }
+                      }}
                     >
                       Download Encrypted File
                     </Button>
@@ -470,107 +679,257 @@ const SelectiveEncryption = () => {
         </Grid>
         
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ 
+            borderRadius: '10px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'primary.light',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+            }
+          }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 1
+                }}
+              >
                 Selective Field Encryption
               </Typography>
               
-              <Typography variant="body2" paragraph>
+              <Typography 
+                variant="body2" 
+                paragraph
+                sx={{ 
+                  color: 'text.secondary',
+                  mb: 2
+                }}
+              >
                 This feature allows you to encrypt only specific fields in your data, leaving other fields unencrypted for processing or analysis.
               </Typography>
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 How It Works:
               </Typography>
               
-              <List dense>
+              <List dense sx={{ mb: 1 }}>
                 <ListItem>
                   <ListItemIcon>
-                    <CloudUploadIcon fontSize="small" />
+                    <CloudUploadIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Upload your file (CSV, JSON, etc.)" />
+                  <ListItemText 
+                    primary="Upload your file (CSV, JSON, etc.)" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <VisibilityIcon fontSize="small" />
+                    <VisibilityIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="View and analyze your data" />
+                  <ListItemText 
+                    primary="View and analyze your data" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <FilterListIcon fontSize="small" />
+                    <FilterListIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Select fields to encrypt" />
+                  <ListItemText 
+                    primary="Select fields to encrypt" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <LockIcon fontSize="small" />
+                    <LockIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Encrypt only the selected fields" />
+                  <ListItemText 
+                    primary="Encrypt only the selected fields" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <DownloadIcon fontSize="small" />
+                    <DownloadIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Download or store the encrypted file" />
+                  <ListItemText 
+                    primary="Download or store the encrypted file" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
               
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2, borderColor: 'primary.light' }} />
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 Benefits:
               </Typography>
               
-              <List dense>
+              <List dense sx={{ mb: 1 }}>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Protect sensitive fields while keeping others accessible" />
+                  <ListItemText 
+                    primary="Protect sensitive fields while keeping others accessible" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Maintain data utility for analysis" />
+                  <ListItemText 
+                    primary="Maintain data utility for analysis" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Comply with data protection regulations" />
+                  <ListItemText 
+                    primary="Comply with data protection regulations" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Reduce encryption overhead" />
+                  <ListItemText 
+                    primary="Reduce encryption overhead" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
               
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2, borderColor: 'primary.light' }} />
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 Supported File Types:
               </Typography>
               
               <Grid container spacing={1}>
                 <Grid item>
-                  <Chip label="CSV" />
+                  <Chip 
+                    label="CSV" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="JSON" />
+                  <Chip 
+                    label="JSON" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="XML" />
+                  <Chip 
+                    label="XML" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="Parquet" />
+                  <Chip 
+                    label="Parquet" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="Avro" />
+                  <Chip 
+                    label="Avro" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
               </Grid>
             </CardContent>

@@ -1,9 +1,23 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import {
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Link as MuiLink,
+  CircularProgress,
+  Divider,
+  useTheme
+} from '@mui/material';
 
 export default function Login() {
   const router = useRouter();
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -68,87 +82,228 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">QuantumTrust Data Security</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
-        </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: theme.palette.background.default,
+        color: theme.palette.text.primary
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            borderRadius: '10px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
+            }
+          }}
+        >
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: theme.palette.secondary.main,
+              mb: 1
+            }}
+          >
+            QuantumTrust Data Security
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              mb: 3, 
+              color: theme.palette.text.secondary 
+            }}
+          >
+            Sign in to your account
+          </Typography>
 
-        {error && (
-          <div className="p-4 text-red-700 bg-red-100 rounded-md">
-            {error}
-          </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {!showMfa ? (
-            <>
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Username or Email
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-            </>
-          ) : (
-            <div>
-              <label htmlFor="mfaCode" className="block text-sm font-medium text-gray-700">
-                MFA Code
-              </label>
-              <input
-                id="mfaCode"
-                name="mfaCode"
-                type="text"
-                required
-                value={formData.mfaCode}
-                onChange={handleChange}
-                className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter 6-digit code"
-              />
-            </div>
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                width: '100%', 
+                mb: 3,
+                borderLeft: `4px solid ${theme.palette.error.main}`,
+                '& .MuiAlert-icon': {
+                  color: theme.palette.error.dark
+                }
+              }}
+            >
+              {error}
+            </Alert>
           )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {loading ? 'Loading...' : showMfa ? 'Verify' : 'Sign in'}
-            </button>
-          </div>
-        </form>
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit} 
+            sx={{ 
+              width: '100%',
+              mt: 1
+            }}
+          >
+            {!showMfa ? (
+              <>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username or Email"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={formData.username}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                       borderColor: theme.palette.primary.main,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 3,
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                       borderColor: theme.palette.primary.main,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
+                />
+              </>
+            ) : (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="mfaCode"
+                label="MFA Code"
+                type="text"
+                id="mfaCode"
+                placeholder="Enter 6-digit code"
+                value={formData.mfaCode}
+                onChange={handleChange}
+                sx={{
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.primary.main,
+                      borderWidth: 2,
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: theme.palette.secondary.main,
+                  },
+                }}
+              />
+            )}
 
-        <div className="text-sm text-center">
-          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Don't have an account? Register
-          </Link>
-        </div>
-      </div>
-    </div>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              aria-label={showMfa ? "Verify MFA code" : "Sign in"}
+              sx={{
+                mt: 2,
+                mb: 3,
+                py: 1.5,
+                background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                color: theme.palette.common.white,
+                fontWeight: 'bold',
+                '&:hover': {
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                  transform: 'scale(1.02)',
+                  transition: 'transform 0.2s'
+                },
+                '&.Mui-disabled': {
+                  opacity: 0.7
+                }
+              }}
+            >
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Loading...
+                </Box>
+              ) : (
+                showMfa ? 'Verify' : 'Sign in'
+              )}
+            </Button>
+          </Box>
+
+          <Divider sx={{ width: '100%', mb: 2, borderColor: theme.palette.primary.light }} />
+
+          <Box sx={{ textAlign: 'center' }}>
+            <Link href="/register" passHref legacyBehavior>
+              <MuiLink 
+                variant="body2" 
+                sx={{ 
+                  color: theme.palette.primary.main,
+                  fontWeight: 'medium',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: theme.palette.secondary.main,
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Don't have an account? Register
+              </MuiLink>
+            </Link>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

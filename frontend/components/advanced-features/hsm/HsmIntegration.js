@@ -155,35 +155,75 @@ const HsmIntegration = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{ 
+          color: 'primary.dark',
+          fontWeight: 'bold',
+          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 2
+        }}
+      >
         Hardware Security Module (HSM) Integration
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography 
+        variant="body1" 
+        paragraph
+        sx={{ 
+          color: 'text.secondary',
+          mb: 3
+        }}
+      >
         Configure HSM integration for enhanced security in key management and cryptographic operations.
         HSM provides hardware-based, FIPS 140-2 compliant key storage and operations.
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
       
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: 'primary.main' }} />
         </Box>
       ) : (
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 3 }}>
+            <Paper 
+              sx={{ 
+                p: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
               <Box sx={{ mb: 3 }}>
                 <FormControlLabel
                   control={
                     <Switch
                       checked={hsmConfig.enabled}
                       onChange={(e) => handleInputChange('enabled', e.target.checked)}
-                      color="primary"
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'primary.main',
+                          '&:hover': {
+                            backgroundColor: 'primary.light'
+                          }
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: 'primary.main'
+                        }
+                      }}
                     />
                   }
-                  label="Enable HSM Integration"
+                  label={
+                    <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                      Enable HSM Integration
+                    </Typography>
+                  }
                 />
               </Box>
               
@@ -199,6 +239,20 @@ const HsmIntegration = () => {
                         value={hsmConfig.provider}
                         onChange={(e) => handleInputChange('provider', e.target.value)}
                         margin="normal"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'primary.main',
+                              borderWidth: 2,
+                            },
+                          },
+                          '& .MuiInputLabel-root.Mui-focused': {
+                            color: 'primary.dark',
+                          },
+                        }}
                       >
                         <option value="THALES">Thales Luna</option>
                         <option value="YUBIHSM">YubiHSM</option>
@@ -267,7 +321,15 @@ const HsmIntegration = () => {
                   
                   <Divider sx={{ my: 3 }} />
                   
-                  <Typography variant="h6" gutterBottom>
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom
+                    sx={{
+                      color: 'primary.dark',
+                      fontWeight: 600,
+                      mb: 2
+                    }}
+                  >
                     HSM Usage Configuration
                   </Typography>
                   
@@ -278,10 +340,24 @@ const HsmIntegration = () => {
                           <Switch
                             checked={hsmConfig.useForKeyGeneration}
                             onChange={(e) => handleInputChange('useForKeyGeneration', e.target.checked)}
-                            color="primary"
+                            sx={{
+                              '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'primary.main',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light'
+                                }
+                              },
+                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: 'primary.main'
+                              }
+                            }}
                           />
                         }
-                        label="Use for Key Generation"
+                        label={
+                          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                            Use for Key Generation
+                          </Typography>
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} md={4}>
@@ -290,10 +366,24 @@ const HsmIntegration = () => {
                           <Switch
                             checked={hsmConfig.useForEncryption}
                             onChange={(e) => handleInputChange('useForEncryption', e.target.checked)}
-                            color="primary"
+                            sx={{
+                              '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'primary.main',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light'
+                                }
+                              },
+                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: 'primary.main'
+                              }
+                            }}
                           />
                         }
-                        label="Use for Encryption"
+                        label={
+                          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                            Use for Encryption
+                          </Typography>
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} md={4}>
@@ -302,23 +392,48 @@ const HsmIntegration = () => {
                           <Switch
                             checked={hsmConfig.useForDecryption}
                             onChange={(e) => handleInputChange('useForDecryption', e.target.checked)}
-                            color="primary"
+                            sx={{
+                              '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'primary.main',
+                                '&:hover': {
+                                  backgroundColor: 'primary.light'
+                                }
+                              },
+                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: 'primary.main'
+                              }
+                            }}
                           />
                         }
-                        label="Use for Decryption"
+                        label={
+                          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>
+                            Use for Decryption
+                          </Typography>
+                        }
                       />
                     </Grid>
                   </Grid>
                 </>
               )}
               
-              <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+              <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
                 <Button
                   variant="contained"
-                  color="primary"
                   startIcon={<SaveIcon />}
                   onClick={saveHsmConfig}
                   disabled={saveLoading}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    },
+                    '&.Mui-disabled': {
+                      background: '#E5E7EB',
+                      color: '#9CA3AF'
+                    }
+                  }}
                 >
                   {saveLoading ? 'Saving...' : 'Save Configuration'}
                 </Button>
@@ -326,9 +441,21 @@ const HsmIntegration = () => {
                 {hsmConfig.enabled && (
                   <Button
                     variant="outlined"
-                    color="secondary"
                     onClick={testHsmConnection}
                     disabled={testLoading}
+                    sx={{
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
+                      '&:hover': {
+                        backgroundColor: 'primary.light',
+                        borderColor: 'primary.dark',
+                        color: 'primary.dark',
+                      },
+                      '&.Mui-disabled': {
+                        borderColor: '#E5E7EB',
+                        color: '#9CA3AF'
+                      }
+                    }}
                   >
                     {testLoading ? 'Testing...' : 'Test Connection'}
                   </Button>
@@ -338,17 +465,37 @@ const HsmIntegration = () => {
           </Grid>
           
           <Grid item xs={12} md={4}>
-            <Card>
+            <Card sx={{ 
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{
+                    color: 'primary.dark',
+                    fontWeight: 600,
+                    mb: 2
+                  }}
+                >
                   HSM Status
                 </Typography>
                 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 3 }}>
                   <Chip
                     label={hsmConfig.enabled ? 'Enabled' : 'Disabled'}
                     color={hsmConfig.enabled ? 'success' : 'default'}
                     icon={hsmConfig.enabled ? <CheckIcon /> : <WarningIcon />}
+                    sx={{
+                      '&.MuiChip-colorSuccess': {
+                        backgroundColor: 'rgba(191, 219, 254, 0.8)',
+                        color: 'primary.dark',
+                        fontWeight: 500
+                      }
+                    }}
                   />
                 </Box>
                 
@@ -365,19 +512,43 @@ const HsmIntegration = () => {
                 
                 {testResult && (
                   <Box sx={{ mt: 2 }}>
-                    <Alert severity={testResult.success ? 'success' : 'error'}>
+                    <Alert 
+                      severity={testResult.success ? 'success' : 'error'}
+                      sx={{
+                        '&.MuiAlert-standardSuccess': {
+                          backgroundColor: 'rgba(191, 219, 254, 0.2)',
+                          color: 'primary.dark'
+                        },
+                        '&.MuiAlert-standardError': {
+                          backgroundColor: 'rgba(254, 202, 202, 0.2)',
+                          color: '#991B1B'
+                        }
+                      }}
+                    >
                       {testResult.message}
                     </Alert>
                     
                     {testResult.success && testResult.details && (
-                      <Box sx={{ mt: 2 }}>
-                        <Typography variant="body2" gutterBottom>
+                      <Box sx={{ mt: 3 }}>
+                        <Typography 
+                          variant="body2" 
+                          gutterBottom
+                          sx={{ color: 'text.primary', mb: 1 }}
+                        >
                           <strong>Firmware Version:</strong> {testResult.details.firmwareVersion || 'N/A'}
                         </Typography>
-                        <Typography variant="body2" gutterBottom>
+                        <Typography 
+                          variant="body2" 
+                          gutterBottom
+                          sx={{ color: 'text.primary', mb: 1 }}
+                        >
                           <strong>Serial Number:</strong> {testResult.details.serialNumber || 'N/A'}
                         </Typography>
-                        <Typography variant="body2" gutterBottom>
+                        <Typography 
+                          variant="body2" 
+                          gutterBottom
+                          sx={{ color: 'text.primary', mb: 1 }}
+                        >
                           <strong>Available Slots:</strong> {testResult.details.availableSlots || 'N/A'}
                         </Typography>
                       </Box>
@@ -387,20 +558,46 @@ const HsmIntegration = () => {
               </CardContent>
             </Card>
             
-            <Card sx={{ mt: 2 }}>
+            <Card sx={{ 
+              mt: 3,
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{
+                    color: 'primary.dark',
+                    fontWeight: 600,
+                    mb: 2
+                  }}
+                >
                   HSM Information
                 </Typography>
                 
-                <Typography variant="body2" paragraph>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ color: 'text.secondary', mb: 2 }}
+                >
                   Hardware Security Modules (HSMs) provide secure key storage and cryptographic operations in a tamper-resistant hardware device.
                 </Typography>
                 
-                <Typography variant="body2" paragraph>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ 
+                    color: 'text.primary', 
+                    fontWeight: 500,
+                    mb: 1
+                  }}
+                >
                   <strong>Benefits:</strong>
                 </Typography>
-                <ul>
+                <ul style={{ color: 'rgba(55, 65, 81, 0.9)', paddingLeft: '1.5rem', marginBottom: '1rem' }}>
                   <li>FIPS 140-2 Level 3 compliance</li>
                   <li>Hardware-based random number generation</li>
                   <li>Physical protection of cryptographic keys</li>
@@ -408,7 +605,17 @@ const HsmIntegration = () => {
                   <li>Audit logging of all key operations</li>
                 </ul>
                 
-                <Typography variant="body2">
+                <Typography 
+                  variant="body2"
+                  sx={{ 
+                    color: 'text.secondary',
+                    backgroundColor: 'rgba(191, 219, 254, 0.1)',
+                    p: 1.5,
+                    borderRadius: '6px',
+                    borderLeft: '4px solid',
+                    borderColor: 'primary.main'
+                  }}
+                >
                   <strong>Note:</strong> When HSM is enabled, all cryptographic operations will be routed through the HSM. If the HSM is unavailable, operations will fall back to software-based cryptography using libsodium.
                 </Typography>
               </CardContent>

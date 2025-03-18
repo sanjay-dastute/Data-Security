@@ -298,29 +298,72 @@ const OrgAdminDashboard = () => {
   return (
     <Container maxWidth="xl">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          sx={{ 
+            color: 'primary.dark',
+            fontWeight: 600,
+            background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           Organization Admin Dashboard
         </Typography>
         
         {!orgLoading && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" component="h2" gutterBottom>
+            <Typography 
+              variant="h6" 
+              component="h2" 
+              gutterBottom
+              sx={{ 
+                color: 'text.primary',
+                fontWeight: 500
+              }}
+            >
               {orgInfo.name} - {orgInfo.industry}
             </Typography>
             <Chip 
               label={orgInfo.status} 
-              color={orgInfo.status === 'ACTIVE' ? 'success' : 'error'}
-              sx={{ mr: 1 }}
+              sx={{ 
+                mr: 1,
+                backgroundColor: orgInfo.status === 'ACTIVE' ? 'success.light' : 'error.light',
+                color: orgInfo.status === 'ACTIVE' ? 'success.dark' : 'error.dark',
+                fontWeight: 500
+              }}
             />
             <Chip 
               label={`${orgInfo.userCount} Users`} 
-              color="primary"
+              sx={{
+                backgroundColor: 'primary.light',
+                color: 'primary.dark',
+                fontWeight: 500
+              }}
             />
           </Box>
         )}
         
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={currentTab} onChange={handleTabChange} aria-label="org admin dashboard tabs">
+        <Box sx={{ borderBottom: 1, borderColor: 'primary.light', mb: 3 }}>
+          <Tabs 
+            value={currentTab} 
+            onChange={handleTabChange} 
+            aria-label="org admin dashboard tabs"
+            sx={{
+              '& .MuiTabs-indicator': {
+                backgroundColor: 'primary.main'
+              },
+              '& .MuiTab-root': {
+                color: 'text.secondary',
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                  fontWeight: 600
+                }
+              }
+            }}
+          >
             <Tab label="User Management" />
             <Tab label="Key Management" />
             <Tab label="Encryption Settings" />
@@ -332,20 +375,44 @@ const OrgAdminDashboard = () => {
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
               <Typography variant="h6">Organization Users</Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
+             <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                   size="small"
                   label="Search Users"
                   variant="outlined"
                   value={userSearchTerm}
                   onChange={(e) => setUserSearchTerm(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.main'
+                    }
+                  }}
                 />
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Filter</InputLabel>
+                  <InputLabel sx={{ color: 'text.secondary' }}>Filter</InputLabel>
                   <Select
                     value={userFilter}
                     label="Filter"
                     onChange={(e) => setUserFilter(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.light'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      }
+                    }}
                   >
                     <MenuItem value="all">All Users</MenuItem>
                     <MenuItem value="ACTIVE">Active</MenuItem>
@@ -357,6 +424,14 @@ const OrgAdminDashboard = () => {
                   variant="contained" 
                   startIcon={<AddIcon />}
                   onClick={() => window.location.href = '/dashboard/users/new'}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    }
+                  }}
                 >
                   Add User
                 </Button>
@@ -370,16 +445,55 @@ const OrgAdminDashboard = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper}
+                sx={{ 
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  borderRadius: '10px',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Last Login</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Username</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Email</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Role</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Status</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Last Login</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -494,34 +608,92 @@ const OrgAdminDashboard = () => {
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <TableContainer component={Paper}>
+                  <TableContainer 
+                    component={Paper}
+                    sx={{ 
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      borderRadius: '10px',
+                      overflow: 'hidden'
+                    }}
+                  >
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell>Key ID</TableCell>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Created By</TableCell>
-                          <TableCell>Created At</TableCell>
-                          <TableCell>Expires At</TableCell>
-                          <TableCell>Status</TableCell>
-                          <TableCell>Actions</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Key ID</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Name</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Created By</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Created At</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Expires At</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Status</TableCell>
+                          <TableCell sx={{ 
+                            bgcolor: 'primary.dark', 
+                            color: 'common.white',
+                            fontWeight: 600,
+                            fontSize: '0.875rem'
+                          }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {filteredKeys.map((key) => (
-                          <TableRow key={key.id}>
-                            <TableCell>{key.id.substring(0, 8)}...</TableCell>
-                            <TableCell>{key.name}</TableCell>
-                            <TableCell>{key.created_by}</TableCell>
-                            <TableCell>{new Date(key.created_at).toLocaleString()}</TableCell>
-                            <TableCell>{key.expires_at ? new Date(key.expires_at).toLocaleString() : 'Never'}</TableCell>
+                          <TableRow 
+                            key={key.id}
+                            sx={{
+                              '&:nth-of-type(odd)': {
+                                backgroundColor: 'background.paper'
+                              },
+                              '&:hover': {
+                                backgroundColor: 'primary.light',
+                                transition: 'background-color 0.2s'
+                              }
+                            }}
+                          >
+                            <TableCell sx={{ color: 'text.primary' }}>{key.id.substring(0, 8)}...</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.name}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.created_by}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{new Date(key.created_at).toLocaleString()}</TableCell>
+                            <TableCell sx={{ color: 'text.primary' }}>{key.expires_at ? new Date(key.expires_at).toLocaleString() : 'Never'}</TableCell>
                             <TableCell>
                               <Chip 
                                 label={key.status} 
-                                color={
-                                  key.status === 'ACTIVE' ? 'success' : 
-                                  key.status === 'EXPIRED' ? 'warning' : 'error'
-                                }
+                                sx={{ 
+                                  backgroundColor: key.status === 'ACTIVE' ? 'success.light' : 
+                                                 key.status === 'EXPIRED' ? 'warning.light' : 'error.light',
+                                  color: key.status === 'ACTIVE' ? 'success.dark' : 
+                                        key.status === 'EXPIRED' ? 'warning.dark' : 'error.dark',
+                                  fontWeight: 500
+                                }}
                                 size="small"
                               />
                             </TableCell>
@@ -529,16 +701,30 @@ const OrgAdminDashboard = () => {
                               <Box sx={{ display: 'flex', gap: 1 }}>
                                 {key.status === 'ACTIVE' && (
                                   <IconButton 
-                                    size="small" 
-                                    color="warning"
+                                    size="small"
+                                    sx={{
+                                      color: 'warning.main',
+                                      '&:hover': {
+                                        backgroundColor: 'warning.light',
+                                        transform: 'scale(1.1)',
+                                        transition: 'transform 0.2s'
+                                      }
+                                    }}
                                     onClick={() => handleKeyAction('revoke', key.id)}
                                   >
                                     <BlockIcon fontSize="small" />
                                   </IconButton>
                                 )}
                                 <IconButton 
-                                  size="small" 
-                                  color="error"
+                                  size="small"
+                                  sx={{
+                                    color: 'error.main',
+                                    '&:hover': {
+                                      backgroundColor: 'error.light',
+                                      transform: 'scale(1.1)',
+                                      transition: 'transform 0.2s'
+                                    }
+                                  }}
                                   onClick={() => handleKeyAction('delete', key.id)}
                                 >
                                   <DeleteIcon fontSize="small" />
@@ -553,8 +739,26 @@ const OrgAdminDashboard = () => {
                 )}
               </Grid>
               <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>Key Usage</Typography>
+                <Paper 
+                  sx={{ 
+                    p: 3,
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid',
+                    borderColor: 'primary.light'
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom
+                    sx={{
+                      color: 'primary.dark',
+                      fontWeight: 600,
+                      mb: 2
+                    }}
+                  >
+                    Key Usage
+                  </Typography>
                   <Box sx={{ height: 300 }}>
                     <Line 
                       data={keyUsageChartData} 
@@ -565,7 +769,24 @@ const OrgAdminDashboard = () => {
                             beginAtZero: true,
                             title: {
                               display: true,
-                              text: 'Usage Count'
+                              text: 'Usage Count',
+                              color: 'text.secondary'
+                            },
+                            grid: {
+                              color: 'primary.light',
+                              opacity: 0.1
+                            },
+                            ticks: {
+                              color: 'text.secondary'
+                            }
+                          },
+                          x: {
+                            grid: {
+                              color: 'primary.light',
+                              opacity: 0.1
+                            },
+                            ticks: {
+                              color: 'text.secondary'
                             }
                           }
                         }
@@ -649,15 +870,44 @@ const OrgAdminDashboard = () => {
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Storage Configuration</Typography>
-                    <Box sx={{ mb: 2 }}>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Storage Configuration
+                    </Typography>
+                    <Box sx={{ mb: 3 }}>
                       <FormControl fullWidth>
-                        <InputLabel>Storage Type</InputLabel>
+                        <InputLabel sx={{ color: 'text.secondary' }}>Storage Type</InputLabel>
                         <Select
                           value={encryptionSettings.storageType}
                           label="Storage Type"
                           onChange={(e) => handleSettingsChange('storageType', e.target.value)}
+                          sx={{
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.light'
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.main'
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'primary.main'
+                            }
+                          }}
                         >
                           <MenuItem value="AWS_S3">AWS S3</MenuItem>
                           <MenuItem value="AZURE_BLOB">Azure Blob Storage</MenuItem>
@@ -671,9 +921,27 @@ const OrgAdminDashboard = () => {
                   </Paper>
                 </Grid>
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Security Features</Typography>
-                    <Grid container spacing={2}>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Security Features
+                    </Typography>
+                    <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Box sx={{ mb: 2 }}>
                           <FormControlLabel
@@ -681,10 +949,24 @@ const OrgAdminDashboard = () => {
                               <Switch
                                 checked={encryptionSettings.selfDestructEnabled}
                                 onChange={(e) => handleSettingsChange('selfDestructEnabled', e.target.checked)}
-                                color="primary"
+                                sx={{
+                                  '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'primary.main',
+                                    '&:hover': {
+                                      backgroundColor: 'primary.light'
+                                    }
+                                  },
+                                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: 'primary.main'
+                                  }
+                                }}
                               />
                             }
-                            label="Enable Self-Destruct on Breach"
+                            label={
+                              <Typography sx={{ color: 'text.primary' }}>
+                                Enable Self-Destruct on Breach
+                              </Typography>
+                            }
                           />
                         </Box>
                       </Grid>
@@ -695,10 +977,24 @@ const OrgAdminDashboard = () => {
                               <Switch
                                 checked={encryptionSettings.fieldEncryptionEnabled}
                                 onChange={(e) => handleSettingsChange('fieldEncryptionEnabled', e.target.checked)}
-                                color="primary"
+                                sx={{
+                                  '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'primary.main',
+                                    '&:hover': {
+                                      backgroundColor: 'primary.light'
+                                    }
+                                  },
+                                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: 'primary.main'
+                                  }
+                                }}
                               />
                             }
-                            label="Enable Selective Field Encryption"
+                            label={
+                              <Typography sx={{ color: 'text.primary' }}>
+                                Enable Selective Field Encryption
+                              </Typography>
+                            }
                           />
                         </Box>
                       </Grid>

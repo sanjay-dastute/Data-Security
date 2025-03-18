@@ -495,20 +495,57 @@ const KeyRecovery = () => {
   
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 1
+        }}
+      >
         Key Recovery
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography 
+        variant="body1" 
+        paragraph
+        sx={{ 
+          color: 'text.secondary',
+          mb: 2
+        }}
+      >
         Recover encryption keys using Shamir's Secret Sharing with distributed key shards.
       </Typography>
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2, borderLeft: '4px solid', borderColor: 'primary.main' }}>{success}</Alert>}
       
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}
+          >
+            <Stepper 
+              activeStep={activeStep} 
+              sx={{ 
+                mb: 3,
+                '& .MuiStepLabel-root .Mui-active': {
+                  color: 'primary.main',
+                },
+                '& .MuiStepLabel-root .Mui-completed': {
+                  color: 'primary.dark',
+                }
+              }}
+            >
               <Step>
                 <StepLabel>Select Key</StepLabel>
               </Step>
@@ -530,6 +567,18 @@ const KeyRecovery = () => {
                 variant="outlined"
                 onClick={() => setActiveStep(prev => Math.max(0, prev - 1))}
                 disabled={activeStep === 0 || activeStep === 3}
+                sx={{
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                    color: 'primary.dark'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.5
+                  }
+                }}
               >
                 Back
               </Button>
@@ -537,7 +586,6 @@ const KeyRecovery = () => {
               {activeStep === 3 && (
                 <Button
                   variant="contained"
-                  color="primary"
                   onClick={() => {
                     setActiveStep(0);
                     setSelectedKey(null);
@@ -546,6 +594,16 @@ const KeyRecovery = () => {
                     setApprovals([]);
                     setRecoveryResult(null);
                     fetchKeys();
+                  }}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    color: '#FFFFFF',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    }
                   }}
                 >
                   Start New Recovery
@@ -556,105 +614,233 @@ const KeyRecovery = () => {
         </Grid>
         
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ 
+            borderRadius: '10px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'primary.light',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+            }
+          }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 1
+                }}
+              >
                 Key Recovery Process
               </Typography>
               
-              <Typography variant="body2" paragraph>
+              <Typography 
+                variant="body2" 
+                paragraph
+                sx={{ color: 'text.secondary', mb: 2 }}
+              >
                 Shamir's Secret Sharing is used to split encryption keys into multiple shards, requiring a threshold of approvals to recover.
               </Typography>
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 How It Works:
               </Typography>
               
-              <List dense>
+              <List dense sx={{ mb: 1 }}>
                 <ListItem>
                   <ListItemIcon>
-                    <KeyIcon fontSize="small" />
+                    <KeyIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Select an inactive key to recover" />
+                  <ListItemText 
+                    primary="Select an inactive key to recover" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <SecurityIcon fontSize="small" />
+                    <SecurityIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Verify your identity with MFA" />
+                  <ListItemText 
+                    primary="Verify your identity with MFA" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <PeopleIcon fontSize="small" />
+                    <PeopleIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Request approvals from shard holders" />
+                  <ListItemText 
+                    primary="Request approvals from shard holders" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <LockIcon fontSize="small" />
+                    <LockIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Combine shards to recover the key" />
+                  <ListItemText 
+                    primary="Combine shards to recover the key" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
               
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2, borderColor: 'primary.light' }} />
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 Security Features:
               </Typography>
               
               <List dense>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Multi-factor authentication" />
+                  <ListItemText 
+                    primary="Multi-factor authentication" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Distributed trust model" />
+                  <ListItemText 
+                    primary="Distributed trust model" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Threshold cryptography" />
+                  <ListItemText 
+                    primary="Threshold cryptography" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Blockchain-based audit logging" />
+                  <ListItemText 
+                    primary="Blockchain-based audit logging" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
             </CardContent>
           </Card>
           
-          <Card sx={{ mt: 2 }}>
+          <Card sx={{ 
+            mt: 2,
+            borderRadius: '10px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'primary.light',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+            }
+          }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 1
+                }}
+              >
                 Threshold Cryptography
               </Typography>
               
-              <Typography variant="body2" paragraph>
+              <Typography 
+                variant="body2" 
+                paragraph
+                sx={{ color: 'text.secondary', mb: 2 }}
+              >
                 The key recovery process uses a mathematical threshold scheme where:
               </Typography>
               
-              <Box sx={{ pl: 2 }}>
-                <Typography variant="body2" paragraph>
+              <Box sx={{ pl: 2, mb: 2, borderLeft: '2px solid', borderColor: 'primary.light' }}>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ mb: 1 }}
+                >
                   • A key is split into <strong>n</strong> shards
                 </Typography>
-                <Typography variant="body2" paragraph>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ mb: 1 }}
+                >
                   • At least <strong>t</strong> shards are needed to recover the key
                 </Typography>
-                <Typography variant="body2" paragraph>
+                <Typography 
+                  variant="body2" 
+                  paragraph
+                  sx={{ mb: 0 }}
+                >
                   • Fewer than <strong>t</strong> shards reveal no information about the key
                 </Typography>
               </Box>
               
-              <Typography variant="body2">
+              <Typography 
+                variant="body2"
+                sx={{ color: 'text.secondary' }}
+              >
                 This ensures that no single person can compromise the key, while still allowing recovery if some shard holders are unavailable.
               </Typography>
             </CardContent>

@@ -1,9 +1,25 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import {
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Link as MuiLink,
+  CircularProgress,
+  Avatar,
+  Divider,
+  useTheme
+} from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 
 export default function ResendVerification() {
   const router = useRouter();
+  const theme = useTheme();
   
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
@@ -34,82 +50,232 @@ export default function ResendVerification() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">QuantumTrust Data Security</h1>
-          <p className="mt-2 text-gray-600">Resend Verification Email</p>
-        </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: theme.palette.background.default
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            borderRadius: '10px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
+            }
+          }}
+        >
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: theme.palette.secondary.main,
+              mb: 1
+            }}
+          >
+            QuantumTrust Data Security
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              mb: 3, 
+              color: theme.palette.text.secondary 
+            }}
+          >
+            Resend Verification Email
+          </Typography>
 
-        {status === 'success' ? (
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <h2 className="mt-4 text-xl font-semibold text-gray-900">Verification Email Sent</h2>
-            <p className="mt-2 text-gray-600">
-              We've sent a verification email to <strong>{email}</strong>. Please check your inbox and follow the instructions to verify your account.
-            </p>
-            <p className="mt-4 text-sm text-gray-500">
-              If you don't see the email, please check your spam folder.
-            </p>
-            <div className="mt-6">
-              <Link href="/login" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          {status === 'success' ? (
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Avatar 
+                sx={{ 
+                  width: 64, 
+                  height: 64, 
+                  mx: 'auto',
+                  bgcolor: theme.palette.primary.light,
+                  color: theme.palette.secondary.main,
+                  mb: 2
+                }}
+              >
+                <CheckIcon fontSize="large" />
+              </Avatar>
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: theme.palette.secondary.main,
+                  mb: 2
+                }}
+              >
+                Verification Email Sent
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                We've sent a verification email to <strong>{email}</strong>. Please check your inbox and follow the instructions to verify your account.
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: theme.palette.text.secondary,
+                  mb: 4
+                }}
+              >
+                If you don't see the email, please check your spam folder.
+              </Typography>
+              <Button
+                component={Link}
+                href="/login"
+                variant="contained"
+                aria-label="Back to login page"
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  px: 4,
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                  color: theme.palette.common.white,
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  }
+                }}
+              >
                 Back to Login
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="p-4 text-red-700 bg-red-100 rounded-md">
-                {error}
-              </div>
-            )}
+              </Button>
+            </Box>
+          ) : (
+            <Box 
+              component="form" 
+              onSubmit={handleSubmit} 
+              sx={{ 
+                width: '100%',
+                mt: 1
+              }}
+            >
+              {error && (
+                <Alert 
+                  severity="error" 
+                  sx={{ 
+                    width: '100%', 
+                    mb: 3,
+                    borderLeft: `4px solid ${theme.palette.error.main}`,
+                    '& .MuiAlert-icon': {
+                      color: theme.palette.error.dark
+                    }
+                  }}
+                >
+                  {error}
+                </Alert>
+              )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
+              <TextField
+                margin="normal"
+                required
+                fullWidth
                 id="email"
+                label="Email Address"
                 name="email"
                 type="email"
-                required
+                autoComplete="email"
+                autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter your email address"
+                aria-label="Email address input"
+                sx={{
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.primary.main,
+                      borderWidth: 2,
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: theme.palette.secondary.main,
+                  },
+                }}
               />
-            </div>
 
-            <div>
-              <button
+              <Button
                 type="submit"
+                fullWidth
+                variant="contained"
                 disabled={status === 'loading'}
-                className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                aria-label="Resend verification email"
+                sx={{
+                  mt: 2,
+                  mb: 3,
+                  py: 1.5,
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                  color: theme.palette.common.white,
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.7
+                  }
+                }}
               >
                 {status === 'loading' ? (
-                  <>
-                    <span className="inline-block w-4 h-4 mr-2 border-2 border-t-white border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></span>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
                     Sending...
-                  </>
+                  </Box>
                 ) : (
                   'Resend Verification Email'
                 )}
-              </button>
-            </div>
-          </form>
-        )}
+              </Button>
+            </Box>
+          )}
 
-        <div className="text-sm text-center">
-          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Back to Login
-          </Link>
-        </div>
-      </div>
-    </div>
+          <Divider sx={{ width: '100%', mb: 2, borderColor: theme.palette.primary.light }} />
+
+          <Box sx={{ textAlign: 'center' }}>
+            <Link href="/login" passHref legacyBehavior>
+              <MuiLink 
+                variant="body2" 
+                aria-label="Back to login page"
+                sx={{ 
+                  color: theme.palette.primary.main,
+                  fontWeight: 'medium',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: theme.palette.secondary.main,
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Back to Login
+              </MuiLink>
+            </Link>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

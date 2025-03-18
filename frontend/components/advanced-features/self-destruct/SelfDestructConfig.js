@@ -214,17 +214,93 @@ const SelfDestructConfig = () => {
   
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{ 
+          fontWeight: 'bold',
+          color: 'primary.dark',
+          mb: 1,
+          position: 'relative',
+          display: 'inline-block',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: -4,
+            left: 0,
+            width: '60px',
+            height: '4px',
+            background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+            borderRadius: '2px'
+          }
+        }}
+      >
         Self-Destruct Configuration
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography 
+        variant="body1" 
+        paragraph
+        sx={{ 
+          color: 'text.secondary',
+          mb: 3,
+          mt: 2,
+          maxWidth: '800px'
+        }}
+      >
         Configure self-destruct scripts that will be embedded in encrypted files to delete data on unauthorized systems.
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 2,
+            borderLeft: '4px solid #EF4444',
+            '& .MuiAlert-icon': {
+              color: '#991B1B'
+            }
+          }}
+        >
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert 
+          severity="success" 
+          sx={{ 
+            mb: 2,
+            borderLeft: '4px solid #3B82F6',
+            '& .MuiAlert-icon': {
+              color: '#1E3A8A'
+            }
+          }}
+        >
+          {success}
+        </Alert>
+      )}
       
-      <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 3 }}>
+      <Tabs 
+        value={activeTab} 
+        onChange={handleTabChange} 
+        sx={{ 
+          mb: 3,
+          '& .MuiTabs-indicator': {
+            backgroundColor: 'primary.main',
+            height: 3
+          },
+          '& .MuiTab-root': {
+            color: 'text.secondary',
+            '&.Mui-selected': {
+              color: 'primary.main',
+              fontWeight: 'bold'
+            },
+            '&:hover': {
+              color: 'primary.light',
+              opacity: 1
+            }
+          }
+        }}
+      >
         <Tab label="Configuration" icon={<SettingsIcon />} iconPosition="start" />
         <Tab label="Script Preview" icon={<CodeIcon />} iconPosition="start" />
         <Tab label="Breach Logs" icon={<WarningIcon />} iconPosition="start" />
@@ -233,8 +309,24 @@ const SelfDestructConfig = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           {activeTab === 0 && (
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper 
+              sx={{ 
+                p: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 2
+                }}
+              >
                 Self-Destruct Settings
               </Typography>
               
@@ -353,18 +445,44 @@ const SelfDestructConfig = () => {
               <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
                 <Button
                   variant="contained"
-                  color="primary"
                   onClick={saveConfiguration}
                   disabled={loading}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    color: '#FFFFFF',
+                    fontWeight: 'bold',
+                    px: 3,
+                    py: 1.2,
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.7
+                    }
+                  }}
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Save Configuration'}
+                  {loading ? <CircularProgress size={24} sx={{ color: '#FFFFFF' }} /> : 'Save Configuration'}
                 </Button>
                 
                 <Button
                   variant="outlined"
-                  color="primary"
                   onClick={testSelfDestruct}
                   disabled={loading || !config.enabled}
+                  sx={{
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
+                    fontWeight: 'medium',
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                      borderColor: 'primary.dark',
+                      color: 'primary.dark'
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.5
+                    }
+                  }}
                 >
                   Test Self-Destruct
                 </Button>
@@ -373,18 +491,42 @@ const SelfDestructConfig = () => {
           )}
           
           {activeTab === 1 && (
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
+            <Paper 
+              sx={{ 
+                p: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 2
+                }}
+              >
                 Script Preview
               </Typography>
               
               {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                  <CircularProgress />
+                  <CircularProgress sx={{ color: 'primary.main' }} />
                 </Box>
               ) : (
                 <>
-                  <Typography variant="subtitle2" gutterBottom>
+                  <Typography 
+                    variant="subtitle2" 
+                    gutterBottom
+                    sx={{ 
+                      fontWeight: 'medium',
+                      color: 'primary.main',
+                      mb: 1
+                    }}
+                  >
                     Platform: {config.platform}
                   </Typography>
                   
@@ -400,13 +542,22 @@ const SelfDestructConfig = () => {
                       overflow: 'auto',
                       maxHeight: 400,
                       whiteSpace: 'pre-wrap',
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
                     }}
                   >
                     {scriptPreview || 'No script preview available. Please configure and save settings first.'}
                   </Box>
                   
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: 'text.secondary',
+                        fontStyle: 'italic'
+                      }}
+                    >
                       This script will be embedded in encrypted files and will execute when the file is accessed on unauthorized systems.
                     </Typography>
                   </Box>
@@ -416,9 +567,23 @@ const SelfDestructConfig = () => {
           )}
           
           {activeTab === 2 && (
-            <Paper sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">
+            <Paper 
+              sx={{ 
+                p: 3,
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography 
+                  variant="h6"
+                  sx={{ 
+                    fontWeight: 'bold',
+                    color: 'primary.dark'
+                  }}
+                >
                   Breach Logs
                 </Typography>
                 
@@ -426,6 +591,15 @@ const SelfDestructConfig = () => {
                   startIcon={<RefreshIcon />}
                   onClick={fetchBreachLogs}
                   disabled={logsLoading}
+                  sx={{
+                    color: 'primary.main',
+                    '&:hover': {
+                      backgroundColor: 'rgba(191, 219, 254, 0.2)'
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.5
+                    }
+                  }}
                 >
                   Refresh
                 </Button>
@@ -433,25 +607,43 @@ const SelfDestructConfig = () => {
               
               {logsLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                  <CircularProgress />
+                  <CircularProgress sx={{ color: 'primary.main' }} />
                 </Box>
               ) : breachLogs.length === 0 ? (
-                <Alert severity="info">No breach logs found.</Alert>
+                <Alert 
+                  severity="info"
+                  sx={{
+                    borderLeft: '4px solid #3B82F6',
+                    backgroundColor: 'rgba(191, 219, 254, 0.1)'
+                  }}
+                >
+                  No breach logs found.
+                </Alert>
               ) : (
-                <TableContainer>
+                <TableContainer sx={{ borderRadius: '8px', overflow: 'hidden' }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow>
-                        <TableCell>Timestamp</TableCell>
-                        <TableCell>IP Address</TableCell>
-                        <TableCell>MAC Address</TableCell>
-                        <TableCell>Platform</TableCell>
-                        <TableCell>Status</TableCell>
+                      <TableRow sx={{ backgroundColor: 'primary.dark' }}>
+                        <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Timestamp</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>IP Address</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>MAC Address</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Platform</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Status</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {breachLogs.map((log, index) => (
-                        <TableRow key={index}>
+                        <TableRow 
+                          key={index}
+                          sx={{
+                            '&:nth-of-type(odd)': {
+                              backgroundColor: '#F9FAFB',
+                            },
+                            '&:hover': {
+                              backgroundColor: 'rgba(191, 219, 254, 0.2)',
+                            }
+                          }}
+                        >
                           <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
                           <TableCell>{log.ip}</TableCell>
                           <TableCell>{log.mac}</TableCell>
@@ -461,6 +653,13 @@ const SelfDestructConfig = () => {
                               label={log.status}
                               color={log.status === 'deleted' ? 'success' : 'error'}
                               size="small"
+                              sx={{
+                                fontWeight: 'medium',
+                                ...(log.status === 'deleted' && {
+                                  backgroundColor: 'rgba(191, 219, 254, 0.3)',
+                                  color: 'primary.dark'
+                                })
+                              }}
                             />
                           </TableCell>
                         </TableRow>
@@ -474,104 +673,244 @@ const SelfDestructConfig = () => {
         </Grid>
         
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ 
+            borderRadius: '10px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'primary.light',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+            }
+          }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.dark',
+                  mb: 1
+                }}
+              >
                 Self-Destruct Feature
               </Typography>
               
-              <Typography variant="body2" paragraph>
+              <Typography 
+                variant="body2" 
+                paragraph
+                sx={{ 
+                  color: 'text.secondary',
+                  mb: 2
+                }}
+              >
                 The self-destruct feature embeds a script in encrypted files that deletes the data on unauthorized systems while preserving it on the server.
               </Typography>
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 How It Works:
               </Typography>
               
-              <List dense>
+              <List dense sx={{ mb: 1 }}>
                 <ListItem>
                   <ListItemIcon>
-                    <SecurityIcon fontSize="small" />
+                    <SecurityIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Script is embedded in encrypted files" />
+                  <ListItemText 
+                    primary="Script is embedded in encrypted files" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <SecurityIcon fontSize="small" />
+                    <SecurityIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Checks for authorized environment on access" />
+                  <ListItemText 
+                    primary="Checks for authorized environment on access" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <DeleteIcon fontSize="small" />
+                    <DeleteIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Deletes file locally if unauthorized" />
+                  <ListItemText 
+                    primary="Deletes file locally if unauthorized" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <WarningIcon fontSize="small" />
+                    <WarningIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Logs breach attempt with IP and MAC" />
+                  <ListItemText 
+                    primary="Logs breach attempt with IP and MAC" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <InfoIcon fontSize="small" />
+                    <InfoIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Server-side data remains intact" />
+                  <ListItemText 
+                    primary="Server-side data remains intact" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
               
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2, borderColor: 'primary.light' }} />
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 Supported Platforms:
               </Typography>
               
               <Grid container spacing={1}>
                 <Grid item>
-                  <Chip label="Windows" />
+                  <Chip 
+                    label="Windows" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="Linux" />
+                  <Chip 
+                    label="Linux" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="macOS" />
+                  <Chip 
+                    label="macOS" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
                 <Grid item>
-                  <Chip label="JavaScript" />
+                  <Chip 
+                    label="JavaScript" 
+                    sx={{ 
+                      bgcolor: 'rgba(191, 219, 254, 0.3)',
+                      color: 'primary.dark',
+                      fontWeight: 'medium',
+                      '&:hover': {
+                        bgcolor: 'rgba(191, 219, 254, 0.5)'
+                      }
+                    }}
+                  />
                 </Grid>
               </Grid>
               
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2, borderColor: 'primary.light' }} />
               
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
                 Security Considerations:
               </Typography>
               
-              <List dense>
+              <List dense sx={{ mb: 0 }}>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Only deletes data on unauthorized systems" />
+                  <ListItemText 
+                    primary="Only deletes data on unauthorized systems" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Unobtrusive for authorized users" />
+                  <ListItemText 
+                    primary="Unobtrusive for authorized users" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Compatible with common file types" />
+                  <ListItemText 
+                    primary="Compatible with common file types" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckIcon fontSize="small" />
+                    <CheckIcon fontSize="small" sx={{ color: 'primary.main' }} />
                   </ListItemIcon>
-                  <ListItemText primary="Logs breach attempts for auditing" />
+                  <ListItemText 
+                    primary="Logs breach attempts for auditing" 
+                    primaryTypographyProps={{ 
+                      sx: { color: 'text.primary' } 
+                    }}
+                  />
                 </ListItem>
               </List>
             </CardContent>
