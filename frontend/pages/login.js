@@ -9,11 +9,15 @@ import {
   Button,
   Paper,
   Alert,
-  Link as MuiLink
+  Link as MuiLink,
+  CircularProgress,
+  Divider,
+  useTheme
 } from '@mui/material';
 
 export default function Login() {
   const router = useRouter();
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -84,7 +88,8 @@ export default function Login() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        bgcolor: theme.palette.background.default,
+        color: theme.palette.text.primary
       }}
     >
       <Container maxWidth="sm">
@@ -95,22 +100,67 @@ export default function Login() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            borderRadius: '10px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
+            }
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: theme.palette.secondary.main,
+              mb: 1
+            }}
+          >
             QuantumTrust Data Security
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              mb: 3, 
+              color: theme.palette.text.secondary 
+            }}
+          >
             Sign in to your account
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 3 }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                width: '100%', 
+                mb: 3,
+                borderLeft: `4px solid ${theme.palette.error.main}`,
+                '& .MuiAlert-icon': {
+                  color: theme.palette.error.dark
+                }
+              }}
+            >
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit} 
+            sx={{ 
+              width: '100%',
+              mt: 1
+            }}
+          >
             {!showMfa ? (
               <>
                 <TextField
@@ -124,6 +174,21 @@ export default function Login() {
                   autoFocus
                   value={formData.username}
                   onChange={handleChange}
+                  sx={{
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                       borderColor: theme.palette.primary.main,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
                 />
                 <TextField
                   margin="normal"
@@ -136,6 +201,21 @@ export default function Login() {
                   autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
+                  sx={{
+                    mb: 3,
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                       borderColor: theme.palette.primary.main,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
                 />
               </>
             ) : (
@@ -150,6 +230,21 @@ export default function Login() {
                 placeholder="Enter 6-digit code"
                 value={formData.mfaCode}
                 onChange={handleChange}
+                sx={{
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.primary.main,
+                      borderWidth: 2,
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: theme.palette.secondary.main,
+                  },
+                }}
               />
             )}
 
@@ -157,16 +252,52 @@ export default function Login() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
+              aria-label={showMfa ? "Verify MFA code" : "Sign in"}
+              sx={{
+                mt: 2,
+                mb: 3,
+                py: 1.5,
+                background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                color: theme.palette.common.white,
+                fontWeight: 'bold',
+                '&:hover': {
+                  background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+                  transform: 'scale(1.02)',
+                  transition: 'transform 0.2s'
+                },
+                '&.Mui-disabled': {
+                  opacity: 0.7
+                }
+              }}
             >
-              {loading ? 'Loading...' : showMfa ? 'Verify' : 'Sign in'}
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Loading...
+                </Box>
+              ) : (
+                showMfa ? 'Verify' : 'Sign in'
+              )}
             </Button>
           </Box>
 
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Divider sx={{ width: '100%', mb: 2, borderColor: theme.palette.primary.light }} />
+
+          <Box sx={{ textAlign: 'center' }}>
             <Link href="/register" passHref legacyBehavior>
-              <MuiLink variant="body2" sx={{ color: 'primary.main' }}>
+              <MuiLink 
+                variant="body2" 
+                sx={{ 
+                  color: theme.palette.primary.main,
+                  fontWeight: 'medium',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: theme.palette.secondary.main,
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
                 Don't have an account? Register
               </MuiLink>
             </Link>
