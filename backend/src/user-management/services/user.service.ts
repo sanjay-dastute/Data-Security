@@ -230,7 +230,7 @@ export class UserService {
       mfa_enabled: user.mfa_enabled,
       details: user.details,
       approved_addresses: user.approved_addresses,
-      approvalStatus: user.approval_status,
+      approval_status: user.approval_status,
       isActivated: user.is_active,
       created_at: user.created_at,
       updated_at: user.updated_at,
