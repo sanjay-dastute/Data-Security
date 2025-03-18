@@ -34,12 +34,12 @@ export class UserService {
     };
   }
   
-  async findByOrganization(organizationId: string, page = 1, limit = 10): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
+  async findByOrganization(organization_id: string, page = 1, limit = 10): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
     
     const [users, total] = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.organizationId = :organizationId', { organizationId })
+      .where('user.organization_id = :organization_id', { organization_id })
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -225,7 +225,7 @@ export class UserService {
       username: user.username,
       email: user.email,
       role: user.role,
-      organization_id: user.organizationId,
+      organization_id: user.organization_id,
       permissions: user.permissions,
       mfa_enabled: user.mfa_enabled,
       details: user.details,

@@ -111,7 +111,7 @@ export class OrganizationService {
   }
 
   async getOrganizationUsers(
-    organizationId: string,
+    organization_id: string,
     page = 1,
     limit = 10
   ): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
@@ -119,16 +119,16 @@ export class OrganizationService {
     
     // Check if organization exists
     const organization = await this.organizationsRepository.findOne({
-      where: { id: organizationId },
+      where: { id: organization_id },
     });
     
     if (!organization) {
-      throw new NotFoundException(`Organization with ID ${organizationId} not found`);
+      throw new NotFoundException(`Organization with ID ${organization_id} not found`);
     }
     
     const [users, total] = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.organization_id = :organizationId', { organizationId })
+      .where('user.organization_id = :organization_id', { organization_id })
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -160,7 +160,7 @@ export class OrganizationService {
       username: user.username,
       email: user.email,
       role: user.role,
-      organization_id: user.organizationId,
+      organization_id: user.organization_id,
       permissions: user.permissions,
       mfa_enabled: user.mfa_enabled,
       details: user.details,
