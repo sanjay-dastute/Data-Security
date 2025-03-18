@@ -8,12 +8,14 @@ import {
   Paper,
   Avatar,
   Stack,
-  Divider
+  Divider,
+  useTheme
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 
 export default function VerificationPending() {
   const router = useRouter();
+  const theme = useTheme();
   const { email } = router.query;
 
   return (
@@ -23,7 +25,7 @@ export default function VerificationPending() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        bgcolor: theme.palette.background.default
       }}
     >
       <Container maxWidth="sm">
@@ -45,7 +47,7 @@ export default function VerificationPending() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+              background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`
             }
           }}
         >
@@ -55,7 +57,7 @@ export default function VerificationPending() {
             gutterBottom 
             sx={{ 
               fontWeight: 'bold', 
-              color: 'primary.dark',
+              color: theme.palette.secondary.main,
               mb: 1
             }}
           >
@@ -65,7 +67,7 @@ export default function VerificationPending() {
             variant="body1" 
             sx={{ 
               mb: 3, 
-              color: 'text.secondary' 
+              color: theme.palette.text.secondary 
             }}
           >
             Verification Pending
@@ -77,8 +79,8 @@ export default function VerificationPending() {
                 width: 64, 
                 height: 64, 
                 mx: 'auto',
-                bgcolor: 'primary.light',
-                color: 'primary.dark',
+                bgcolor: theme.palette.primary.light,
+                color: theme.palette.secondary.main,
                 mb: 2
               }}
             >
@@ -88,7 +90,7 @@ export default function VerificationPending() {
               variant="h5" 
               sx={{ 
                 fontWeight: 600, 
-                color: 'primary.dark',
+                color: theme.palette.secondary.main,
                 mb: 2
               }}
             >
@@ -100,7 +102,7 @@ export default function VerificationPending() {
             <Typography 
               variant="body2" 
               sx={{ 
-                color: 'text.secondary',
+                color: theme.palette.text.secondary,
                 mb: 4
               }}
             >
@@ -115,11 +117,11 @@ export default function VerificationPending() {
                   fullWidth
                   sx={{
                     py: 1.5,
-                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                    color: '#FFFFFF',
+                    background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+                    color: theme.palette.common.white,
                     fontWeight: 'bold',
                     '&:hover': {
-                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      background: `linear-gradient(to right, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
                       transform: 'scale(1.02)',
                       transition: 'transform 0.2s'
                     }
@@ -135,14 +137,13 @@ export default function VerificationPending() {
                   fullWidth
                   sx={{
                     py: 1.5,
-                    borderColor: 'primary.main',
-                    color: 'primary.main',
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
                     fontWeight: 'bold',
                     '&:hover': {
-                      borderColor: 'primary.dark',
-                      backgroundColor: 'primary.light',
-                      opacity: 0.1,
-                      color: 'primary.dark',
+                      borderColor: theme.palette.secondary.main,
+                      backgroundColor: `${theme.palette.primary.light}1A`, // 10% opacity
+                      color: theme.palette.secondary.main,
                       transform: 'scale(1.02)',
                       transition: 'transform 0.2s'
                     }
