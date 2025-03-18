@@ -7,17 +7,17 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "build:minimal": "nest build -p tsconfig.minimal.json",
+    "build:simplified": "nest build -p tsconfig.simplified.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:minimal": "node dist/minimal/main",
-    "start:minimal:dev": "nest start -p tsconfig.minimal.json --watch",
+    "start:simplified": "node dist/simplified/main",
+    "start:simplified:dev": "nest start -p tsconfig.simplified.json --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "seed": "ts-node scripts/seed.ts",
-    "seed:minimal": "ts-node scripts/seed-minimal.ts"
+    "seed:simplified": "ts-node scripts/seed-simplified.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
