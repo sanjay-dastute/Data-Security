@@ -12,7 +12,7 @@ export class IpMacService {
   ) {}
 
   async validateAddress(userId: string, ipAddress: string, macAddress: string): Promise<boolean> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       return false;
@@ -30,7 +30,7 @@ export class IpMacService {
   }
 
   async addApprovedAddress(userId: string, ipMacDto: IpMacDto): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       throw new Error('User not found');
@@ -59,7 +59,7 @@ export class IpMacService {
   }
 
   async removeApprovedAddress(userId: string, ipMacDto: IpMacDto): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       throw new Error('User not found');
@@ -78,7 +78,7 @@ export class IpMacService {
   }
 
   async getApprovedAddresses(userId: string): Promise<IpMacDto[]> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       throw new Error('User not found');
