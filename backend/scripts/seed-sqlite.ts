@@ -1,33 +1,34 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import * as bcrypt from 'bcrypt';
-import { getRepository } from 'typeorm';
-import { User, UserRole } from '../src/user-management/entities/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User, UserRole, ApprovalStatus } from '../src/user-management/entities/user.entity';
 import { Organization } from '../src/user-management/entities/organization.entity';
+import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   
   try {
-    // Create organization
-    const orgRepository = getRepository(Organization);
-    const userRepository = getRepository(User);
-    
-    // Check if data already exists
-    const existingUsers = await userRepository.find();
-    if (existingUsers.length > 0) {
-      console.log('Database already seeded. Skipping...');
-      await app.close();
-      return;
-    }
-    
+    // Get repositories
+    const userRepository = app.get<Repository<User>>(getRepositoryToken(User));
+    const orgRepository = app.get<Repository<Organization>>(getRepositoryToken(Organization));
+
     // Create test organization
     const org = await orgRepository.save({
       name: 'Test Organization',
       email: 'test@org.com',
       phone: '1234567890',
-      created_at: new Date(),
-      updated_at: new Date()
+      settings: JSON.stringify({
+        encryption_defaults: {
+          algorithm: 'AES-256-GCM',
+          key_rotation_days: 30
+        },
+        storage_config: {
+          type: 'local',
+          path: '/tmp/encrypted'
+        }
+      })
     });
 
     // Create admin user
@@ -36,9 +37,14 @@ async function bootstrap() {
       email: 'admin@quantumtrust.com',
       password: await bcrypt.hash('Admin@123', 10),
       role: UserRole.ADMIN,
-      approved_addresses: [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }],
-      created_at: new Date(),
-      updated_at: new Date()
+      approvalStatus: ApprovalStatus.APPROVED,
+      isActivated: true,
+      approved_addresses: JSON.stringify([{
+        ip: '127.0.0.1',
+        mac: '00:00:00:00:00:00',
+        added: new Date(),
+        last_used: null
+      }])
     });
 
     // Create org admin user
@@ -48,9 +54,14 @@ async function bootstrap() {
       password: await bcrypt.hash('Org@123', 10),
       role: UserRole.ORG_ADMIN,
       organizationId: org.id,
-      approved_addresses: [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }],
-      created_at: new Date(),
-      updated_at: new Date()
+      approvalStatus: ApprovalStatus.APPROVED,
+      isActivated: true,
+      approved_addresses: JSON.stringify([{
+        ip: '127.0.0.1',
+        mac: '00:00:00:00:00:00',
+        added: new Date(),
+        last_used: null
+      }])
     });
 
     // Create regular user
@@ -60,12 +71,17 @@ async function bootstrap() {
       password: await bcrypt.hash('User@123', 10),
       role: UserRole.ORG_USER,
       organizationId: org.id,
-      approved_addresses: [{ ip: '127.0.0.1', mac: '00:00:00:00:00:00' }],
-      created_at: new Date(),
-      updated_at: new Date()
+      approvalStatus: ApprovalStatus.APPROVED,
+      isActivated: true,
+      approved_addresses: JSON.stringify([{
+        ip: '127.0.0.1',
+        mac: '00:00:00:00:00:00',
+        added: new Date(),
+        last_used: null
+      }])
     });
 
-    console.log('Database seeded successfully');
+    console.log('Test data seeded successfully');
   } catch (error) {
     console.error('Error seeding database:', error);
   } finally {

@@ -2,160 +2,144 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../entities/organization.entity';
-import { User } from '../entities/user.entity';
-import { CreateOrganizationDto, UpdateOrganizationDto, OrganizationResponseDto } from '../dto/organization.dto';
-import { UserResponseDto } from '../dto/user.dto';
+import { CreateOrganizationDto, UpdateOrganizationDto } from '../dto/organization.dto';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private organizationsRepository: Repository<Organization>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
   ) {}
 
-  async findAll(page = 1, limit = 10): Promise<{ organizations: OrganizationResponseDto[]; total: number; page: number; limit: number }> {
-    const skip = (page - 1) * limit;
-    
-    const [organizations, total] = await this.organizationsRepository
-      .createQueryBuilder('organization')
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-    
-    return {
-      organizations: organizations.map(this.mapToOrganizationResponse),
-      total,
-      page,
-      limit,
-    };
+  async findAll(): Promise<Organization[]> {
+    return this.organizationsRepository.find();
   }
 
-  async findOne(id: string): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
-    
+  async findOne(id: string): Promise<Organization> {
+    const organization = await this.organizationsRepository.findOne({
+      where: { id },
+    });
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${id} not found`);
     }
-    
-    return this.mapToOrganizationResponse(organization);
+    return organization;
   }
 
-  async create(createOrganizationDto: CreateOrganizationDto): Promise<OrganizationResponseDto> {
-    // Check if organization with same name already exists
-    const existingOrg = await this.organizationsRepository.findOne({
-      where: { name: createOrganizationDto.name },
+  async findByName(name: string): Promise<Organization | undefined> {
+    return this.organizationsRepository.findOne({
+      where: { name },
     });
-    
+  }
+
+  async create(createOrganizationDto: CreateOrganizationDto): Promise<Organization> {
+    // Check if organization with same name already exists
+    const existingOrg = await this.findByName(createOrganizationDto.name);
     if (existingOrg) {
       throw new ConflictException('Organization with this name already exists');
     }
-    
-    // Create new organization
-    const newOrganization = this.organizationsRepository.create({
-      ...createOrganizationDto,
-      settings: createOrganizationDto.settings || {},
-      profile: createOrganizationDto.profile || {},
-    });
-    
-    const savedOrganization = await this.organizationsRepository.save(newOrganization);
-    
-    return this.mapToOrganizationResponse(savedOrganization);
-  }
 
-  async update(id: string, updateOrganizationDto: UpdateOrganizationDto): Promise<OrganizationResponseDto> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
-    
-    if (!organization) {
-      throw new NotFoundException(`Organization with ID ${id} not found`);
-    }
-    
-    // Check if name is being updated and if it already exists
-    if (updateOrganizationDto.name && updateOrganizationDto.name !== organization.name) {
-      const existingName = await this.organizationsRepository.findOne({
-        where: { name: updateOrganizationDto.name },
-      });
-      
-      if (existingName) {
-        throw new ConflictException('Organization with this name already exists');
+    // Default settings for a new organization
+    const defaultSettings = {
+      encryption_defaults: {
+        algorithm: 'AES-256-GCM',
+        key_rotation_days: 30
+      },
+      storage_config: {
+        type: 'local',
+        path: '/tmp/encrypted'
       }
-    }
-    
-    // Update organization
-    Object.assign(organization, updateOrganizationDto);
-    
-    const updatedOrganization = await this.organizationsRepository.save(organization);
-    
-    return this.mapToOrganizationResponse(updatedOrganization);
-  }
-
-  async remove(id: string): Promise<{ message: string }> {
-    const organization = await this.organizationsRepository.findOne({ where: { organization_id: id } });
-    
-    if (!organization) {
-      throw new NotFoundException(`Organization with ID ${id} not found`);
-    }
-    
-    // Check if organization has users
-    const usersCount = await this.usersRepository.count({
-      where: { organization_id: id },
-    });
-    
-    if (usersCount > 0) {
-      throw new ConflictException('Cannot delete organization with active users');
-    }
-    
-    await this.organizationsRepository.remove(organization);
-    
-    return { message: `Organization with ID ${id} has been deleted` };
-  }
-
-  async getOrganizationUsers(
-    organizationId: string,
-    page = 1,
-    limit = 10
-  ): Promise<{ users: UserResponseDto[]; total: number; page: number; limit: number }> {
-    const skip = (page - 1) * limit;
-    
-    // Check if organization exists
-    const organization = await this.organizationsRepository.findOne({
-      where: { organization_id: organizationId },
-    });
-    
-    if (!organization) {
-      throw new NotFoundException(`Organization with ID ${organizationId} not found`);
-    }
-    
-    const [users, total] = await this.usersRepository
-      .createQueryBuilder('user')
-      .where('user.organization_id = :organizationId', { organizationId })
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-    
-    return {
-      users: users.map(this.mapToUserResponse),
-      total,
-      page,
-      limit,
     };
+
+    // Merge with provided settings if any
+    const mergedSettings = createOrganizationDto.settings 
+      ? { ...defaultSettings, ...createOrganizationDto.settings }
+      : defaultSettings;
+
+    // Create organization with settings as JSON string for SQLite compatibility
+    const organization = this.organizationsRepository.create({
+      name: createOrganizationDto.name,
+      email: createOrganizationDto.email,
+      phone: createOrganizationDto.phone,
+      api_key: createOrganizationDto.api_key,
+      settings: JSON.stringify(mergedSettings)
+    });
+
+    const savedOrganization = await this.organizationsRepository.save(organization);
+    return savedOrganization;
   }
 
-  private mapToOrganizationResponse(organization: Organization): OrganizationResponseDto {
+  async update(id: string, updateOrganizationDto: UpdateOrganizationDto): Promise<Organization> {
+    const organization = await this.findOne(id);
+
+    // Update basic fields
+    if (updateOrganizationDto.name) organization.name = updateOrganizationDto.name;
+    if (updateOrganizationDto.email) organization.email = updateOrganizationDto.email;
+    if (updateOrganizationDto.phone) organization.phone = updateOrganizationDto.phone;
+    if (updateOrganizationDto.api_key) organization.api_key = updateOrganizationDto.api_key;
+
+    // Handle settings as JSON string
+    if (updateOrganizationDto.settings) {
+      // Parse existing settings
+      const currentSettings = organization.settings 
+        ? JSON.parse(organization.settings as string) 
+        : {};
+      
+      // Merge with new settings
+      const updatedSettings = {
+        ...currentSettings,
+        ...updateOrganizationDto.settings,
+      };
+      
+      // Save as JSON string
+      organization.settings = JSON.stringify(updatedSettings);
+    }
+
+    return this.organizationsRepository.save(organization);
+  }
+
+  async remove(id: string): Promise<void> {
+    const organization = await this.findOne(id);
+    await this.organizationsRepository.remove(organization);
+  }
+
+  async toResponseDto(organization: Organization) {
+    // Parse settings from JSON string
+    const settings = organization.settings 
+      ? JSON.parse(organization.settings as string)
+      : {};
+      
     return {
-      organization_id: organization.organization_id,
+      id: organization.id,
       name: organization.name,
-      admin_user_id: organization.admin_user_id,
-      settings: organization.settings,
-      profile: organization.profile,
+      email: organization.email,
+      phone: organization.phone,
+      api_key: organization.api_key,
+      settings: settings,
       created_at: organization.created_at,
       updated_at: organization.updated_at,
     };
   }
 
-  private mapToUserResponse(user: User): UserResponseDto {
-    const { password_hash, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+  async getEncryptionDefaults(id: string) {
+    const organization = await this.findOne(id);
+    
+    // Parse settings from JSON string
+    const settings = organization.settings 
+      ? JSON.parse(organization.settings as string)
+      : {};
+    
+    // Extract encryption defaults with fallbacks
+    return {
+      encryption: {
+        algorithm: settings.encryption_defaults?.algorithm || 'AES-256-GCM',
+        key_rotation_interval: settings.encryption_defaults?.key_rotation_days || 30
+      },
+      storage: {
+        type: settings.storage_config?.type || 'local',
+        path: settings.storage_config?.path || '/tmp/encrypted',
+        cloud_provider: settings.storage_config?.cloud_provider || 'aws',
+        bucket: settings.storage_config?.bucket || 'quantumtrust-encrypted'
+      }
+    };
   }
 }
