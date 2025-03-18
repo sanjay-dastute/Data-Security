@@ -5,12 +5,13 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
-import { User, UserRole } from '../../user-management/entities/user.entity';
+import { User, UserRole, ApprovalStatus } from '../../user-management/entities/user.entity';
 import { Organization } from '../../user-management/entities/organization.entity';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginResponseDto, MfaRequiredResponseDto, RegisterResponseDto } from '../dto/auth-response.dto';
 import { SetupMfaResponseDto } from '../dto/mfa.dto';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -31,13 +32,13 @@ export class AuthService {
       return null;
     }
     
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
       return null;
     }
     
-    if (user.approvalStatus !== 'approved' || !user.isActivated) {
+    if (user.approval_status !== 'approved' || !user.is_active) {
       throw new UnauthorizedException('Your account is pending approval or not activated');
     }
     
@@ -66,33 +67,38 @@ export class AuthService {
       if (!mfaCode) {
         return {
           requiresMfa: true,
-          userId: user.user_id,
+          userId: user.id,
           message: 'MFA code required',
         };
       }
       
-      const isValidMfa = await this.verifyMfaCode(user.user_id, mfaCode);
+      const isValidMfa = await this.verifyMfaCode(user.id, mfaCode);
       if (!isValidMfa) {
         throw new UnauthorizedException('Invalid MFA code');
       }
     }
     
-    const payload = {
-      sub: user.user_id,
+    // Update last login
+    user.last_login = new Date();
+    await this.usersRepository.save(user);
+    
+    // Generate JWT token
+    const payload: JwtPayload = {
+      sub: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
-      organizationId: user.organization_id,
+      organizationId: user.organizationId,
     };
     
     return {
       access_token: this.jwtService.sign(payload),
       user: {
-        userId: user.user_id,
+        userId: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
-        organizationId: user.organization_id,
+        organizationId: user.organizationId,
       },
     };
   }
@@ -114,34 +120,44 @@ export class AuthService {
     }
     
     // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create organization if provided
     let organizationId: string | null = null;
     if (orgName) {
       const newOrg = this.organizationsRepository.create({
         name: orgName,
-        settings: {},
-        profile: { org_name: orgName },
+        email: `${orgName.toLowerCase().replace(/\s+/g, '-')}@example.com`,
+        settings: {
+          key_timer: 300,
+          storage_config: {
+            provider: 'aws_s3',
+            credentials: {
+              accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'mock-access-key',
+              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'mock-secret-key',
+            },
+            bucket: 'quantumtrust-data',
+          },
+        },
       });
       
       const savedOrg = await this.organizationsRepository.save(newOrg);
-      organizationId = savedOrg.organization_id;
+      organizationId = savedOrg.id;
     }
     
     // Create user
     const newUser = this.usersRepository.create({
       username,
       email,
-      password_hash: passwordHash,
+      password: hashedPassword,
       role: organizationId ? UserRole.ORG_ADMIN : UserRole.ORG_USER,
-      organization_id: organizationId,
+      organizationId: organizationId,
       permissions: {},
       mfa_enabled: false,
       details: {},
       approved_addresses: [],
-      isActivated: false,
-      approvalStatus: 'pending',
+      is_active: false,
+      approval_status: ApprovalStatus.PENDING,
     });
     
     const savedUser = await this.usersRepository.save(newUser);
@@ -149,19 +165,19 @@ export class AuthService {
     // If organization was created, set the admin
     if (organizationId) {
       await this.organizationsRepository.update(
-        { organization_id: organizationId },
-        { admin_user_id: savedUser.user_id }
+        { id: organizationId },
+        { admin_user_id: savedUser.id }
       );
     }
     
     return {
       message: 'Registration successful. Please wait for admin approval.',
-      userId: savedUser.user_id,
+      userId: savedUser.id,
     };
   }
 
   async setupMfa(userId: string): Promise<SetupMfaResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -171,11 +187,8 @@ export class AuthService {
       name: `QuantumTrust:${user.username}`,
     });
     
-    // Store secret in user details
-    user.details = {
-      ...user.details,
-      mfa_secret: secret.base32,
-    };
+    // Store secret in mfa_secret field
+    user.mfa_secret = secret.base32;
     
     await this.usersRepository.save(user);
     
@@ -189,9 +202,9 @@ export class AuthService {
   }
 
   async verifyMfa(userId: string, code: string): Promise<LoginResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
-    if (!user || !user.details.mfa_secret) {
+    if (!user || !user.mfa_secret) {
       throw new UnauthorizedException('User not found or MFA not set up');
     }
     
@@ -207,36 +220,40 @@ export class AuthService {
       await this.usersRepository.save(user);
     }
     
+    // Update last login
+    user.last_login = new Date();
+    await this.usersRepository.save(user);
+    
     // Generate token
-    const payload = {
-      sub: user.user_id,
+    const payload: JwtPayload = {
+      sub: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
-      organizationId: user.organization_id,
+      organizationId: user.organizationId,
     };
     
     return {
       access_token: this.jwtService.sign(payload),
       user: {
-        userId: user.user_id,
+        userId: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
-        organizationId: user.organization_id,
+        organizationId: user.organizationId,
       },
     };
   }
 
   private async verifyMfaCode(userId: string, code: string): Promise<boolean> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     
-    if (!user || !user.details.mfa_secret) {
+    if (!user || !user.mfa_secret) {
       return false;
     }
     
     return speakeasy.totp.verify({
-      secret: user.details.mfa_secret,
+      secret: user.mfa_secret,
       encoding: 'base32',
       token: code,
     });
@@ -250,5 +267,9 @@ export class AuthService {
     return user.approved_addresses.some(
       (address) => address.ip === ipAddress && address.mac === macAddress
     );
+  }
+  
+  async findById(id: string): Promise<User> {
+    return this.usersRepository.findOne({ where: { id } });
   }
 }

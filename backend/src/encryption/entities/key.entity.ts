@@ -3,7 +3,10 @@ import { User } from '../../user-management/entities/user.entity';
 
 export enum KeyType {
   ENCRYPTION = 'encryption',
-  SIGNATURE = 'signature',
+  SIGNING = 'signing',
+  MASTER = 'master',
+  RECOVERY = 'recovery',
+  SYMMETRIC = 'symmetric',
 }
 
 export enum KeyStatus {
@@ -14,12 +17,22 @@ export enum KeyStatus {
   RECOVERY_PENDING = 'RECOVERY_PENDING',
 }
 
+export enum KeyAlgorithm {
+  RSA = 'RSA',
+  ECC = 'ECC',
+  AES = 'AES',
+  CHACHA20 = 'CHACHA20',
+  KYBER = 'KYBER',
+  DILITHIUM = 'DILITHIUM',
+  FALCON = 'FALCON',
+}
+
 @Entity('keys')
 export class Key {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'key_id', nullable: true })
+  @Column({ nullable: true })
   key_id: string;
 
   @Column()
@@ -51,12 +64,29 @@ export class Key {
   @Column()
   key_data: string;
 
+  @Column({ nullable: true, type: 'text' })
+  key_material: string;
+
   @Column({
     type: 'enum',
     enum: KeyStatus,
     default: KeyStatus.ACTIVE,
   })
   status: KeyStatus;
+
+  @Column({
+    type: 'enum',
+    enum: KeyAlgorithm,
+    default: KeyAlgorithm.AES,
+    nullable: true,
+  })
+  algorithm: KeyAlgorithm;
+
+  @Column({ nullable: true })
+  key_size: number;
+
+  @Column({ default: false })
+  is_quantum_resistant: boolean;
 
   @CreateDateColumn()
   created_at: Date;
@@ -88,4 +118,13 @@ export class Key {
 
   @Column({ default: 0 })
   timer_interval: number;
+
+  @Column({ default: false })
+  hsm_backed: boolean;
+
+  @Column({ nullable: true })
+  hsm_slot_id: string;
+
+  @Column({ nullable: true })
+  public_key: string;
 }

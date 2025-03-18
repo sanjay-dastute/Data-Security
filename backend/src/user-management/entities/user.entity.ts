@@ -2,15 +2,21 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDa
 import { Organization } from './organization.entity';
 
 export enum UserRole {
-  ADMIN = 'admin',
-  ORG_ADMIN = 'org_admin',
-  ORG_USER = 'org_user',
+  ADMIN = 'ADMIN',
+  ORG_ADMIN = 'ORG_ADMIN',
+  ORG_USER = 'ORG_USER',
+}
+
+export enum ApprovalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
 }
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  user_id: string;
+  id: string;
 
   @Column({ unique: true })
   username: string;
@@ -19,7 +25,7 @@ export class User {
   email: string;
 
   @Column()
-  password_hash: string;
+  password: string;
 
   @Column({
     type: 'enum',
@@ -29,10 +35,10 @@ export class User {
   role: UserRole;
 
   @Column({ nullable: true })
-  organization_id: string;
+  organizationId: string;
 
-  @ManyToOne(() => Organization, organization => organization.users, { nullable: true })
-  @JoinColumn({ name: 'organization_id' })
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'organizationId' })
   organization: Organization;
 
   @Column({ type: 'json', default: {} })
@@ -41,6 +47,9 @@ export class User {
   @Column({ default: false })
   mfa_enabled: boolean;
 
+  @Column({ nullable: true })
+  mfa_secret: string;
+
   @Column({ type: 'json', default: {} })
   details: Record<string, any>;
 
@@ -48,10 +57,35 @@ export class User {
   approved_addresses: Array<{ ip: string; mac: string }>;
 
   @Column({ default: false })
-  isActivated: boolean;
+  is_active: boolean;
 
-  @Column({ default: 'pending', enum: ['pending', 'approved', 'rejected'] })
-  approvalStatus: string;
+  @Column({
+    type: 'enum',
+    enum: ApprovalStatus,
+    default: ApprovalStatus.PENDING,
+  })
+  approval_status: ApprovalStatus;
+
+  @Column({ nullable: true })
+  reset_token: string;
+
+  @Column({ nullable: true })
+  reset_token_expires: Date;
+
+  @Column({ nullable: true })
+  profile_image: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  job_title: string;
+
+  @Column({ nullable: true })
+  department: string;
+
+  @Column({ nullable: true })
+  last_login: Date;
 
   @CreateDateColumn()
   created_at: Date;

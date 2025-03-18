@@ -5,6 +5,18 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 
+// Entity imports
+import { User } from './user-management/entities/user.entity';
+import { Organization } from './user-management/entities/organization.entity';
+import { VerificationToken } from './auth/entities/verification-token.entity';
+import { Key } from './encryption/entities/key.entity';
+import { TemporaryMetadata } from './data-handling/entities/temporary-metadata.entity';
+import { KeyShard } from './advanced-features/key-recovery/entities/key-shard.entity';
+import { ShardApproval } from './advanced-features/key-recovery/entities/shard-approval.entity';
+import { BatchProcess } from './advanced-features/batch-processing/entities/batch-process.entity';
+import { DeploymentConfig } from './deployment/entities/deployment-config.entity';
+
+// Module imports
 import { AuthModule } from './auth/auth.module';
 import { UserManagementModule } from './user-management/user-management.module';
 import { EncryptionModule } from './encryption/encryption.module';
@@ -30,13 +42,26 @@ import { HealthModule } from './health/health.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('DB_HOST', 'localhost'),
-        port: configService.get('DB_PORT', 5432),
+        port: parseInt(configService.get('DB_PORT', '5432'), 10),
         username: configService.get('DB_USERNAME', 'postgres'),
         password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_DATABASE', 'quantumtrust'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV', 'development') !== 'production',
+        entities: [
+          User,
+          Organization,
+          VerificationToken,
+          Key,
+          TemporaryMetadata,
+          KeyShard,
+          ShardApproval,
+          BatchProcess,
+          DeploymentConfig
+        ],
+        synchronize: configService.get('TYPEORM_SYNCHRONIZE', 'true') === 'true',
         logging: configService.get('NODE_ENV', 'development') !== 'production',
+        ssl: configService.get('DB_SSL', 'false') === 'true' ? {
+          rejectUnauthorized: false
+        } : false,
       }),
     }),
     
