@@ -441,8 +441,16 @@ const OrgUserDashboard = () => {
         {/* File Manager Tab */}
         {currentTab === 1 && (
           <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="h6">File Manager</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+              <Typography 
+                variant="h6"
+                sx={{
+                  color: 'primary.dark',
+                  fontWeight: 600
+                }}
+              >
+                File Manager
+              </Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                   size="small"
@@ -450,13 +458,38 @@ const OrgUserDashboard = () => {
                   variant="outlined"
                   value={fileSearchTerm}
                   onChange={(e) => setFileSearchTerm(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.dark',
+                    },
+                  }}
                 />
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Filter</InputLabel>
+                  <InputLabel sx={{ color: 'text.secondary' }}>Filter</InputLabel>
                   <Select
                     value={fileFilter}
                     label="Filter"
                     onChange={(e) => setFileFilter(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.light'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      }
+                    }}
                   >
                     <MenuItem value="all">All Files</MenuItem>
                     <MenuItem value="ENCRYPTED">Encrypted</MenuItem>
@@ -467,6 +500,14 @@ const OrgUserDashboard = () => {
                   variant="contained"
                   component="label"
                   startIcon={<UploadIcon />}
+                  sx={{
+                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                    '&:hover': {
+                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                      transform: 'scale(1.02)',
+                      transition: 'transform 0.2s'
+                    }
+                  }}
                 >
                   Upload File
                   <input
@@ -478,23 +519,32 @@ const OrgUserDashboard = () => {
               </Box>
             </Box>
             
-            {fileError && <Alert severity="error" sx={{ mb: 2 }}>{fileError}</Alert>}
+            {fileError && <Alert severity="error" sx={{ mb: 3 }}>{fileError}</Alert>}
             
             {fileLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                <CircularProgress />
+                <CircularProgress sx={{ color: 'primary.main' }} />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper}
+                sx={{ 
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
-                  <TableHead>
+                  <TableHead sx={{ backgroundColor: 'primary.dark' }}>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Size</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Uploaded At</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Name</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Type</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Size</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Status</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Uploaded At</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -508,6 +558,18 @@ const OrgUserDashboard = () => {
                             label={file.status} 
                             color={file.status === 'ENCRYPTED' ? 'success' : 'warning'}
                             size="small"
+                            sx={{
+                              '&.MuiChip-colorSuccess': {
+                                backgroundColor: 'rgba(191, 219, 254, 0.8)',
+                                color: 'primary.dark',
+                                fontWeight: 500
+                              },
+                              '&.MuiChip-colorWarning': {
+                                backgroundColor: 'rgba(254, 215, 170, 0.8)',
+                                color: '#9A3412',
+                                fontWeight: 500
+                              }
+                            }}
                           />
                         </TableCell>
                         <TableCell>{new Date(file.uploaded_at).toLocaleString()}</TableCell>
@@ -549,20 +611,54 @@ const OrgUserDashboard = () => {
               onClose={() => setFileViewOpen(false)}
               maxWidth="md"
               fullWidth
+              sx={{
+                '& .MuiDialog-paper': {
+                  borderRadius: '10px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                }
+              }}
             >
-              <DialogTitle>
+              <DialogTitle sx={{ 
+                background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                color: 'white',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 {selectedFile?.name}
                 <Chip 
                   label={selectedFile?.status} 
                   color={selectedFile?.status === 'ENCRYPTED' ? 'success' : 'warning'}
                   size="small"
-                  sx={{ ml: 1 }}
+                  sx={{ 
+                    ml: 1,
+                    '&.MuiChip-colorSuccess': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      color: 'primary.dark',
+                      fontWeight: 500
+                    },
+                    '&.MuiChip-colorWarning': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      color: '#9A3412',
+                      fontWeight: 500
+                    }
+                  }}
                 />
               </DialogTitle>
-              <DialogContent>
+              <DialogContent sx={{ mt: 2 }}>
                 {selectedFile?.status === 'UNENCRYPTED' && (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6" gutterBottom>Select Fields to Encrypt</Typography>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Select Fields to Encrypt
+                    </Typography>
                     <List>
                       {fileFields.map((field) => (
                         <ListItem key={field.name}>
@@ -582,20 +678,65 @@ const OrgUserDashboard = () => {
                     </List>
                   </Box>
                 )}
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="h6" gutterBottom>File Preview</Typography>
-                <Paper sx={{ p: 2, maxHeight: 300, overflow: 'auto' }}>
+                <Divider sx={{ my: 3 }} />
+                <Typography 
+                  variant="h6" 
+                  gutterBottom
+                  sx={{
+                    color: 'primary.dark',
+                    fontWeight: 600,
+                    mb: 2
+                  }}
+                >
+                  File Preview
+                </Typography>
+                <Paper 
+                  sx={{ 
+                    p: 3, 
+                    maxHeight: 300, 
+                    overflow: 'auto',
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid',
+                    borderColor: 'primary.light'
+                  }}
+                >
                   <pre>{selectedFile?.content}</pre>
                 </Paper>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setFileViewOpen(false)}>Close</Button>
+              <DialogActions sx={{ p: 2 }}>
+                <Button 
+                  onClick={() => setFileViewOpen(false)}
+                  sx={{
+                    color: 'primary.main',
+                    borderColor: 'primary.main',
+                    '&:hover': {
+                      backgroundColor: 'primary.light',
+                      borderColor: 'primary.dark',
+                      color: 'primary.dark',
+                    }
+                  }}
+                >
+                  Close
+                </Button>
                 {selectedFile?.status === 'UNENCRYPTED' && (
                   <Button 
                     variant="contained" 
                     startIcon={<LockIcon />}
                     onClick={encryptFile}
                     disabled={selectedFields.length === 0}
+                    sx={{
+                      background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                      '&:hover': {
+                        background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                        transform: 'scale(1.02)',
+                        transition: 'transform 0.2s'
+                      },
+                      '&.Mui-disabled': {
+                        background: '#E5E7EB',
+                        color: '#9CA3AF'
+                      }
+                    }}
                   >
                     Encrypt Selected Fields
                   </Button>
@@ -608,8 +749,16 @@ const OrgUserDashboard = () => {
         {/* Keys Tab */}
         {currentTab === 2 && (
           <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="h6">Encryption Keys</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+              <Typography 
+                variant="h6"
+                sx={{
+                  color: 'primary.dark',
+                  fontWeight: 600
+                }}
+              >
+                Encryption Keys
+              </Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                   size="small"
@@ -617,13 +766,38 @@ const OrgUserDashboard = () => {
                   variant="outlined"
                   value={keySearchTerm}
                   onChange={(e) => setKeySearchTerm(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                        borderWidth: 2,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.dark',
+                    },
+                  }}
                 />
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Filter</InputLabel>
+                  <InputLabel sx={{ color: 'text.secondary' }}>Filter</InputLabel>
                   <Select
                     value={keyFilter}
                     label="Filter"
                     onChange={(e) => setKeyFilter(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.light'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main'
+                      }
+                    }}
                   >
                     <MenuItem value="all">All Keys</MenuItem>
                     <MenuItem value="ACTIVE">Active</MenuItem>
@@ -634,23 +808,32 @@ const OrgUserDashboard = () => {
               </Box>
             </Box>
             
-            {keyError && <Alert severity="error" sx={{ mb: 2 }}>{keyError}</Alert>}
+            {keyError && <Alert severity="error" sx={{ mb: 3 }}>{keyError}</Alert>}
             
             {keyLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-                <CircularProgress />
+                <CircularProgress sx={{ color: 'primary.main' }} />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper}
+                sx={{ 
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
-                  <TableHead>
+                  <TableHead sx={{ backgroundColor: 'primary.dark' }}>
                     <TableRow>
-                      <TableCell>Key ID</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Created At</TableCell>
-                      <TableCell>Expires At</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Used For</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Key ID</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Name</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Created At</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Expires At</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Status</TableCell>
+                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Used For</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -668,6 +851,23 @@ const OrgUserDashboard = () => {
                               key.status === 'EXPIRED' ? 'warning' : 'error'
                             }
                             size="small"
+                            sx={{
+                              '&.MuiChip-colorSuccess': {
+                                backgroundColor: 'rgba(191, 219, 254, 0.8)',
+                                color: 'primary.dark',
+                                fontWeight: 500
+                              },
+                              '&.MuiChip-colorWarning': {
+                                backgroundColor: 'rgba(254, 215, 170, 0.8)',
+                                color: '#9A3412',
+                                fontWeight: 500
+                              },
+                              '&.MuiChip-colorError': {
+                                backgroundColor: 'rgba(254, 202, 202, 0.8)',
+                                color: '#991B1B',
+                                fontWeight: 500
+                              }
+                            }}
                           />
                         </TableCell>
                         <TableCell>{key.used_for || 'General Encryption'}</TableCell>
