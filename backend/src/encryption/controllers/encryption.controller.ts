@@ -1,90 +1,62 @@
-import { Controller, Post, Body, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Param } from '@nestjs/common';
 import { EncryptionService } from '../services/encryption.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../user-management/guards/roles.guard';
-import { Roles } from '../../user-management/decorators/roles.decorator';
-import { UserRole } from '../../user-management/entities/user.entity';
+import { BlockchainService } from '../services/blockchain.service';
 
 @Controller('encryption')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class EncryptionController {
-  constructor(private readonly encryptionService: EncryptionService) {}
+  constructor(
+    private readonly encryptionService: EncryptionService,
+    private readonly blockchainService: BlockchainService,
+  ) {}
 
   @Post('encrypt')
-  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
-  async encryptData(
-    @Body() data: { 
-      data: string | Record<string, any>; 
-      keyId: string; 
-      selectedFields?: string[];
-    },
+  async encrypt(
+    @Body() body: { keyId: string; data: any },
     @Request() req,
   ) {
-    // Check if user has access to the key
-    // This would be handled by a service in a real implementation
-    
-    return this.encryptionService.encryptData(
-      data.data,
-      data.keyId,
-      data.selectedFields,
+    const encryptedData = await this.encryptionService.encryptData(
+        req.user.id,
+        body.keyId,
+        body.data,
     );
+
+    // Log encryption event to blockchain
+    await this.blockchainService.logEvent({
+      user_id: req.user.id,
+      event_type: 'data_encryption',
+      timestamp: new Date(),
+      metadata: {
+        key_id: body.keyId,
+        data_size: JSON.stringify(body.data).length,
+      },
+    });
+
+    return encryptedData;
   }
 
   @Post('decrypt')
-  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
-  async decryptData(
-    @Body() data: { 
-      encryptedData: string | Record<string, any>; 
-      keyId: string; 
-      encryptedFields?: string[];
-    },
+  async decrypt(
+    @Body() body: { keyId: string; encryptedData: string },
     @Request() req,
   ) {
-    // Check if user has access to the key
-    // This would be handled by a service in a real implementation
-    
-    return this.encryptionService.decryptData(
-      data.encryptedData,
-      data.keyId,
-      data.encryptedFields,
+    const decryptedData = await this.encryptionService.decryptData(
+        req.user.id,
+        body.keyId,
+        body.encryptedData,
     );
-  }
 
-  @Post('sign')
-  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
-  async signData(
-    @Body() data: { 
-      data: string; 
-      keyId: string;
-    },
-    @Request() req,
-  ) {
-    // Check if user has access to the key
-    // This would be handled by a service in a real implementation
-    
-    return this.encryptionService.signData(
-      data.data,
-      data.keyId,
-    );
-  }
+    // Log decryption event to blockchain
+    await this.blockchainService.logEvent({
+      user_id: req.user.id,
+      event_type: 'data_decryption',
+      timestamp: new Date(),
+      metadata: {
+        key_id: body.keyId,
+      },
+    });
 
-  @Post('verify')
-  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
-  async verifySignature(
-    @Body() data: { 
-      data: string; 
-      signature: string;
-      keyId: string;
-    },
-    @Request() req,
-  ) {
-    // Check if user has access to the key
-    // This would be handled by a service in a real implementation
-    
-    return this.encryptionService.verifySignature(
-      data.data,
-      data.signature,
-      data.keyId,
-    );
+    return decryptedData;
   }
 }

@@ -1,148 +1,183 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Key, KeyStatus } from '../entities/key.entity';
-import { User } from '../../user-management/entities/user.entity';
+import { Key } from '../entities/key.entity';
 import { BlockchainService } from './blockchain.service';
-import { KeyResponseDto } from '../dto/key.dto';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class KeyService {
   constructor(
     @InjectRepository(Key)
     private keysRepository: Repository<Key>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private blockchainService: BlockchainService,
+    private readonly blockchainService: BlockchainService,
   ) {}
 
-  async getUserKeys(userId: string): Promise<KeyResponseDto[]> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const keys = await this.keysRepository.find({
-      where: [
-        { userId },
-        { organizationId: user.organizationId },
-      ],
-    });
-
-    return keys.map(key => this.mapToResponseDto(key));
-  }
-
-  async createKey(
-    userId: string,
-    name: string,
-    expirationTime?: Date,
-    metadata?: any,
-  ): Promise<KeyResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // In a real implementation, we would generate a secure key
-    // For this example, we'll use a placeholder
-    const encryptedKey = 'encrypted-key-material-placeholder';
-    const publicKey = 'public-key-material-placeholder';
-
-    // Convert metadata to JSON string for SQLite compatibility
-    const metadataStr = metadata ? JSON.stringify(metadata) : null;
-
-    const key = this.keysRepository.create({
-      name,
-      encrypted_key: encryptedKey,
-      public_key: publicKey,
-      status: KeyStatus.ACTIVE,
-      expiration_time: expirationTime,
+  async create(userId: string, organizationId: string, algorithm: string = 'AES-256-GCM'): Promise<Key> {
+    // Generate a new encryption key
+    const keyBuffer = crypto.randomBytes(32); // 256 bits
+    const key = keyBuffer.toString('hex');
+    
+    // In a real implementation, this would be encrypted with a master key or HSM
+    const encryptedKey = this.encryptKeyForStorage(key);
+    
+    // Calculate rotation date (30 days from now by default)
+    const rotationDate = new Date();
+    rotationDate.setDate(rotationDate.getDate() + 30);
+    
+    // Create key record
+    const keyEntity = this.keysRepository.create({
       userId,
-      organizationId: user.organizationId,
-      metadata: metadataStr,
+      organizationId,
+      algorithm,
+      encryptedKey,
+      isActive: true,
+      rotationDate,
+      metadata: JSON.stringify({
+        created: new Date(),
+        purpose: 'data-encryption',
+        strength: '256-bit',
+      }),
     });
-
-    const savedKey = await this.keysRepository.save(key);
-
+    
+    const savedKey = await this.keysRepository.save(keyEntity);
+    
     // Log key creation to blockchain
     await this.blockchainService.logEvent({
       user_id: userId,
-      event_type: 'key_created',
+      event_type: 'key_creation',
       timestamp: new Date(),
       metadata: {
         key_id: savedKey.id,
-        key_name: savedKey.name,
+        algorithm,
       },
     });
-
-    return this.mapToResponseDto(savedKey);
+    
+    return savedKey;
   }
 
-  async getKey(id: string, userId: string): Promise<KeyResponseDto> {
-    const key = await this.keysRepository.findOne({ where: { id } });
-    if (!key) {
-      throw new NotFoundException('Key not found');
-    }
-
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Check if user has permission to access this key
-    if (key.userId !== userId && key.organizationId !== user.organizationId) {
-      throw new ForbiddenException('You do not have permission to access this key');
-    }
-
-    return this.mapToResponseDto(key);
+  async findAll(userId: string): Promise<Key[]> {
+    return this.keysRepository.find({
+      where: { userId },
+      order: { created_at: 'DESC' },
+    });
   }
 
-  async revokeKey(id: string, userId: string): Promise<KeyResponseDto> {
-    const key = await this.keysRepository.findOne({ where: { id } });
+  async findAllByOrganization(organizationId: string): Promise<Key[]> {
+    return this.keysRepository.find({
+      where: { organizationId },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async findOne(id: string, userId?: string): Promise<Key> {
+    const key = await this.keysRepository.findOne({
+      where: { id },
+    });
+    
     if (!key) {
-      throw new NotFoundException('Key not found');
+      throw new NotFoundException(`Key with ID ${id} not found`);
     }
-
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
+    
+    // If userId is provided, check if the user has access to this key
+    if (userId && key.userId !== userId) {
+      throw new UnauthorizedException('You do not have permission to access this key');
     }
+    
+    return key;
+  }
 
-    // Check if user has permission to revoke this key
-    if (key.userId !== userId && key.organizationId !== user.organizationId) {
-      throw new ForbiddenException('You do not have permission to revoke this key');
+  async findActiveKey(userId: string): Promise<Key> {
+    const key = await this.keysRepository.findOne({
+      where: { 
+        userId,
+        isActive: true,
+      },
+      order: { created_at: 'DESC' },
+    });
+    
+    if (!key) {
+      throw new NotFoundException(`No active key found for user ${userId}`);
     }
+    
+    return key;
+  }
 
-    key.status = KeyStatus.REVOKED;
+  async revoke(id: string, userId: string): Promise<Key> {
+    const key = await this.findOne(id, userId);
+    
+    key.isActive = false;
     const updatedKey = await this.keysRepository.save(key);
-
+    
     // Log key revocation to blockchain
     await this.blockchainService.logEvent({
       user_id: userId,
-      event_type: 'key_revoked',
+      event_type: 'key_revocation',
       timestamp: new Date(),
       metadata: {
-        key_id: updatedKey.id,
-        key_name: updatedKey.name,
+        key_id: id,
       },
     });
-
-    return this.mapToResponseDto(updatedKey);
+    
+    return updatedKey;
   }
 
-  private mapToResponseDto(key: Key): KeyResponseDto {
+  async createRotatedKey(oldKeyId: string): Promise<Key> {
+    const oldKey = await this.findOne(oldKeyId);
+    
+    // Create a new key with the same properties
+    const newKey = await this.create(
+      oldKey.userId,
+      oldKey.organizationId,
+      oldKey.algorithm,
+    );
+    
+    // Update the new key to reference the old key
+    newKey.previousKeyId = oldKeyId;
+    await this.keysRepository.save(newKey);
+    
+    // Deactivate the old key
+    oldKey.isActive = false;
+    await this.keysRepository.save(oldKey);
+    
+    return newKey;
+  }
+
+  // In a real implementation, this would use a secure key management system
+  private encryptKeyForStorage(key: string): string {
+    // This is a simplified example - in production, use a proper key encryption key
+    const masterKey = process.env.MASTER_KEY || 'quantum_trust_master_key_for_encryption';
+    const cipher = crypto.createCipher('aes-256-cbc', masterKey);
+    let encryptedKey = cipher.update(key, 'utf8', 'hex');
+    encryptedKey += cipher.final('hex');
+    return encryptedKey;
+  }
+
+  // In a real implementation, this would use a secure key management system
+  decryptKeyFromStorage(encryptedKey: string): string {
+    // This is a simplified example - in production, use a proper key encryption key
+    const masterKey = process.env.MASTER_KEY || 'quantum_trust_master_key_for_encryption';
+    const decipher = crypto.createDecipher('aes-256-cbc', masterKey);
+    let key = decipher.update(encryptedKey, 'hex', 'utf8');
+    key += decipher.final('utf8');
+    return key;
+  }
+
+  async toResponseDto(key: Key) {
     // Parse metadata from JSON string
-    const metadata = key.metadata ? JSON.parse(key.metadata as string) : null;
+    const metadata = key.metadata ? JSON.parse(key.metadata as string) : {};
     
     return {
       id: key.id,
-      name: key.name,
-      status: key.status,
-      expiration_time: key.expiration_time,
-      created_at: key.created_at,
-      updated_at: key.updated_at,
       userId: key.userId,
       organizationId: key.organizationId,
+      algorithm: key.algorithm,
+      isActive: key.isActive,
+      rotationDate: key.rotationDate,
+      expirationDate: key.expirationDate,
+      previousKeyId: key.previousKeyId,
+      created_at: key.created_at,
+      updated_at: key.updated_at,
       metadata: metadata,
     };
   }

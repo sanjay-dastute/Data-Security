@@ -1,5 +1,5 @@
-import { IsString, IsEmail, IsEnum, IsUUID, IsBoolean, IsOptional, IsObject } from 'class-validator';
-import { UserRole } from '../entities/user.entity';
+import { IsString, IsEmail, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import { UserRole, ApprovalStatus } from '../entities/user.entity';
 
 export class CreateUserDto {
   @IsString()
@@ -12,71 +12,77 @@ export class CreateUserDto {
   password: string;
 
   @IsEnum(UserRole)
-  role: UserRole;
-
   @IsOptional()
-  @IsUUID()
-  organization_id?: string;
+  role?: UserRole;
 
+  @IsString()
   @IsOptional()
-  @IsObject()
-  permissions?: Record<string, boolean>;
+  organizationId?: string;
 
+  @IsEnum(ApprovalStatus)
   @IsOptional()
-  @IsObject()
-  details?: Record<string, any>;
+  approvalStatus?: ApprovalStatus;
+
+  @IsBoolean()
+  @IsOptional()
+  isActivated?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  mfa_enabled?: boolean;
+
+  @IsString()
+  @IsOptional()
+  mfa_secret?: string;
 }
 
 export class UpdateUserDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   username?: string;
 
-  @IsOptional()
   @IsEmail()
+  @IsOptional()
   email?: string;
 
+  @IsString()
   @IsOptional()
+  password?: string;
+
   @IsEnum(UserRole)
+  @IsOptional()
   role?: UserRole;
 
+  @IsString()
   @IsOptional()
-  @IsUUID()
-  organization_id?: string;
+  organizationId?: string;
 
+  @IsEnum(ApprovalStatus)
   @IsOptional()
-  @IsObject()
-  permissions?: Record<string, boolean>;
+  approvalStatus?: ApprovalStatus;
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
+  isActivated?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
   mfa_enabled?: boolean;
 
-  @IsOptional()
-  @IsObject()
-  details?: Record<string, any>;
-
-  @IsOptional()
   @IsString()
-  approvalStatus?: string;
-
   @IsOptional()
-  @IsBoolean()
-  isActivated?: boolean;
+  mfa_secret?: string;
 }
 
 export class UserResponseDto {
-  user_id: string;
+  id: string;
   username: string;
   email: string;
   role: UserRole;
-  organization_id?: string;
-  permissions: Record<string, boolean>;
-  mfa_enabled: boolean;
-  details: Record<string, any>;
-  approved_addresses: Array<{ ip: string; mac: string }>;
-  approvalStatus: string;
+  organizationId?: string;
+  approvalStatus: ApprovalStatus;
   isActivated: boolean;
+  mfa_enabled: boolean;
   created_at: Date;
   updated_at: Date;
 }

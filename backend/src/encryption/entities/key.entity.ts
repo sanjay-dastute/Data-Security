@@ -1,12 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from '../../user-management/entities/user.entity';
-import { Organization } from '../../user-management/entities/organization.entity';
-
-export enum KeyStatus {
-  ACTIVE = 'ACTIVE',
-  EXPIRED = 'EXPIRED',
-  REVOKED = 'REVOKED'
-}
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Key {
@@ -14,43 +6,31 @@ export class Key {
   id: string;
 
   @Column()
-  name: string;
-
-  @Column({ type: 'text' })
-  encrypted_key: string;
-
-  @Column({ type: 'text', nullable: true })
-  public_key: string;
-
-  @Column({
-    type: 'simple-enum',
-    enum: KeyStatus,
-    default: KeyStatus.ACTIVE
-  })
-  status: KeyStatus;
-
-  @Column({ nullable: true })
-  expiration_time: Date;
-
-  @Column({ nullable: true })
   userId: string;
-
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'userId' })
-  user: User;
 
   @Column({ nullable: true })
   organizationId: string;
 
-  @ManyToOne(() => Organization, { nullable: true })
-  @JoinColumn({ name: 'organizationId' })
-  organization: Organization;
+  @Column()
+  algorithm: string;
+
+  @Column({ type: 'text' })
+  encryptedKey: string;
 
   @Column({ type: 'text', nullable: true })
-  metadata: string; // Store JSON as string for SQLite compatibility
+  metadata: string; // JSON string for SQLite compatibility
+
+  @Column({ default: true })
+  isActive: boolean;
 
   @Column({ nullable: true })
-  blockchain_reference: string;
+  rotationDate: Date;
+
+  @Column({ nullable: true })
+  expirationDate: Date;
+
+  @Column({ nullable: true })
+  previousKeyId: string;
 
   @CreateDateColumn()
   created_at: Date;
