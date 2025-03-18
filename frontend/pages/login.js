@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import {
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Link as MuiLink
+} from '@mui/material';
 
 export default function Login() {
   const router = useRouter();
@@ -68,87 +78,101 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">QuantumTrust Data Security</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
-        </div>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: 'background.default'
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
+            QuantumTrust Data Security
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+            Sign in to your account
+          </Typography>
 
-        {error && (
-          <div className="p-4 text-red-700 bg-red-100 rounded-md">
-            {error}
-          </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {!showMfa ? (
-            <>
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Username or Email
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-            </>
-          ) : (
-            <div>
-              <label htmlFor="mfaCode" className="block text-sm font-medium text-gray-700">
-                MFA Code
-              </label>
-              <input
-                id="mfaCode"
-                name="mfaCode"
-                type="text"
-                required
-                value={formData.mfaCode}
-                onChange={handleChange}
-                className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter 6-digit code"
-              />
-            </div>
+          {error && (
+            <Alert severity="error" sx={{ width: '100%', mb: 3 }}>
+              {error}
+            </Alert>
           )}
 
-          <div>
-            <button
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            {!showMfa ? (
+              <>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username or Email"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={formData.username}
+                  onChange={handleChange}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </>
+            ) : (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="mfaCode"
+                label="MFA Code"
+                type="text"
+                id="mfaCode"
+                placeholder="Enter 6-digit code"
+                value={formData.mfaCode}
+                onChange={handleChange}
+              />
+            )}
+
+            <Button
               type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
-              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               {loading ? 'Loading...' : showMfa ? 'Verify' : 'Sign in'}
-            </button>
-          </div>
-        </form>
+            </Button>
+          </Box>
 
-        <div className="text-sm text-center">
-          <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Don't have an account? Register
-          </Link>
-        </div>
-      </div>
-    </div>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Link href="/register" passHref>
+              <MuiLink variant="body2" sx={{ color: 'primary.main' }}>
+                Don't have an account? Register
+              </MuiLink>
+            </Link>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
