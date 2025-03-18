@@ -53,11 +53,6 @@ export class BreachDetectionFilter implements ExceptionFilter {
           user_agent: request.headers['user-agent'],
         },
       });
-      
-      // In a real implementation, you would also:
-      // 1. Send alerts to administrators
-      // 2. Trigger additional security measures
-      // 3. Potentially block the IP address
     } catch (error) {
       this.logger.error(`Failed to handle potential breach: ${error.message}`);
     }
@@ -82,7 +77,7 @@ export class BreachDetectionFilter implements ExceptionFilter {
   
   private async logSecurityEvent(request: RequestWithUser, exception: HttpException): Promise<void> {
     try {
-      const userId = request.user ? request.user.userId || 'anonymous' : 'anonymous';
+      const userId = request.user ? request.user.id || 'anonymous' : 'anonymous';
       const clientIp = request.ip;
       const clientMac = request.headers['x-client-mac'] || 'unknown';
       

@@ -1,16 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Organization } from './organization.entity';
 
 export enum UserRole {
-  ADMIN = 'admin',
-  ORG_ADMIN = 'org_admin',
-  ORG_USER = 'org_user',
+  ADMIN = 'ADMIN',
+  ORG_ADMIN = 'ORG_ADMIN',
+  ORG_USER = 'ORG_USER',
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  PENDING = 'PENDING',
+  SUSPENDED = 'SUSPENDED',
+}
+
+export enum ApprovalStatus {
+  APPROVED = 'APPROVED',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED',
 }
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  user_id: string;
+  id: string;
 
   @Column({ unique: true })
   username: string;
@@ -19,7 +32,16 @@ export class User {
   email: string;
 
   @Column()
-  password_hash: string;
+  password: string;
+
+  @Column({ nullable: true })
+  first_name: string;
+
+  @Column({ nullable: true })
+  last_name: string;
+
+  @Column({ nullable: true })
+  phone: string;
 
   @Column({
     type: 'enum',
@@ -28,34 +50,68 @@ export class User {
   })
   role: UserRole;
 
-  @Column({ nullable: true })
-  organization_id: string;
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status: UserStatus;
 
-  @ManyToOne(() => Organization, organization => organization.users, { nullable: true })
-  @JoinColumn({ name: 'organization_id' })
+  @Column({
+    type: 'enum',
+    enum: ApprovalStatus,
+    default: ApprovalStatus.PENDING,
+  })
+  approval_status: ApprovalStatus;
+
+  @Column({ default: false })
+  is_activated: boolean;
+
+  @Column({ default: false })
+  is_email_verified: boolean;
+
+  @Column({ nullable: true })
+  email_verification_token: string;
+
+  @Column({ nullable: true })
+  email_verification_expires: Date;
+
+  @Column({ nullable: true })
+  password_reset_token: string;
+
+  @Column({ nullable: true })
+  password_reset_expires: Date;
+
+  @Column({ default: false })
+  is_mfa_enabled: boolean;
+
+  @Column({ nullable: true })
+  mfa_secret: string;
+
+  @Column({ nullable: true })
+  organizationId: string;
+
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'organizationId' })
   organization: Organization;
 
-  @Column({ type: 'json', default: {} })
-  permissions: Record<string, boolean>;
+  @Column({ type: 'jsonb', default: [] })
+  approved_addresses: { ip: string; mac: string; last_used?: Date }[];
 
-  @Column({ default: false })
-  mfa_enabled: boolean;
+  @Column({ type: 'jsonb', nullable: true })
+  preferences: any;
 
-  @Column({ type: 'json', default: {} })
-  details: Record<string, any>;
-
-  @Column({ type: 'json', default: [] })
-  approved_addresses: Array<{ ip: string; mac: string }>;
-
-  @Column({ default: false })
-  isActivated: boolean;
-
-  @Column({ default: 'pending', enum: ['pending', 'approved', 'rejected'] })
-  approvalStatus: string;
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: any;
 
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  // Virtual property for compatibility with existing code
+  get userId(): string {
+    return this.id;
+  }
 }

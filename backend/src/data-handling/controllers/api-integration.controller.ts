@@ -1,279 +1,66 @@
-import { Controller, Post, Body, Headers, UseGuards, Req, HttpCode, HttpStatus, BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../user-management/guards/roles.guard';
+import { Roles } from '../../user-management/decorators/roles.decorator';
+import { UserRole } from '../../user-management/entities/user.entity';
 import { EncryptionService } from '../../encryption/services/encryption.service';
 import { StorageService } from '../services/storage.service';
-import { RequireMtls } from '../../common/decorators/require-mtls.decorator';
-import { BlockchainService } from '../../encryption/services/blockchain.service';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Organization } from '../../user-management/entities/organization.entity';
+import { RequestWithUser } from '../../auth/interfaces/request-with-user.interface';
+import { StorageType } from '../dto/storage-response.dto';
 
-@ApiTags('API Integration')
-@Controller('api')
+@Controller('api/integration')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ApiIntegrationController {
   constructor(
     private readonly encryptionService: EncryptionService,
     private readonly storageService: StorageService,
-    private readonly blockchainService: BlockchainService,
-    private readonly configService: ConfigService,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
   @Post('encrypt')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Encrypt data via API' })
-  @ApiHeader({ name: 'X-API-Key', description: 'QuantumTrust API Key (optional)' })
-  @ApiHeader({ name: 'X-Org-API-Key', description: 'Organization API Key (required)' })
-  @ApiResponse({ status: 200, description: 'Data encrypted successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @RequireMtls()
-  async encryptData(
-    @Headers('x-api-key') apiKey: string,
-    @Headers('x-org-api-key') orgApiKey: string,
-    @Body() data: any,
-    @Req() req: any,
-  ) {
+  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.ORG_USER)
+  async encryptData(@Body() data: any, @Req() req: RequestWithUser) {
     try {
-      // Validate API keys
-      if (!orgApiKey) {
-        throw new UnauthorizedException('Organization API key is required');
+      // Extract fields to encrypt
+      const { fields, keyId, storageConfig } = data;
+      
+      if (!fields || !Array.isArray(fields) || !keyId) {
+        throw new HttpException('Invalid request parameters', HttpStatus.BAD_REQUEST);
       }
       
-      // Find organization by API key
-      const organization = await this.validateOrganizationApiKey(orgApiKey);
-      if (!organization) {
-        throw new UnauthorizedException('Invalid organization API key');
-      }
-      
-      // Validate QuantumTrust API key if provided
-      if (apiKey) {
-        const isValidApiKey = await this.validateQuantumTrustApiKey(apiKey);
-        if (!isValidApiKey) {
-          throw new UnauthorizedException('Invalid API key');
-        }
-      }
-      
-      // Get client address for logging
-      const clientAddress = req.clientAddress || { ip: req.ip, mac: 'unknown' };
-      
-      // Encrypt data
-      const encryptionResult = await this.encryptionService.encryptData(
-        data,
-        organization.organization_id,
-        null, // No specific user ID for API requests
+      // Encrypt specified fields
+      const encryptedData = await this.encryptionService.encryptFields(
+        data.payload,
+        fields,
+        keyId,
+        req.user.userId
       );
       
-      // Store encrypted data based on organization storage configuration
-      const storageConfig = organization.settings?.storage_config || { type: 'local' };
-      const fileName = 'api-data.json';
-      const storageType = storageConfig.type || 'local';
-      
-      // Extract the encrypted data from the encryption result
-      const encryptedDataBuffer = typeof encryptionResult.encryptedData === 'string' 
-        ? Buffer.from(encryptionResult.encryptedData) 
-        : Buffer.from(JSON.stringify(encryptionResult.encryptedData));
-      
-      const storageResult = await this.storageService.storeData(
-        encryptedDataBuffer,
-        fileName,
-        storageType,
-        storageConfig,
-        'api',
-        organization.organization_id
-      );
-      
-      // Log the encryption event
-      await this.blockchainService.logEvent({
-        user_id: 'api',
-        event_type: 'api_encryption',
-        timestamp: new Date(),
-        metadata: {
-          organization_id: organization.organization_id,
-          ip: clientAddress.ip,
-          mac: clientAddress.mac,
-          storage_type: storageConfig.type,
-          storage_id: storageResult.storage_path,
-        },
-      });
+      // Store encrypted data if storage config is provided
+      if (storageConfig) {
+        const storageResult = await this.storageService.storeData(
+          encryptedData,
+          storageConfig,
+          req.user.userId,
+          req.user.organizationId
+        );
+        
+        return {
+          success: true,
+          message: 'Data encrypted and stored successfully',
+          storage: storageResult,
+        };
+      }
       
       return {
         success: true,
         message: 'Data encrypted successfully',
-        storage_id: storageResult.storage_path,
-        storage_type: storageConfig.type,
-        storage_location: storageResult.storage_path,
-        timestamp: new Date().toISOString(),
+        data: encryptedData,
       };
     } catch (error) {
-      // Log the error
-      console.error('API encryption error:', error.message);
-      
-      // Throw appropriate HTTP exception
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      
-      throw new BadRequestException(error.message);
-    }
-  }
-  
-  @Post('decrypt')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Decrypt data via API' })
-  @ApiHeader({ name: 'X-API-Key', description: 'QuantumTrust API Key (optional)' })
-  @ApiHeader({ name: 'X-Org-API-Key', description: 'Organization API Key (required)' })
-  @ApiResponse({ status: 200, description: 'Data decrypted successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @RequireMtls()
-  async decryptData(
-    @Headers('x-api-key') apiKey: string,
-    @Headers('x-org-api-key') orgApiKey: string,
-    @Body() body: { storage_id: string },
-    @Req() req: any,
-  ) {
-    try {
-      // Validate API keys
-      if (!orgApiKey) {
-        throw new UnauthorizedException('Organization API key is required');
-      }
-      
-      // Find organization by API key
-      const organization = await this.validateOrganizationApiKey(orgApiKey);
-      if (!organization) {
-        throw new UnauthorizedException('Invalid organization API key');
-      }
-      
-      // Validate QuantumTrust API key if provided
-      if (apiKey) {
-        const isValidApiKey = await this.validateQuantumTrustApiKey(apiKey);
-        if (!isValidApiKey) {
-          throw new UnauthorizedException('Invalid API key');
-        }
-      }
-      
-      // Get client address for logging
-      const clientAddress = req.clientAddress || { ip: req.ip, mac: 'unknown' };
-      
-      // Get storage configuration
-      const storageConfig = organization.settings?.storage_config || { type: 'local' };
-      
-      // Retrieve encrypted data from storage
-      const { data: encryptedData } = await this.storageService.retrieveData(body.storage_id, storageConfig);
-      
-      // Decrypt data
-      const decryptedData = await this.encryptionService.decryptData(
-        encryptedData,
-        organization.organization_id
+      throw new HttpException(
+        `API integration encryption failed: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
-      
-      // Log the decryption event
-      await this.blockchainService.logEvent({
-        user_id: 'api',
-        event_type: 'api_decryption',
-        timestamp: new Date(),
-        metadata: {
-          organization_id: organization.organization_id,
-          ip: clientAddress.ip,
-          mac: clientAddress.mac,
-          storage_type: storageConfig.type,
-          storage_id: body.storage_id,
-        },
-      });
-      
-      return {
-        success: true,
-        message: 'Data decrypted successfully',
-        data: decryptedData,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      // Log the error
-      console.error('API decryption error:', error.message);
-      
-      // Throw appropriate HTTP exception
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
-      
-      throw new BadRequestException(error.message);
-    }
-  }
-  
-  @Post('detect-breach')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Detect and handle breach attempts' })
-  @ApiResponse({ status: 200, description: 'Breach detected and handled' })
-  async detectBreach(@Body() body: any, @Req() req: any) {
-    try {
-      // Get client address
-      const clientIp = req.ip;
-      const clientMac = req.headers['x-client-mac'] || 'unknown';
-      
-      // Log the breach event
-      await this.blockchainService.logEvent({
-        user_id: body.user_id || 'unknown',
-        event_type: 'security_breach',
-        timestamp: new Date(),
-        metadata: {
-          ip: clientIp,
-          mac: clientMac,
-          breach_type: body.breach_type || 'unknown',
-          details: body.details || {},
-        },
-      });
-      
-      // Return success without revealing any sensitive information
-      return {
-        status: 'processed',
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('Breach detection error:', error.message);
-      
-      // Always return success to prevent information leakage
-      return {
-        status: 'processed',
-        timestamp: new Date().toISOString(),
-      };
-    }
-  }
-  
-  // Helper methods for API key validation
-  private async validateQuantumTrustApiKey(apiKey: string): Promise<boolean> {
-    try {
-      // Get master API key from environment
-      const masterApiKey = this.configService.get<string>('MASTER_API_KEY');
-      
-      if (!masterApiKey) {
-        return false;
-      }
-      
-      // Compare API keys
-      return apiKey === masterApiKey;
-    } catch (error) {
-      return false;
-    }
-  }
-  
-  private async validateOrganizationApiKey(orgApiKey: string): Promise<Organization | null> {
-    try {
-      // Find organization with matching API key
-      const organizations = await this.organizationRepository.find();
-      
-      for (const org of organizations) {
-        if (org.settings && org.settings.org_api_key === orgApiKey) {
-          return org;
-        }
-      }
-      
-      return null;
-    } catch (error) {
-      return null;
     }
   }
 }

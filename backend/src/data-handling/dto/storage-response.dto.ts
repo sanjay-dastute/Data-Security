@@ -1,9 +1,14 @@
-import { StorageType } from './temporary-metadata.dto';
+export enum StorageType {
+  AWS = 'aws',
+  AZURE = 'azure',
+  GCP = 'gcp',
+  LOCAL = 'local',
+}
 
 export class StorageResponseDto {
-  storage_path: string;
-  storage_type: StorageType;
-  id?: string;
-  url?: string;
-  location?: string;
+  success: boolean;
+  provider: StorageType;
+  location: string;
+  key: string;
+  metadata: any;
 }

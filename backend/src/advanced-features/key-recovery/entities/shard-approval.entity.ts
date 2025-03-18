@@ -1,35 +1,35 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+
+export enum ApprovalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
 
 @Entity('shard_approvals')
 export class ShardApproval {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'shard_id' })
   shard_id: string;
 
-  @Column()
-  requester_id: string;
-
-  @Column()
-  requester_name: string;
-
-  @Column({ nullable: true })
-  approver_id: string;
-
-  @Column({ nullable: true })
-  approver_name: string;
+  @Column({ name: 'custodian_id' })
+  custodian_id: string;
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+    enum: ApprovalStatus,
+    default: ApprovalStatus.PENDING,
   })
-  status: 'pending' | 'approved' | 'rejected';
+  status: ApprovalStatus;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'approved_at', type: 'timestamp', nullable: true })
   approved_at: Date;
+
+  @Column({ name: 'rejection_reason', nullable: true })
+  rejection_reason: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  created_at: Date;
 }

@@ -1,17 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from '../../user-management/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-export enum KeyType {
-  ENCRYPTION = 'encryption',
-  SIGNATURE = 'signature',
-}
-
-export enum KeyStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  COMPROMISED = 'COMPROMISED',
-  EXPIRED = 'EXPIRED',
-  RECOVERY_PENDING = 'RECOVERY_PENDING',
+export enum KeyAlgorithm {
+  AES_256_GCM = 'AES-256-GCM',
+  RSA_4096 = 'RSA-4096',
+  ECDSA_P384 = 'ECDSA-P384',
+  KYBER_768 = 'KYBER-768',
+  DILITHIUM_3 = 'DILITHIUM-3',
 }
 
 @Entity('keys')
@@ -19,73 +13,55 @@ export class Key {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'key_id', nullable: true })
-  key_id: string;
-
-  @Column()
-  user_id: string;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
-
-  @Column({ nullable: true })
-  organization_id: string;
-
-  @Column({ nullable: true })
+  @Column({ nullable: false, default: 'Encryption Key' })
   name: string;
 
-  @Column({ nullable: true })
-  description: string;
-
-  @Column({ nullable: true })
-  created_by: string;
-
   @Column({
     type: 'enum',
-    enum: KeyType,
-    default: KeyType.ENCRYPTION,
+    enum: KeyAlgorithm,
+    default: KeyAlgorithm.AES_256_GCM,
   })
-  key_type: KeyType;
+  algorithm: KeyAlgorithm;
 
-  @Column()
-  key_data: string;
+  @Column({ name: 'user_id', nullable: true })
+  user_id: string;
 
-  @Column({
-    type: 'enum',
-    enum: KeyStatus,
-    default: KeyStatus.ACTIVE,
-  })
-  status: KeyStatus;
+  @Column({ name: 'organization_id', nullable: true })
+  organization_id: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ name: 'key_material', type: 'text', nullable: false })
+  key_material: string;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({ name: 'is_hsm_backed', default: false })
+  is_hsm_backed: boolean;
 
-  @Column({ nullable: true })
-  updated_by: string;
+  @Column({ name: 'is_active', default: true })
+  is_active: boolean;
 
-  @Column({ nullable: true })
+  @Column({ name: 'is_revoked', default: false })
+  is_revoked: boolean;
+
+  @Column({ name: 'revocation_reason', nullable: true })
+  revocation_reason: string;
+
+  @Column({ name: 'expires_at', type: 'timestamp', nullable: true })
   expires_at: Date;
 
-  @Column({ default: 1 })
-  version: number;
+  @Column({ name: 'last_rotated_at', type: 'timestamp', nullable: true })
+  last_rotated_at: Date;
 
-  @Column({ nullable: true })
-  last_used: Date;
+  @Column({ name: 'rotation_period', type: 'int', default: 30 })
+  rotation_period: number;
 
-  @Column({ type: 'json', nullable: true })
-  shards: Record<string, string>;
+  @Column({ name: 'type', default: 'encryption' })
+  type: string;
 
-  @Column({ nullable: true })
-  threshold: number;
+  @Column({ name: 'metadata', type: 'jsonb', nullable: true, default: '{}' })
+  metadata: any;
 
-  get shard_threshold(): number {
-    return this.threshold;
-  }
+  @CreateDateColumn({ name: 'created_at' })
+  created_at: Date;
 
-  @Column({ default: 0 })
-  timer_interval: number;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at: Date;
 }

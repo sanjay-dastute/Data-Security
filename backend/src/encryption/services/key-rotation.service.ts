@@ -1,89 +1,87 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan } from 'typeorm';
-import { Key, KeyStatus } from '../entities/key.entity';
 import { KeyService } from './key.service';
+import { BlockchainService } from './blockchain.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Key } from '../entities/key.entity';
 
 @Injectable()
 export class KeyRotationService {
   private readonly logger = new Logger(KeyRotationService.name);
 
   constructor(
+    private readonly keyService: KeyService,
+    private readonly blockchainService: BlockchainService,
     @InjectRepository(Key)
-    private keysRepository: Repository<Key>,
-    private keyService: KeyService,
+    private readonly keyRepository: Repository<Key>,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleTimerBasedKeyRotation() {
-    this.logger.log('Running timer-based key rotation check');
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleKeyRotation() {
+    this.logger.log('Running scheduled key rotation');
     
     try {
-      // Find keys that need rotation based on timer_interval
-      const keysToRotate = await this.keysRepository.find({
-        where: {
-          status: KeyStatus.ACTIVE,
-          timer_interval: LessThan(0), // Keys with timer_interval > 0
-        },
-      });
+      // Get all keys that need rotation
+      const keysToRotate = await this.getKeysNeedingRotation();
       
-      // Filter keys that need rotation based on last rotation time
-      const now = new Date();
-      const keysNeedingRotation = keysToRotate.filter(key => {
-        if (key.timer_interval <= 0) return false;
-        
-        const lastRotationTime = key.created_at;
-        const timeSinceLastRotation = now.getTime() - lastRotationTime.getTime();
-        const rotationIntervalMs = key.timer_interval * 1000;
-        
-        return timeSinceLastRotation >= rotationIntervalMs;
-      });
-      
-      this.logger.log(`Found ${keysNeedingRotation.length} keys that need rotation`);
+      this.logger.log(`Found ${keysToRotate.length} keys that need rotation`);
       
       // Rotate each key
-      for (const key of keysNeedingRotation) {
+      for (const key of keysToRotate) {
         try {
-          await this.keyService.rotateKey(key.key_id);
-          this.logger.log(`Rotated key ${key.key_id}`);
+          await this.keyService.rotateKey(key.id);
+          
+          // Log rotation event to blockchain
+          await this.blockchainService.logEvent({
+            user_id: 'system',
+            event_type: 'key_rotation',
+            timestamp: new Date(),
+            metadata: {
+              key_id: key.id,
+              rotation_type: 'scheduled',
+            },
+          });
         } catch (error) {
-          this.logger.error(`Failed to rotate key ${key.key_id}: ${error.message}`);
+          this.logger.error(`Failed to rotate key ${key.id}: ${error.message}`);
         }
       }
+      
+      this.logger.log('Scheduled key rotation completed');
     } catch (error) {
-      this.logger.error(`Error in timer-based key rotation: ${error.message}`);
+      this.logger.error(`Key rotation failed: ${error.message}`);
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async handleExpiredKeys() {
-    this.logger.log('Checking for expired keys');
+  private async getKeysNeedingRotation(): Promise<Key[]> {
+    // Get all active keys that have expired or are about to expire
+    const now = new Date();
+    const expirationThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
     
-    try {
-      // Find keys that have expired
-      const now = new Date();
-      const expiredKeys = await this.keysRepository.find({
-        where: {
-          status: KeyStatus.ACTIVE,
-          expires_at: LessThan(now),
-        },
-      });
-      
-      this.logger.log(`Found ${expiredKeys.length} expired keys`);
-      
-      // Mark each key as expired
-      for (const key of expiredKeys) {
-        try {
-          key.status = KeyStatus.EXPIRED;
-          await this.keysRepository.save(key);
-          this.logger.log(`Marked key ${key.key_id} as expired`);
-        } catch (error) {
-          this.logger.error(`Failed to mark key ${key.key_id} as expired: ${error.message}`);
-        }
-      }
-    } catch (error) {
-      this.logger.error(`Error in expired key handling: ${error.message}`);
-    }
+    return this.keyRepository.find({
+      where: {
+        is_active: true,
+        is_revoked: false,
+        expires_at: { 
+          $lte: expirationThreshold 
+        } as any,
+      },
+    });
+  }
+
+  private async getExpiredTimerKeys(): Promise<Key[]> {
+    // Get all timer-based keys that have expired
+    const now = new Date();
+    
+    return this.keyRepository.find({
+      where: {
+        is_active: true,
+        is_revoked: false,
+        expires_at: { 
+          $lte: now 
+        } as any,
+        type: 'timer',
+      },
+    });
   }
 }

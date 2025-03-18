@@ -1,11 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export enum BatchProcessStatus {
-  PENDING = 'pending',
+  QUEUED = 'queued',
   PROCESSING = 'processing',
   COMPLETED = 'completed',
   FAILED = 'failed',
   CANCELLED = 'cancelled',
+}
+
+export enum BatchProcessType {
+  ENCRYPTION = 'encryption',
+  DECRYPTION = 'decryption',
+  KEY_ROTATION = 'key_rotation',
+  DATA_IMPORT = 'data_import',
+  DATA_EXPORT = 'data_export',
 }
 
 @Entity('batch_processes')
@@ -13,72 +21,55 @@ export class BatchProcess {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'user_id' })
   user_id: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'organization_id', nullable: true })
   organization_id: string;
 
-  @Column('simple-json')
-  file_ids: string[];
+  @Column({ name: 'total_items', default: 0 })
+  total_items: number;
 
-  @Column('simple-json')
-  fields: string[];
+  @Column({ name: 'processed_items', default: 0 })
+  processed_items: number;
 
-  @Column()
-  key_id: string;
+  @Column({ name: 'success_count', default: 0 })
+  success_count: number;
 
-  @Column('simple-json')
-  storage_config: {
-    type: string;
-    bucketName?: string;
-    region?: string;
-    path?: string;
-    connectionString?: string;
-    tableName?: string;
-    endpoint?: string;
-  };
-
-  @Column({ default: 4 })
-  parallel_processes: number;
+  @Column({ name: 'failure_count', default: 0 })
+  failure_count: number;
 
   @Column({
+    name: 'process_type',
+    type: 'enum',
+    enum: BatchProcessType,
+    default: BatchProcessType.ENCRYPTION,
+  })
+  process_type: BatchProcessType;
+
+  @Column({
+    name: 'status',
     type: 'enum',
     enum: BatchProcessStatus,
-    default: BatchProcessStatus.PENDING,
+    default: BatchProcessStatus.QUEUED,
   })
   status: BatchProcessStatus;
 
-  @Column({ default: 0 })
-  progress: number;
-
-  @Column({ default: 0 })
-  processed_files: number;
-
-  @Column()
-  total_files: number;
-
-  @Column({ nullable: true })
+  @Column({ name: 'error_message', nullable: true })
   error_message: string;
 
-  @Column('simple-json', { nullable: true })
-  results: {
-    fileId: string;
-    fileName: string;
-    status: string;
-    encryptedFileUrl?: string;
-    errorMessage?: string;
-  }[];
+  @Column({ name: 'started_at', type: 'timestamp', nullable: true })
+  started_at: Date;
 
-  @Column({ nullable: true })
-  estimated_time_remaining: number;
+  @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
+  completed_at: Date;
 
-  @CreateDateColumn()
+  @Column({ name: 'metadata', type: 'jsonb', nullable: true })
+  metadata: any;
+
+  @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
-
-  @Column({ nullable: true, type: 'timestamp' })
-  completed_at: Date;
 }

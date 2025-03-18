@@ -1,168 +1,151 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { UserRole } from '../entities/user.entity';
+import { UserRole, UserStatus, ApprovalStatus } from '../entities/user.entity';
 import { UserService } from '../services/user.service';
-import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
+import { RequestWithUser } from '../../auth/interfaces/request-with-user.interface';
 
-@Controller('org/:orgId/users')
+@Controller('org/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ORG_ADMIN)
 export class OrgUsersController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async findAll(
-    @Param('orgId') orgId: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to access users from this organization');
-    }
-    
-    return this.userService.findByOrganization(orgId, page, limit);
+  async getOrgUsers(@Req() req: RequestWithUser) {
+    return this.userService.findByOrganization(req.user.organizationId);
   }
 
   @Get(':id')
-  async findOne(
-    @Param('orgId') orgId: string,
-    @Param('id') id: string,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to access users from this organization');
-    }
+  async getUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const user = await this.userService.findById(id);
     
-    const user = await this.userService.findOne(id);
-    
-    // Verify that the user belongs to this organization
-    if (user.organization_id !== orgId) {
-      throw new ForbiddenException('User does not belong to this organization');
+    // Check if user belongs to the organization
+    if (user.organizationId !== req.user.organizationId) {
+      throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
     }
     
     return user;
   }
 
   @Post()
-  async create(
-    @Param('orgId') orgId: string,
-    @Body() createUserDto: CreateUserDto,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to create users for this organization');
+  async createUser(@Body() createUserDto: any, @Req() req: RequestWithUser) {
+    try {
+      // Ensure user is created in the same organization
+      createUserDto.organizationId = req.user.organizationId;
+      
+      // Org admin can only create ORG_USER
+      createUserDto.role = UserRole.ORG_USER;
+      
+      return await this.userService.create(createUserDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    // Force the organization_id to match the URL parameter
-    createUserDto.organization_id = orgId;
-    
-    // Force the role to be org_user (org admins can only create org users)
-    createUserDto.role = UserRole.ORG_USER;
-    
-    return this.userService.create(createUserDto);
   }
 
   @Put(':id')
-  async update(
-    @Param('orgId') orgId: string,
+  async updateUser(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-    @Request() req,
+    @Body() updateUserDto: any,
+    @Req() req: RequestWithUser,
   ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to update users from this organization');
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      // Prevent changing organization or role
+      delete updateUserDto.organizationId;
+      delete updateUserDto.role;
+      
+      return await this.userService.update(id, updateUserDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    const user = await this.userService.findOne(id);
-    
-    // Verify that the user belongs to this organization
-    if (user.organization_id !== orgId) {
-      throw new ForbiddenException('User does not belong to this organization');
-    }
-    
-    // Prevent changing the organization_id
-    delete updateUserDto.organization_id;
-    
-    // Prevent changing the role to anything other than org_user
-    if (updateUserDto.role && updateUserDto.role !== UserRole.ORG_USER) {
-      throw new ForbiddenException('Org admins can only manage org users');
-    }
-    
-    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  async remove(
-    @Param('orgId') orgId: string,
-    @Param('id') id: string,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to delete users from this organization');
+  async deleteUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      await this.userService.remove(id);
+      return { success: true, message: 'User deleted successfully' };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    const user = await this.userService.findOne(id);
-    
-    // Verify that the user belongs to this organization
-    if (user.organization_id !== orgId) {
-      throw new ForbiddenException('User does not belong to this organization');
-    }
-    
-    // Prevent deleting org admins
-    if (user.role === UserRole.ORG_ADMIN) {
-      throw new ForbiddenException('Org admins cannot delete other org admins');
-    }
-    
-    return this.userService.remove(id);
   }
 
-  @Put(':id/activate')
-  async activateUser(
-    @Param('orgId') orgId: string,
-    @Param('id') id: string,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to activate users from this organization');
+  @Post(':id/approve')
+  async approveUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      return await this.userService.updateApprovalStatus(id, ApprovalStatus.APPROVED);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    const user = await this.userService.findOne(id);
-    
-    // Verify that the user belongs to this organization
-    if (user.organization_id !== orgId) {
-      throw new ForbiddenException('User does not belong to this organization');
-    }
-    
-    return this.userService.activateUser(id);
   }
 
-  @Put(':id/deactivate')
-  async deactivateUser(
-    @Param('orgId') orgId: string,
-    @Param('id') id: string,
-    @Request() req,
-  ) {
-    // Verify that the org admin belongs to this organization
-    if (req.user.organizationId !== orgId) {
-      throw new ForbiddenException('You do not have permission to deactivate users from this organization');
+  @Post(':id/reject')
+  async rejectUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      return await this.userService.updateApprovalStatus(id, ApprovalStatus.REJECTED);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    const user = await this.userService.findOne(id);
-    
-    // Verify that the user belongs to this organization
-    if (user.organization_id !== orgId) {
-      throw new ForbiddenException('User does not belong to this organization');
+  }
+
+  @Post(':id/activate')
+  async activateUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      return await this.userService.update(id, { status: UserStatus.ACTIVE });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    
-    return this.userService.deactivateUser(id);
+  }
+
+  @Post(':id/deactivate')
+  async deactivateUser(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      const user = await this.userService.findById(id);
+      
+      // Check if user belongs to the organization
+      if (user.organizationId !== req.user.organizationId) {
+        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      }
+      
+      return await this.userService.update(id, { status: UserStatus.INACTIVE });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }
