@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from '../entities/user.entity';
+import { User, UserRole, ApprovalStatus } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -39,7 +39,7 @@ export class UserService {
     
     const [users, total] = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.organization_id = :organizationId', { organizationId })
+      .where('user.organizationId = :organizationId', { organizationId })
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -57,7 +57,7 @@ export class UserService {
     
     const [users, total] = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.approvalStatus = :status', { status })
+      .where('user.approval_status = :status', { status })
       .skip(skip)
       .take(limit)
       .getManyAndCount();
@@ -71,7 +71,7 @@ export class UserService {
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -107,12 +107,12 @@ export class UserService {
     // Create new user
     const newUser = this.usersRepository.create({
       ...createUserDto,
-      password_hash: passwordHash,
+      password: passwordHash,
       mfa_enabled: false,
       details: createUserDto.details || {},
       approved_addresses: [],
-      isActivated: false,
-      approvalStatus: 'pending',
+      is_active: false,
+      approval_status: ApprovalStatus.PENDING,
     });
     
     const savedUser = await this.usersRepository.save(newUser);
@@ -121,7 +121,7 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -151,7 +151,7 @@ export class UserService {
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -163,13 +163,13 @@ export class UserService {
   }
 
   async approveUser(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     
-    user.approvalStatus = 'approved';
+    user.approval_status = ApprovalStatus.APPROVED;
     
     const updatedUser = await this.usersRepository.save(user);
     
@@ -177,13 +177,13 @@ export class UserService {
   }
 
   async rejectUser(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     
-    user.approvalStatus = 'rejected';
+    user.approval_status = ApprovalStatus.REJECTED;
     
     const updatedUser = await this.usersRepository.save(user);
     
@@ -191,13 +191,13 @@ export class UserService {
   }
 
   async activateUser(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     
-    user.isActivated = true;
+    user.is_active = true;
     
     const updatedUser = await this.usersRepository.save(user);
     
@@ -205,13 +205,13 @@ export class UserService {
   }
 
   async deactivateUser(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { id } });
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     
-    user.isActivated = false;
+    user.is_active = false;
     
     const updatedUser = await this.usersRepository.save(user);
     
@@ -219,7 +219,21 @@ export class UserService {
   }
 
   private mapToUserResponse(user: User): UserResponseDto {
-    const { password_hash, ...userResponse } = user;
-    return userResponse as UserResponseDto;
+    const { password, ...userResponse } = user;
+    return {
+      user_id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      organization_id: user.organizationId,
+      permissions: user.permissions,
+      mfa_enabled: user.mfa_enabled,
+      details: user.details,
+      approved_addresses: user.approved_addresses,
+      approval_status: user.approval_status,
+      is_active: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
   }
 }
