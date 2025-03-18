@@ -621,44 +621,139 @@ const DeploymentManager = () => {
 
     return (
       <Box sx={{ mt: 3 }}>
-        <Typography variant="h6">Deployment Status</Typography>
-        <Paper sx={{ p: 2, mt: 1 }}>
+        <Typography 
+          variant="h6"
+          sx={{ 
+            fontWeight: 'bold',
+            color: 'primary.dark',
+            mb: 2
+          }}
+        >
+          Deployment Status
+        </Typography>
+        <Paper 
+          sx={{ 
+            p: 2, 
+            mt: 1,
+            borderRadius: '10px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'primary.light'
+          }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1">Job ID: {deploymentStatus.jobId}</Typography>
-              <Typography variant="subtitle1">
-                Status: {deploymentStatus.status.toUpperCase()}
+              <Typography 
+                variant="subtitle1"
+                sx={{ 
+                  mb: 1,
+                  color: 'text.primary',
+                  '& span': {
+                    color: 'primary.main',
+                    fontWeight: 'medium'
+                  }
+                }}
+              >
+                <span>Job ID:</span> {deploymentStatus.jobId}
               </Typography>
-              <Typography variant="subtitle1">
-                Start Time: {new Date(deploymentStatus.startTime).toLocaleString()}
+              <Typography 
+                variant="subtitle1"
+                sx={{ 
+                  mb: 1,
+                  color: 'text.primary',
+                  '& span': {
+                    color: 'primary.main',
+                    fontWeight: 'medium'
+                  }
+                }}
+              >
+                <span>Status:</span> {deploymentStatus.status.toUpperCase()}
+              </Typography>
+              <Typography 
+                variant="subtitle1"
+                sx={{ 
+                  mb: 1,
+                  color: 'text.primary',
+                  '& span': {
+                    color: 'primary.main',
+                    fontWeight: 'medium'
+                  }
+                }}
+              >
+                <span>Start Time:</span> {new Date(deploymentStatus.startTime).toLocaleString()}
               </Typography>
               {deploymentStatus.endTime && (
-                <Typography variant="subtitle1">
-                  End Time: {new Date(deploymentStatus.endTime).toLocaleString()}
+                <Typography 
+                  variant="subtitle1"
+                  sx={{ 
+                    mb: 1,
+                    color: 'text.primary',
+                    '& span': {
+                      color: 'primary.main',
+                      fontWeight: 'medium'
+                    }
+                  }}
+                >
+                  <span>End Time:</span> {new Date(deploymentStatus.endTime).toLocaleString()}
                 </Typography>
               )}
             </Grid>
             <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1">Message: {deploymentStatus.message}</Typography>
+              <Typography 
+                variant="subtitle1"
+                sx={{ 
+                  mb: 1,
+                  color: 'text.primary',
+                  '& span': {
+                    color: 'primary.main',
+                    fontWeight: 'medium'
+                  }
+                }}
+              >
+                <span>Message:</span> {deploymentStatus.message}
+              </Typography>
               {deploymentStatus.success !== undefined && (
-                <Typography variant="subtitle1">
-                  Success: {deploymentStatus.success ? 'Yes' : 'No'}
+                <Typography 
+                  variant="subtitle1"
+                  sx={{ 
+                    mb: 1,
+                    color: 'text.primary',
+                    '& span': {
+                      color: 'primary.main',
+                      fontWeight: 'medium'
+                    }
+                  }}
+                >
+                  <span>Success:</span> {deploymentStatus.success ? 'Yes' : 'No'}
                 </Typography>
               )}
             </Grid>
           </Grid>
           {deploymentLogs && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle1">Deployment Logs:</Typography>
+              <Typography 
+                variant="subtitle1"
+                sx={{ 
+                  fontWeight: 'medium',
+                  color: 'primary.main',
+                  mb: 1
+                }}
+              >
+                Deployment Logs:
+              </Typography>
               <Paper
                 sx={{
                   p: 2,
                   mt: 1,
                   maxHeight: '200px',
                   overflow: 'auto',
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: 'rgba(245, 245, 245, 0.8)',
                   fontFamily: 'monospace',
                   whiteSpace: 'pre-wrap',
+                  borderRadius: '8px',
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)'
                 }}
               >
                 {deploymentLogs}
@@ -672,12 +767,53 @@ const DeploymentManager = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography 
+        variant="h4" 
+        gutterBottom
+        sx={{ 
+          fontWeight: 'bold',
+          color: 'primary.dark',
+          mb: 1,
+          position: 'relative',
+          display: 'inline-block',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: -4,
+            left: 0,
+            width: '60px',
+            height: '4px',
+            background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+            borderRadius: '2px'
+          }
+        }}
+      >
         Deployment Manager
       </Typography>
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3, borderColor: 'primary.light' }} />
 
-      <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 3 }}>
+      <Tabs 
+        value={activeTab} 
+        onChange={handleTabChange} 
+        sx={{ 
+          mb: 3,
+          '& .MuiTabs-indicator': {
+            backgroundColor: 'primary.main',
+            height: 3
+          },
+          '& .MuiTab-root': {
+            color: 'text.secondary',
+            '&.Mui-selected': {
+              color: 'primary.main',
+              fontWeight: 'bold'
+            },
+            '&:hover': {
+              color: 'primary.light',
+              opacity: 1
+            }
+          }
+        }}
+      >
         <Tab label="Configurations" />
         <Tab label="New Configuration" />
         <Tab label="Deployment Status" />
@@ -685,23 +821,54 @@ const DeploymentManager = () => {
 
       {activeTab === 0 && (
         <Box>
-          <Typography variant="h5" gutterBottom>
+          <Typography 
+            variant="h5" 
+            gutterBottom
+            sx={{ 
+              fontWeight: 'bold',
+              color: 'primary.dark',
+              mb: 2
+            }}
+          >
             Deployment Configurations
           </Typography>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-              <CircularProgress />
+              <CircularProgress sx={{ color: 'primary.main' }} />
             </Box>
           ) : deployments.length === 0 ? (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="body1">
+            <Paper 
+              sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="body1"
+                sx={{ color: 'text.secondary' }}
+              >
                 No deployment configurations found. Create a new one to get started.
               </Typography>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={() => setActiveTab(1)}
-                sx={{ mt: 2 }}
+                sx={{ 
+                  mt: 2,
+                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                  color: '#FFFFFF',
+                  fontWeight: 'bold',
+                  px: 3,
+                  py: 1.2,
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  }
+                }}
               >
                 Create Configuration
               </Button>
@@ -710,9 +877,41 @@ const DeploymentManager = () => {
             <Grid container spacing={3}>
               {deployments.map((deployment) => (
                 <Grid item xs={12} md={6} key={deployment.id}>
-                  <Card>
+                  <Card 
+                    sx={{ 
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: 'linear-gradient(to right, #1E3A8A, #3B82F6)'
+                      },
+                      transition: 'transform 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                      }
+                    }}
+                  >
                     <CardContent>
-                      <Typography variant="h6" gutterBottom>
+                      <Typography 
+                        variant="h6" 
+                        gutterBottom
+                        sx={{ 
+                          fontWeight: 'bold',
+                          color: 'primary.dark',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
                         {deployment.name}
                         {deployment.is_default && (
                           <Box
@@ -722,19 +921,27 @@ const DeploymentManager = () => {
                               px: 1,
                               py: 0.5,
                               borderRadius: 1,
-                              backgroundColor: 'primary.main',
+                              background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
                               color: 'white',
                               fontSize: '0.75rem',
+                              fontWeight: 'bold'
                             }}
                           >
                             Default
                           </Box>
                         )}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: 'text.secondary',
+                          mb: 1
+                        }} 
+                        gutterBottom
+                      >
                         {deployment.description || 'No description'}
                       </Typography>
-                      <Divider sx={{ my: 1 }} />
+                      <Divider sx={{ my: 1, borderColor: 'primary.light' }} />
                       <Grid container spacing={1}>
                         <Grid item xs={6}>
                           <Typography variant="body2">
@@ -777,15 +984,32 @@ const DeploymentManager = () => {
                           size="small"
                           onClick={() => handleTestConnection(deployment.id)}
                           startIcon={<RefreshIcon />}
+                          sx={{
+                            borderColor: 'primary.main',
+                            color: 'primary.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(191, 219, 254, 0.2)',
+                              borderColor: 'primary.dark'
+                            }
+                          }}
                         >
                           Test Connection
                         </Button>
                         <Button
                           variant="contained"
-                          color="primary"
                           size="small"
                           onClick={() => handleDeploy(deployment.id)}
                           startIcon={<CloudUploadIcon />}
+                          sx={{
+                            background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                            color: '#FFFFFF',
+                            fontWeight: 'medium',
+                            '&:hover': {
+                              background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                              transform: 'scale(1.02)',
+                              transition: 'transform 0.2s'
+                            }
+                          }}
                         >
                           Deploy
                         </Button>
@@ -801,10 +1025,26 @@ const DeploymentManager = () => {
 
       {activeTab === 1 && (
         <Box component="form" onSubmit={handleSubmit}>
-          <Typography variant="h5" gutterBottom>
+          <Typography 
+            variant="h5" 
+            gutterBottom
+            sx={{ 
+              fontWeight: 'bold',
+              color: 'primary.dark',
+              mb: 2
+            }}
+          >
             New Deployment Configuration
           </Typography>
-          <Paper sx={{ p: 3 }}>
+          <Paper 
+            sx={{ 
+              p: 3,
+              borderRadius: '10px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.light'
+            }}
+          >
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -892,9 +1132,23 @@ const DeploymentManager = () => {
               <Button
                 type="submit"
                 variant="contained"
-                color="primary"
                 disabled={loading}
-                startIcon={loading ? <CircularProgress size={20} /> : <SettingsIcon />}
+                startIcon={loading ? <CircularProgress size={20} sx={{ color: '#FFFFFF' }} /> : <SettingsIcon />}
+                sx={{
+                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                  color: '#FFFFFF',
+                  fontWeight: 'bold',
+                  px: 3,
+                  py: 1.2,
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.7
+                  }
+                }}
               >
                 Save Configuration
               </Button>
@@ -905,20 +1159,51 @@ const DeploymentManager = () => {
 
       {activeTab === 2 && (
         <Box>
-          <Typography variant="h5" gutterBottom>
+          <Typography 
+            variant="h5" 
+            gutterBottom
+            sx={{ 
+              fontWeight: 'bold',
+              color: 'primary.dark',
+              mb: 2
+            }}
+          >
             Deployment Status
           </Typography>
           {renderDeploymentStatus()}
           {!deploymentStatus && (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="body1">
+            <Paper 
+              sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                borderRadius: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                border: '1px solid',
+                borderColor: 'primary.light'
+              }}
+            >
+              <Typography 
+                variant="body1"
+                sx={{ color: 'text.secondary' }}
+              >
                 No active deployment. Start a deployment from the Configurations tab.
               </Typography>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={() => setActiveTab(0)}
-                sx={{ mt: 2 }}
+                sx={{ 
+                  mt: 2,
+                  background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                  color: '#FFFFFF',
+                  fontWeight: 'bold',
+                  px: 3,
+                  py: 1.2,
+                  '&:hover': {
+                    background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s'
+                  }
+                }}
               >
                 View Configurations
               </Button>
@@ -933,7 +1218,20 @@ const DeploymentManager = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{
+            borderLeft: `4px solid ${snackbar.severity === 'success' ? '#3B82F6' : 
+                          snackbar.severity === 'error' ? '#EF4444' : 
+                          snackbar.severity === 'warning' ? '#F59E0B' : '#3B82F6'}`,
+            '& .MuiAlert-icon': {
+              color: snackbar.severity === 'success' ? '#1E3A8A' : 
+                     snackbar.severity === 'error' ? '#991B1B' : 
+                     snackbar.severity === 'warning' ? '#92400E' : '#1E3A8A'
+            }
+          }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
