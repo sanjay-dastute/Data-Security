@@ -353,4 +353,49 @@ export class StorageService {
       await promisify(fs.unlink)(filePath);
     }
   }
+
+  /**
+   * Retrieve data from the specified storage
+   */
+  async retrieveData(
+    storagePath: string,
+    storageConfig: Record<string, any>,
+  ): Promise<{ data: string | Buffer }> {
+    try {
+      // Extract storage type from the storage path
+      let storageType: StorageType;
+      
+      if (storagePath.startsWith('https://s3.amazonaws.com/')) {
+        storageType = StorageType.AWS_S3;
+      } else if (storagePath.includes('.blob.core.windows.net/')) {
+        storageType = StorageType.AZURE_BLOB;
+      } else if (storagePath.startsWith('https://storage.googleapis.com/')) {
+        storageType = StorageType.GOOGLE_CLOUD;
+      } else if (storagePath.startsWith('sql://')) {
+        storageType = StorageType.SQL_DATABASE;
+      } else if (storagePath.startsWith('nosql://')) {
+        storageType = StorageType.NOSQL_DATABASE;
+      } else if (storagePath.startsWith('file://')) {
+        storageType = StorageType.ON_PREMISES;
+      } else if (storagePath.startsWith('custom://')) {
+        storageType = StorageType.CUSTOM;
+      } else {
+        throw new BadRequestException(`Unsupported storage path format: ${storagePath}`);
+      }
+      
+      // For demonstration purposes, we'll return mock data
+      // In a real implementation, this would retrieve data from the actual storage
+      const mockData = Buffer.from(JSON.stringify({ 
+        message: 'This is mock encrypted data retrieved from storage',
+        storage_path: storagePath,
+        storage_type: storageType,
+        timestamp: new Date().toISOString()
+      }));
+      
+      return { data: mockData };
+    } catch (error) {
+      this.logger.error(`Failed to retrieve data: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve data: ${error.message}`);
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { RequestWithUser } from '../../auth/interfaces/request-with-user.interface';
 import { BlockchainService } from '../../encryption/services/blockchain.service';
 
 @Catch(HttpException)
@@ -11,7 +12,7 @@ export class BreachDetectionFilter implements ExceptionFilter {
   async catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<RequestWithUser>();
     const status = exception.getStatus();
     
     // Check if this is an unapproved address error
@@ -32,7 +33,7 @@ export class BreachDetectionFilter implements ExceptionFilter {
     });
   }
   
-  private async handlePotentialBreach(request: Request): Promise<void> {
+  private async handlePotentialBreach(request: RequestWithUser): Promise<void> {
     try {
       const { ip, mac, userId } = request['unapprovedAddress'];
       
@@ -79,9 +80,9 @@ export class BreachDetectionFilter implements ExceptionFilter {
     return securityKeywords.some(keyword => errorMessage.includes(keyword));
   }
   
-  private async logSecurityEvent(request: Request, exception: HttpException): Promise<void> {
+  private async logSecurityEvent(request: RequestWithUser, exception: HttpException): Promise<void> {
     try {
-      const userId = request.user?.userId || 'anonymous';
+      const userId = request.user ? request.user.userId || 'anonymous' : 'anonymous';
       const clientIp = request.ip;
       const clientMac = request.headers['x-client-mac'] || 'unknown';
       

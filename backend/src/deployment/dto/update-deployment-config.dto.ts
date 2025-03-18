@@ -53,4 +53,25 @@ export class UpdateDeploymentConfigDto {
   @IsBoolean()
   @IsOptional()
   isDefault?: boolean;
+
+  @ApiProperty({ description: 'Number of replicas for deployment', required: false })
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  @IsOptional()
+  replicas?: number;
+
+  @ApiProperty({ description: 'CPU limit for each pod (in cores)', required: false })
+  @IsNumber()
+  @Min(0.1)
+  @Max(4)
+  @IsOptional()
+  cpuLimit?: number;
+
+  @ApiProperty({ description: 'Memory limit for each pod (in GB)', required: false })
+  @IsNumber()
+  @Min(0.5)
+  @Max(8)
+  @IsOptional()
+  memoryLimit?: number;
 }

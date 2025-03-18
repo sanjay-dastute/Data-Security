@@ -77,4 +77,5 @@ export class TemporaryMetadataResponseDto {
   self_destruct_script?: string;
   storage_config: Record<string, any>;
   created_at: Date;
+  file_content?: string | Buffer;
 }
