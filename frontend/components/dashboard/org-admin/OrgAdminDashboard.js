@@ -346,8 +346,24 @@ const OrgAdminDashboard = () => {
           </Box>
         )}
         
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={currentTab} onChange={handleTabChange} aria-label="org admin dashboard tabs">
+        <Box sx={{ borderBottom: 1, borderColor: 'primary.light', mb: 3 }}>
+          <Tabs 
+            value={currentTab} 
+            onChange={handleTabChange} 
+            aria-label="org admin dashboard tabs"
+            sx={{
+              '& .MuiTabs-indicator': {
+                backgroundColor: 'primary.main'
+              },
+              '& .MuiTab-root': {
+                color: 'text.secondary',
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                  fontWeight: 600
+                }
+              }
+            }}
+          >
             <Tab label="User Management" />
             <Tab label="Key Management" />
             <Tab label="Encryption Settings" />
