@@ -298,23 +298,50 @@ const OrgAdminDashboard = () => {
   return (
     <Container maxWidth="xl">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          gutterBottom
+          sx={{ 
+            color: 'primary.dark',
+            fontWeight: 600,
+            background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           Organization Admin Dashboard
         </Typography>
         
         {!orgLoading && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" component="h2" gutterBottom>
+            <Typography 
+              variant="h6" 
+              component="h2" 
+              gutterBottom
+              sx={{ 
+                color: 'text.primary',
+                fontWeight: 500
+              }}
+            >
               {orgInfo.name} - {orgInfo.industry}
             </Typography>
             <Chip 
               label={orgInfo.status} 
-              color={orgInfo.status === 'ACTIVE' ? 'success' : 'error'}
-              sx={{ mr: 1 }}
+              sx={{ 
+                mr: 1,
+                backgroundColor: orgInfo.status === 'ACTIVE' ? 'success.light' : 'error.light',
+                color: orgInfo.status === 'ACTIVE' ? 'success.dark' : 'error.dark',
+                fontWeight: 500
+              }}
             />
             <Chip 
               label={`${orgInfo.userCount} Users`} 
-              color="primary"
+              sx={{
+                backgroundColor: 'primary.light',
+                color: 'primary.dark',
+                fontWeight: 500
+              }}
             />
           </Box>
         )}
@@ -370,16 +397,55 @@ const OrgAdminDashboard = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              <TableContainer component={Paper}>
+              <TableContainer 
+                component={Paper}
+                sx={{ 
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', 
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  borderRadius: '10px',
+                  overflow: 'hidden'
+                }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Last Login</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Username</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Email</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Role</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Status</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Last Login</TableCell>
+                      <TableCell sx={{ 
+                        bgcolor: 'primary.dark', 
+                        color: 'common.white',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
