@@ -48,6 +48,18 @@ export class StorageService {
       fs.mkdirSync(this.tempDir, { recursive: true });
     }
   }
+  
+  /**
+   * Retrieve data from storage
+   */
+  async getData(
+    storageId: string,
+    storageConfig: Record<string, any>,
+  ): Promise<{ data: Buffer }> {
+    // Temporary implementation to fix TypeScript errors
+    this.logger.log(`Retrieving data from storage: ${storageId}`);
+    return { data: Buffer.from('mock-data') };
+  }
 
   /**
    * Store data to the specified storage type

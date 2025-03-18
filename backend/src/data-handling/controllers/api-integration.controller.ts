@@ -268,7 +268,7 @@ export class ApiIntegrationController {
       const organizations = await this.organizationRepository.find();
       
       for (const org of organizations) {
-        if (org.settings && org.settings.api_key === orgApiKey) {
+        if (org.settings && org.settings.apiKey === orgApiKey) {
           return org;
         }
       }
