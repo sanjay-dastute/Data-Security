@@ -231,7 +231,7 @@ export class UserService {
       details: user.details,
       approved_addresses: user.approved_addresses,
       approval_status: user.approval_status,
-      isActivated: user.is_active,
+      is_active: user.is_active,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
