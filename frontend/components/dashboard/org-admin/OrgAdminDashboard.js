@@ -739,8 +739,26 @@ const OrgAdminDashboard = () => {
                 )}
               </Grid>
               <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>Key Usage</Typography>
+                <Paper 
+                  sx={{ 
+                    p: 3,
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid',
+                    borderColor: 'primary.light'
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    gutterBottom
+                    sx={{
+                      color: 'primary.dark',
+                      fontWeight: 600,
+                      mb: 2
+                    }}
+                  >
+                    Key Usage
+                  </Typography>
                   <Box sx={{ height: 300 }}>
                     <Line 
                       data={keyUsageChartData} 
@@ -751,7 +769,24 @@ const OrgAdminDashboard = () => {
                             beginAtZero: true,
                             title: {
                               display: true,
-                              text: 'Usage Count'
+                              text: 'Usage Count',
+                              color: 'text.secondary'
+                            },
+                            grid: {
+                              color: 'primary.light',
+                              opacity: 0.1
+                            },
+                            ticks: {
+                              color: 'text.secondary'
+                            }
+                          },
+                          x: {
+                            grid: {
+                              color: 'primary.light',
+                              opacity: 0.1
+                            },
+                            ticks: {
+                              color: 'text.secondary'
                             }
                           }
                         }
