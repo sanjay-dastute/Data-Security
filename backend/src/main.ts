@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -9,19 +9,10 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors();
   
-  // Set global prefix
-  app.setGlobalPrefix('api');
-  
-  // Enable validation
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-  }));
-  
   const port = process.env.PORT || 3000;
   await app.listen(port);
   
-  logger.log(`Application is running on: http://localhost:${port}/api`);
+  logger.log(`Application is running on: http://localhost:${port}`);
 }
 
 bootstrap();
