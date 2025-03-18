@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../user-management/entities/user.entity';
-import { IpMacDto } from '../dto/ip-mac.dto';
+import { AddressDto } from '../dto/ip-mac.dto';
 
 @Injectable()
 export class IpMacService {
@@ -11,79 +11,110 @@ export class IpMacService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async validateAddress(userId: string, ipAddress: string, macAddress: string): Promise<boolean> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
-    
+  async getUserApprovedAddresses(userId: string): Promise<any[]> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
-      return false;
+      throw new NotFoundException('User not found');
     }
     
-    // If no approved addresses yet, return false
-    if (!user.approved_addresses || !Array.isArray(user.approved_addresses) || user.approved_addresses.length === 0) {
-      return false;
+    // Parse approved_addresses from JSON string
+    return user.approved_addresses ? JSON.parse(user.approved_addresses as string) : [];
+  }
+
+  async isAddressApproved(userId: string, ip: string, mac: string): Promise<boolean> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
     
-    // Check if the IP/MAC pair is in the approved list
-    return user.approved_addresses.some(
-      (address) => address.ip === ipAddress && address.mac === macAddress
+    // Parse approved_addresses from JSON string
+    const approvedAddresses = user.approved_addresses ? JSON.parse(user.approved_addresses as string) : [];
+    
+    return approvedAddresses.some(
+      (addr: any) => addr.ip === ip && addr.mac === mac
     );
   }
 
-  async addApprovedAddress(userId: string, ipMacDto: IpMacDto): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
-    
+  async clearApprovedAddresses(userId: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     
-    // Initialize approved_addresses if it doesn't exist
-    if (!user.approved_addresses || !Array.isArray(user.approved_addresses)) {
-      user.approved_addresses = [];
+    // Set approved_addresses to empty array as JSON string
+    user.approved_addresses = JSON.stringify([]);
+    
+    return this.usersRepository.save(user);
+  }
+
+  async addApprovedAddress(userId: string, addressDto: AddressDto): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
     
-    // Check if address already exists
-    const addressExists = user.approved_addresses.some(
-      (address) => address.ip === ipMacDto.ip && address.mac === ipMacDto.mac
+    // Parse approved_addresses from JSON string
+    const approvedAddresses = user.approved_addresses ? JSON.parse(user.approved_addresses as string) : [];
+    
+    const addressExists = approvedAddresses.some(
+      (addr: any) => addr.ip === addressDto.ip && addr.mac === addressDto.mac
     );
     
     if (!addressExists) {
-      user.approved_addresses.push({
-        ip: ipMacDto.ip,
-        mac: ipMacDto.mac,
+      approvedAddresses.push({
+        ip: addressDto.ip,
+        mac: addressDto.mac,
+        added: new Date(),
+        last_used: null
       });
       
+      // Save approved_addresses as JSON string
+      user.approved_addresses = JSON.stringify(approvedAddresses);
       return this.usersRepository.save(user);
     }
     
     return user;
   }
 
-  async removeApprovedAddress(userId: string, ipMacDto: IpMacDto): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
-    
+  async removeApprovedAddress(userId: string, addressDto: AddressDto): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
+    
+    // Parse approved_addresses from JSON string
+    const approvedAddresses = user.approved_addresses ? JSON.parse(user.approved_addresses as string) : [];
     
     // Filter out the address to remove
-    if (user.approved_addresses && Array.isArray(user.approved_addresses)) {
-      user.approved_addresses = user.approved_addresses.filter(
-        (address) => !(address.ip === ipMacDto.ip && address.mac === ipMacDto.mac)
-      );
-      
-      return this.usersRepository.save(user);
-    }
+    const filteredAddresses = approvedAddresses.filter(
+      (addr: any) => !(addr.ip === addressDto.ip && addr.mac === addressDto.mac)
+    );
     
-    return user;
+    // Save approved_addresses as JSON string
+    user.approved_addresses = JSON.stringify(filteredAddresses);
+    
+    return this.usersRepository.save(user);
   }
 
-  async getApprovedAddresses(userId: string): Promise<IpMacDto[]> {
-    const user = await this.usersRepository.findOne({ where: { user_id: userId } });
-    
+  async updateLastUsed(userId: string, ip: string, mac: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     
-    return user.approved_addresses || [];
+    // Parse approved_addresses from JSON string
+    const approvedAddresses = user.approved_addresses ? JSON.parse(user.approved_addresses as string) : [];
+    
+    const addressIndex = approvedAddresses.findIndex(
+      (addr: any) => addr.ip === ip && addr.mac === mac
+    );
+    
+    if (addressIndex !== -1) {
+      approvedAddresses[addressIndex].last_used = new Date();
+      
+      // Save approved_addresses as JSON string
+      user.approved_addresses = JSON.stringify(approvedAddresses);
+      await this.usersRepository.save(user);
+    }
   }
 }

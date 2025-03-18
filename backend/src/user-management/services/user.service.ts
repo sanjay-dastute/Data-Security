@@ -1,7 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole, UserStatus, ApprovalStatus } from '../entities/user.entity';
+import { User, UserRole, ApprovalStatus } from '../entities/user.entity';
+import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -15,27 +16,35 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  async findById(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+  async findAllByOrganization(organizationId: string): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { organizationId },
+    });
+  }
+
+  async findOne(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
   }
 
-  async findByUsername(username: string): Promise<User> {
-    return this.usersRepository.findOne({ where: { username } });
+  async findByUsername(username: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({
+      where: { username },
+    });
   }
 
-  async findByEmail(email: string): Promise<User> {
-    return this.usersRepository.findOne({ where: { email } });
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({
+      where: { email },
+    });
   }
 
-  async findByOrganization(organizationId: string): Promise<User[]> {
-    return this.usersRepository.find({ where: { organizationId } });
-  }
-
-  async create(createUserDto: any): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if username or email already exists
     const existingUser = await this.usersRepository.findOne({
       where: [
@@ -50,115 +59,94 @@ export class UserService {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    
+    // Convert approved_addresses to JSON string for SQLite compatibility
+    const approvedAddresses = createUserDto.approved_addresses 
+      ? JSON.stringify(createUserDto.approved_addresses)
+      : JSON.stringify([]);
 
-    // Create new user
+    // Create user
     const user = this.usersRepository.create({
       username: createUserDto.username,
       email: createUserDto.email,
       password: hashedPassword,
       role: createUserDto.role || UserRole.ORG_USER,
-      status: UserStatus.PENDING,
-      approval_status: ApprovalStatus.PENDING,
+      approvalStatus: createUserDto.approvalStatus || ApprovalStatus.APPROVED,
+      isActivated: createUserDto.isActivated !== undefined ? createUserDto.isActivated : true,
       organizationId: createUserDto.organizationId,
-      first_name: createUserDto.first_name,
-      last_name: createUserDto.last_name,
-      phone: createUserDto.phone,
-      approved_addresses: createUserDto.approved_addresses || [],
+      approved_addresses: approvedAddresses,
     });
 
     return this.usersRepository.save(user);
   }
 
-  async update(id: string, updateUserDto: any): Promise<User> {
-    const user = await this.findById(id);
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
 
-    // Update fields
-    if (updateUserDto.username) user.username = updateUserDto.username;
-    if (updateUserDto.email) user.email = updateUserDto.email;
     if (updateUserDto.password) {
       user.password = await bcrypt.hash(updateUserDto.password, 10);
     }
     if (updateUserDto.role) user.role = updateUserDto.role;
-    if (updateUserDto.status) user.status = updateUserDto.status;
-    if (updateUserDto.approval_status) user.approval_status = updateUserDto.approval_status;
+    if (updateUserDto.approvalStatus) user.approvalStatus = updateUserDto.approvalStatus;
+    if (updateUserDto.isActivated !== undefined) user.isActivated = updateUserDto.isActivated;
     if (updateUserDto.organizationId) user.organizationId = updateUserDto.organizationId;
-    if (updateUserDto.first_name) user.first_name = updateUserDto.first_name;
-    if (updateUserDto.last_name) user.last_name = updateUserDto.last_name;
-    if (updateUserDto.phone) user.phone = updateUserDto.phone;
-    if (updateUserDto.is_mfa_enabled !== undefined) user.is_mfa_enabled = updateUserDto.is_mfa_enabled;
+    if (updateUserDto.mfa_enabled !== undefined) user.mfa_enabled = updateUserDto.mfa_enabled;
     if (updateUserDto.mfa_secret) user.mfa_secret = updateUserDto.mfa_secret;
-    if (updateUserDto.approved_addresses) user.approved_addresses = updateUserDto.approved_addresses;
-    if (updateUserDto.preferences) user.preferences = updateUserDto.preferences;
-    if (updateUserDto.metadata) user.metadata = updateUserDto.metadata;
+    
+    // Handle approved_addresses as JSON string
+    if (updateUserDto.approved_addresses) {
+      user.approved_addresses = JSON.stringify(updateUserDto.approved_addresses);
+    }
 
     return this.usersRepository.save(user);
   }
 
   async updateApprovalStatus(id: string, status: ApprovalStatus): Promise<User> {
-    const user = await this.findById(id);
-    user.approval_status = status;
+    const user = await this.findOne(id);
+    user.approvalStatus = status;
     
-    // If approved, also set status to active
+    // If approving user, also activate them
     if (status === ApprovalStatus.APPROVED) {
-      user.status = UserStatus.ACTIVE;
-      user.is_activated = true;
+      user.isActivated = true;
     }
     
-    return this.usersRepository.save(user);
-  }
-
-  async remove(id: string): Promise<void> {
-    const user = await this.findById(id);
-    await this.usersRepository.remove(user);
-  }
-
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.findByUsername(username);
-    if (user && await bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
-  async updatePassword(id: string, newPassword: string): Promise<User> {
-    const user = await this.findById(id);
-    user.password = await bcrypt.hash(newPassword, 10);
     return this.usersRepository.save(user);
   }
 
   async updateEmailVerification(id: string, isVerified: boolean): Promise<User> {
-    const user = await this.findById(id);
-    user.is_email_verified = isVerified;
+    const user = await this.findOne(id);
+    // Email verification is now handled by isActivated
+    user.isActivated = isVerified;
     return this.usersRepository.save(user);
   }
 
-  async updateMfaStatus(id: string, isEnabled: boolean, secret?: string): Promise<User> {
-    const user = await this.findById(id);
-    user.is_mfa_enabled = isEnabled;
-    if (secret) {
-      user.mfa_secret = secret;
-    }
+  async updateMfaStatus(id: string, isEnabled: boolean): Promise<User> {
+    const user = await this.findOne(id);
+    user.mfa_enabled = isEnabled;
     return this.usersRepository.save(user);
   }
 
-  async getUserProfile(id: string): Promise<any> {
-    const user = await this.findById(id);
-    
+  async remove(id: string): Promise<void> {
+    const user = await this.findOne(id);
+    await this.usersRepository.remove(user);
+  }
+
+  async toResponseDto(user: User) {
+    // Parse approved_addresses from JSON string
+    const approvedAddresses = user.approved_addresses 
+      ? JSON.parse(user.approved_addresses as string)
+      : [];
+      
     return {
       id: user.id,
       username: user.username,
       email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      phone: user.phone,
       role: user.role,
-      status: user.status,
-      approval_status: user.approval_status,
-      is_email_verified: user.is_email_verified,
-      is_mfa_enabled: user.is_mfa_enabled,
+      approvalStatus: user.approvalStatus,
+      isActivated: user.isActivated,
       organizationId: user.organizationId,
-      preferences: user.preferences,
+      mfa_enabled: user.mfa_enabled,
+      approved_addresses: approvedAddresses,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };

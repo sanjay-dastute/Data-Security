@@ -1,118 +1,80 @@
-import { Injectable, NestMiddleware, ForbiddenException } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../user-management/entities/user.entity';
-import * as requestIp from 'request-ip';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class IpMacAuthMiddleware implements NestMiddleware {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private usersRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      // Skip validation for public routes
-      if (this.isPublicRoute(req.path)) {
+      // Extract token from Authorization header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return next();
       }
+
+      const token = authHeader.split(' ')[1];
       
-      // Get client IP
-      const clientIp = requestIp.getClientIp(req);
-      
-      // Get MAC address from header (in a real implementation, this would be more secure)
-      // Note: In a browser environment, getting MAC address is not possible directly
-      // This is a simplified implementation for demonstration purposes
-      const clientMac = req.headers['x-client-mac'] as string;
-      
-      // Get user ID from JWT token
-      const token = this.extractTokenFromHeader(req);
-      if (!token) {
+      // Verify token
+      const payload = this.jwtService.verify(token);
+      if (!payload || !payload.sub) {
         return next();
       }
-      
-      try {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: this.configService.get<string>('JWT_SECRET'),
-        });
-        
-        const userId = payload.sub;
-        
-        // Find user
-        const user = await this.userRepository.findOne({ where: { id: userId } as any });
-        if (!user) {
-          return next();
-        }
-        
-        // Check if IP and MAC are approved
-        const approvedAddresses = user.approved_addresses || [];
-        const isIpApproved = !clientIp || approvedAddresses.some(addr => addr.ip === clientIp);
-        const isMacApproved = !clientMac || approvedAddresses.some(addr => addr.mac === clientMac);
-        
-        // If IP or MAC is not approved, reject the request
-        if (!isIpApproved || !isMacApproved) {
-          // Store the unapproved address in the request for logging
-          req['unapprovedAddress'] = {
-            ip: clientIp,
-            mac: clientMac,
-            userId: userId,
-          };
-          
-          throw new ForbiddenException('Access from this device is not approved');
-        }
-        
-        // Attach client address to request for logging
-        req['clientAddress'] = {
+
+      // Get user
+      const user = await this.usersRepository.findOne({ where: { id: payload.sub } });
+      if (!user) {
+        return next();
+      }
+
+      // Get client IP and MAC
+      const clientIp = req.ip || req.headers['x-forwarded-for'] as string || '';
+      const clientMac = req.headers['x-client-mac'] as string || '';
+
+      // Parse approved_addresses from JSON string
+      const approvedAddresses = user.approved_addresses 
+        ? JSON.parse(user.approved_addresses as string) 
+        : [];
+
+      // Check if IP and MAC are approved
+      const isIpApproved = !clientIp || approvedAddresses.some(addr => addr.ip === clientIp);
+      const isMacApproved = !clientMac || approvedAddresses.some(addr => addr.mac === clientMac);
+
+      if (!isIpApproved || !clientMac && !isMacApproved) {
+        // Store unapproved address info for breach detection
+        req['unapprovedAddress'] = {
+          userId: user.id,
           ip: clientIp,
           mac: clientMac,
         };
         
-        next();
-      } catch (error) {
-        // If token verification fails, continue without IP/MAC validation
-        if (error.name === 'JsonWebTokenError') {
-          return next();
-        }
+        throw new UnauthorizedException('Access from this device is not authorized');
+      }
+
+      // Update last used timestamp for the address
+      if (clientIp && clientMac) {
+        const addressIndex = approvedAddresses.findIndex(
+          addr => addr.ip === clientIp && addr.mac === clientMac
+        );
         
-        throw error;
+        if (addressIndex !== -1) {
+          approvedAddresses[addressIndex].last_used = new Date();
+          user.approved_addresses = JSON.stringify(approvedAddresses);
+          await this.usersRepository.save(user);
+        }
       }
+
+      next();
     } catch (error) {
-      // If this is an unapproved address, we'll handle it in the controller
-      if (req['unapprovedAddress']) {
-        req['unapprovedAddressError'] = error.message;
-        return next();
-      }
-      
-      res.status(403).json({
-        statusCode: 403,
-        message: error.message || 'Forbidden',
-      });
+      next(error);
     }
-  }
-  
-  private isPublicRoute(path: string): boolean {
-    const publicRoutes = [
-      '/api/auth/login',
-      '/api/auth/register',
-      '/api/auth/verify-email',
-      '/api/auth/resend-verification',
-      '/api/auth/forgot-password',
-      '/api/auth/reset-password',
-      '/api-docs',
-      '/api/detect-breach',
-    ];
-    
-    return publicRoutes.some(route => path.startsWith(route));
-  }
-  
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
