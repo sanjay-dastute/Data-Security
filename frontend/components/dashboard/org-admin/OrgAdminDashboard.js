@@ -737,9 +737,27 @@ const OrgAdminDashboard = () => {
                   </Paper>
                 </Grid>
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>Security Features</Typography>
-                    <Grid container spacing={2}>
+                  <Paper 
+                    sx={{ 
+                      p: 3,
+                      borderRadius: '10px',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid',
+                      borderColor: 'primary.light'
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      Security Features
+                    </Typography>
+                    <Grid container spacing={3}>
                       <Grid item xs={12} md={6}>
                         <Box sx={{ mb: 2 }}>
                           <FormControlLabel
@@ -747,10 +765,24 @@ const OrgAdminDashboard = () => {
                               <Switch
                                 checked={encryptionSettings.selfDestructEnabled}
                                 onChange={(e) => handleSettingsChange('selfDestructEnabled', e.target.checked)}
-                                color="primary"
+                                sx={{
+                                  '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'primary.main',
+                                    '&:hover': {
+                                      backgroundColor: 'primary.light'
+                                    }
+                                  },
+                                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: 'primary.main'
+                                  }
+                                }}
                               />
                             }
-                            label="Enable Self-Destruct on Breach"
+                            label={
+                              <Typography sx={{ color: 'text.primary' }}>
+                                Enable Self-Destruct on Breach
+                              </Typography>
+                            }
                           />
                         </Box>
                       </Grid>
@@ -761,10 +793,24 @@ const OrgAdminDashboard = () => {
                               <Switch
                                 checked={encryptionSettings.fieldEncryptionEnabled}
                                 onChange={(e) => handleSettingsChange('fieldEncryptionEnabled', e.target.checked)}
-                                color="primary"
+                                sx={{
+                                  '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'primary.main',
+                                    '&:hover': {
+                                      backgroundColor: 'primary.light'
+                                    }
+                                  },
+                                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: 'primary.main'
+                                  }
+                                }}
                               />
                             }
-                            label="Enable Selective Field Encryption"
+                            label={
+                              <Typography sx={{ color: 'text.primary' }}>
+                                Enable Selective Field Encryption
+                              </Typography>
+                            }
                           />
                         </Box>
                       </Grid>
