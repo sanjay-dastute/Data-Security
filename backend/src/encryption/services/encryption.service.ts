@@ -2,7 +2,6 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { KeyService } from './key.service';
 import { HsmService } from './hsm.service';
 import { BlockchainService } from './blockchain.service';
-import { KeyType } from '../dto/key.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -25,7 +24,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for encryption
-      if (key.key_type !== KeyType.ENCRYPTION) {
+      if (key.key_type !== 'encryption') {
         throw new BadRequestException('The provided key is not an encryption key');
       }
       
@@ -111,7 +110,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for encryption
-      if (key.key_type !== KeyType.ENCRYPTION) {
+      if (key.key_type !== 'encryption') {
         throw new BadRequestException('The provided key is not an encryption key');
       }
       
@@ -201,7 +200,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for signing
-      if (key.key_type !== KeyType.SIGNATURE) {
+      if (key.key_type !== 'signing') {
         throw new BadRequestException('The provided key is not a signature key');
       }
       
@@ -238,7 +237,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for signing
-      if (key.key_type !== KeyType.SIGNATURE) {
+      if (key.key_type !== 'signing') {
         throw new BadRequestException('The provided key is not a signature key');
       }
       
