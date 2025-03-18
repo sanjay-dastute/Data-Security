@@ -1,96 +1,149 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Key } from '../entities/key.entity';
-import * as crypto from 'crypto';
-import { KeyAlgorithm } from '../entities/key.entity';
+import { Key, KeyStatus } from '../entities/key.entity';
+import { User } from '../../user-management/entities/user.entity';
+import { BlockchainService } from './blockchain.service';
+import { KeyResponseDto } from '../dto/key.dto';
 
 @Injectable()
 export class KeyService {
-  private readonly logger = new Logger(KeyService.name);
-
   constructor(
     @InjectRepository(Key)
-    private readonly keyRepository: Repository<Key>,
+    private keysRepository: Repository<Key>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private blockchainService: BlockchainService,
   ) {}
 
-  async createKey(userId: string, organizationId: string, algorithm: KeyAlgorithm, isHsmBacked: boolean = false): Promise<Key> {
-    this.logger.log(`Creating new key for user ${userId} with algorithm ${algorithm}`);
-    
-    // Generate key material
-    const keyMaterial = await this.generateKeyMaterial(algorithm);
-    
-    // Create key entity
-    const key = this.keyRepository.create({
-      name: `${algorithm} Key`,
-      user_id: userId,
-      organization_id: organizationId,
-      algorithm,
-      key_material: keyMaterial,
-      is_hsm_backed: isHsmBacked,
-      created_at: new Date(),
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  async getUserKeys(userId: string): Promise<KeyResponseDto[]> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const keys = await this.keysRepository.find({
+      where: [
+        { userId },
+        { organizationId: user.organizationId },
+      ],
     });
-    
-    // Save key
-    return this.keyRepository.save(key);
+
+    return keys.map(key => this.mapToResponseDto(key));
   }
 
-  async getKeyById(keyId: string): Promise<Key> {
-    this.logger.log(`Getting key with ID ${keyId}`);
-    return this.keyRepository.findOne({ where: { id: keyId } });
-  }
-
-  async getUserKeys(userId: string): Promise<Key[]> {
-    this.logger.log(`Getting keys for user ${userId}`);
-    return this.keyRepository.find({ where: { user_id: userId } });
-  }
-
-  async getOrganizationKeys(organizationId: string): Promise<Key[]> {
-    this.logger.log(`Getting keys for organization ${organizationId}`);
-    return this.keyRepository.find({ where: { organization_id: organizationId } });
-  }
-
-  async deleteKey(keyId: string): Promise<boolean> {
-    this.logger.log(`Deleting key with ID ${keyId}`);
-    const result = await this.keyRepository.delete(keyId);
-    return result.affected > 0;
-  }
-
-  async rotateKey(keyId: string): Promise<Key> {
-    this.logger.log(`Rotating key with ID ${keyId}`);
-    
-    // Get existing key
-    const existingKey = await this.keyRepository.findOne({ where: { id: keyId } });
-    if (!existingKey) {
-      throw new Error(`Key ${keyId} not found`);
+  async createKey(
+    userId: string,
+    name: string,
+    expirationTime?: Date,
+    metadata?: any,
+  ): Promise<KeyResponseDto> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    
-    // Generate new key material
-    const newKeyMaterial = await this.generateKeyMaterial(existingKey.algorithm);
-    
-    // Update key
-    existingKey.key_material = newKeyMaterial;
-    existingKey.created_at = new Date();
-    existingKey.expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-    
-    // Save updated key
-    return this.keyRepository.save(existingKey);
+
+    // In a real implementation, we would generate a secure key
+    // For this example, we'll use a placeholder
+    const encryptedKey = 'encrypted-key-material-placeholder';
+    const publicKey = 'public-key-material-placeholder';
+
+    // Convert metadata to JSON string for SQLite compatibility
+    const metadataStr = metadata ? JSON.stringify(metadata) : null;
+
+    const key = this.keysRepository.create({
+      name,
+      encrypted_key: encryptedKey,
+      public_key: publicKey,
+      status: KeyStatus.ACTIVE,
+      expiration_time: expirationTime,
+      userId,
+      organizationId: user.organizationId,
+      metadata: metadataStr,
+    });
+
+    const savedKey = await this.keysRepository.save(key);
+
+    // Log key creation to blockchain
+    await this.blockchainService.logEvent({
+      user_id: userId,
+      event_type: 'key_created',
+      timestamp: new Date(),
+      metadata: {
+        key_id: savedKey.id,
+        key_name: savedKey.name,
+      },
+    });
+
+    return this.mapToResponseDto(savedKey);
   }
 
-  private async generateKeyMaterial(algorithm: KeyAlgorithm): Promise<string> {
-    // Generate appropriate key based on algorithm
-    switch (algorithm) {
-      case KeyAlgorithm.AES_256_GCM:
-        return crypto.randomBytes(32).toString('base64');
-      case KeyAlgorithm.RSA_4096:
-        // In a real implementation, this would generate an RSA key pair
-        return crypto.randomBytes(512).toString('base64');
-      case KeyAlgorithm.ECDSA_P384:
-        // In a real implementation, this would generate an ECDSA key pair
-        return crypto.randomBytes(48).toString('base64');
-      default:
-        return crypto.randomBytes(32).toString('base64');
+  async getKey(id: string, userId: string): Promise<KeyResponseDto> {
+    const key = await this.keysRepository.findOne({ where: { id } });
+    if (!key) {
+      throw new NotFoundException('Key not found');
     }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user has permission to access this key
+    if (key.userId !== userId && key.organizationId !== user.organizationId) {
+      throw new ForbiddenException('You do not have permission to access this key');
+    }
+
+    return this.mapToResponseDto(key);
+  }
+
+  async revokeKey(id: string, userId: string): Promise<KeyResponseDto> {
+    const key = await this.keysRepository.findOne({ where: { id } });
+    if (!key) {
+      throw new NotFoundException('Key not found');
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user has permission to revoke this key
+    if (key.userId !== userId && key.organizationId !== user.organizationId) {
+      throw new ForbiddenException('You do not have permission to revoke this key');
+    }
+
+    key.status = KeyStatus.REVOKED;
+    const updatedKey = await this.keysRepository.save(key);
+
+    // Log key revocation to blockchain
+    await this.blockchainService.logEvent({
+      user_id: userId,
+      event_type: 'key_revoked',
+      timestamp: new Date(),
+      metadata: {
+        key_id: updatedKey.id,
+        key_name: updatedKey.name,
+      },
+    });
+
+    return this.mapToResponseDto(updatedKey);
+  }
+
+  private mapToResponseDto(key: Key): KeyResponseDto {
+    // Parse metadata from JSON string
+    const metadata = key.metadata ? JSON.parse(key.metadata as string) : null;
+    
+    return {
+      id: key.id,
+      name: key.name,
+      status: key.status,
+      expiration_time: key.expiration_time,
+      created_at: key.created_at,
+      updated_at: key.updated_at,
+      userId: key.userId,
+      organizationId: key.organizationId,
+      metadata: metadata,
+    };
   }
 }

@@ -1,46 +1,54 @@
-import { IsString, IsUUID, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsObject, IsUUID } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString()
   name: string;
 
-  @IsOptional()
-  @IsUUID()
-  admin_user_id?: string;
+  @IsEmail()
+  email: string;
 
+  @IsString()
   @IsOptional()
-  @IsObject()
-  settings?: Record<string, any>;
+  phone?: string;
 
-  @IsOptional()
   @IsObject()
-  profile?: Record<string, any>;
+  @IsOptional()
+  settings?: any;
+
+  @IsString()
+  @IsOptional()
+  api_key?: string;
 }
 
 export class UpdateOrganizationDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   name?: string;
 
+  @IsEmail()
   @IsOptional()
-  @IsUUID()
-  admin_user_id?: string;
+  email?: string;
 
+  @IsString()
   @IsOptional()
-  @IsObject()
-  settings?: Record<string, any>;
+  phone?: string;
 
-  @IsOptional()
   @IsObject()
-  profile?: Record<string, any>;
+  @IsOptional()
+  settings?: any;
+
+  @IsString()
+  @IsOptional()
+  api_key?: string;
 }
 
 export class OrganizationResponseDto {
-  organization_id: string;
+  id: string;
   name: string;
-  admin_user_id?: string;
-  settings: Record<string, any>;
-  profile: Record<string, any>;
+  email: string;
+  phone?: string;
+  settings: any;
+  api_key?: string;
   created_at: Date;
   updated_at: Date;
 }

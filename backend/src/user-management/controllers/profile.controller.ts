@@ -1,7 +1,7 @@
-import { Controller, Get, Put, Body, UseGuards, Request, BadRequestException } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from '../dto/user.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
@@ -10,57 +10,12 @@ export class ProfileController {
 
   @Get()
   async getProfile(@Request() req) {
-    return this.userService.findOne(req.user.userId);
+    const user = await this.userService.findOne(req.user.id);
+    return this.userService.toResponseDto(user);
   }
 
   @Put()
-  async updateProfile(@Request() req, @Body() updateData: any) {
-    // Remove sensitive fields that shouldn't be updated directly
-    const { password, password_hash, role, approvalStatus, isActivated, ...safeUpdateData } = updateData;
-    
-    return this.userService.update(req.user.userId, safeUpdateData);
-  }
-
-  @Put('password')
-  async updatePassword(
-    @Request() req,
-    @Body() passwordData: { currentPassword: string; newPassword: string },
-  ) {
-    const user = await this.userService.findOne(req.user.userId);
-    
-    // Verify current password
-    const isPasswordValid = await bcrypt.compare(
-      passwordData.currentPassword,
-      user.details?.password_hash || '',
-    );
-    
-    if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
-    }
-    
-    // Validate new password strength
-    const passwordRegex = /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
-    if (
-      passwordData.newPassword.length < 8 ||
-      !passwordRegex.test(passwordData.newPassword)
-    ) {
-      throw new BadRequestException(
-        'Password must be at least 8 characters and include uppercase, lowercase, and numbers or special characters',
-      );
-    }
-    
-    // Hash new password
-    const passwordHash = await bcrypt.hash(passwordData.newPassword, 10);
-    
-    // Update password
-    await this.userService.update(req.user.userId, { details: { password_hash: passwordHash } });
-    
-    return { message: 'Password updated successfully' };
-  }
-
-  @Get('approved-addresses')
-  async getApprovedAddresses(@Request() req) {
-    const user = await this.userService.findOne(req.user.userId);
-    return { approved_addresses: user.approved_addresses || [] };
+  async updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(req.user.id, updateUserDto);
   }
 }

@@ -1,151 +1,104 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Request } from '@nestjs/common';
+import { UserService } from '../services/user.service';
+import { CreateUserDto, UpdateUserDto } from '../dto/user.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { UserRole, UserStatus, ApprovalStatus } from '../entities/user.entity';
-import { UserService } from '../services/user.service';
-import { RequestWithUser } from '../../auth/interfaces/request-with-user.interface';
+import { UserRole, ApprovalStatus } from '../entities/user.entity';
 
-@Controller('org/users')
+@Controller('org-users')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ORG_ADMIN)
 export class OrgUsersController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getOrgUsers(@Req() req: RequestWithUser) {
-    return this.userService.findByOrganization(req.user.organizationId);
+  @Roles(UserRole.ORG_ADMIN)
+  async findAllInOrganization(@Request() req) {
+    return this.userService.findAllByOrganization(req.user.organizationId);
   }
 
   @Get(':id')
-  async getUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    const user = await this.userService.findById(id);
+  @Roles(UserRole.ORG_ADMIN)
+  async findOne(@Param('id') id: string, @Request() req) {
+    const user = await this.userService.findOne(id);
     
-    // Check if user belongs to the organization
+    // Check if user belongs to the same organization
     if (user.organizationId !== req.user.organizationId) {
-      throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
+      throw new Error('User does not belong to your organization');
     }
     
-    return user;
+    return this.userService.toResponseDto(user);
   }
 
   @Post()
-  async createUser(@Body() createUserDto: any, @Req() req: RequestWithUser) {
-    try {
-      // Ensure user is created in the same organization
-      createUserDto.organizationId = req.user.organizationId;
-      
-      // Org admin can only create ORG_USER
-      createUserDto.role = UserRole.ORG_USER;
-      
-      return await this.userService.create(createUserDto);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+  @Roles(UserRole.ORG_ADMIN)
+  async create(@Body() createUserDto: CreateUserDto, @Request() req) {
+    // Ensure the user is created in the same organization
+    createUserDto.organizationId = req.user.organizationId;
+    
+    // Org admins can only create org users
+    createUserDto.role = UserRole.ORG_USER;
+    
+    return this.userService.create(createUserDto);
   }
 
   @Put(':id')
-  async updateUser(
+  @Roles(UserRole.ORG_ADMIN)
+  async update(
     @Param('id') id: string,
-    @Body() updateUserDto: any,
-    @Req() req: RequestWithUser,
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req,
   ) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      // Prevent changing organization or role
-      delete updateUserDto.organizationId;
-      delete updateUserDto.role;
-      
-      return await this.userService.update(id, updateUserDto);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    const user = await this.userService.findOne(id);
+    
+    // Check if user belongs to the same organization
+    if (user.organizationId !== req.user.organizationId) {
+      throw new Error('User does not belong to your organization');
     }
+    
+    // Org admins cannot change the role or organization
+    delete updateUserDto.role;
+    delete updateUserDto.organizationId;
+    
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      await this.userService.remove(id);
-      return { success: true, message: 'User deleted successfully' };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+  @Roles(UserRole.ORG_ADMIN)
+  async remove(@Param('id') id: string, @Request() req) {
+    const user = await this.userService.findOne(id);
+    
+    // Check if user belongs to the same organization
+    if (user.organizationId !== req.user.organizationId) {
+      throw new Error('User does not belong to your organization');
     }
+    
+    return this.userService.remove(id);
   }
 
   @Post(':id/approve')
-  async approveUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      return await this.userService.updateApprovalStatus(id, ApprovalStatus.APPROVED);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+  @Roles(UserRole.ORG_ADMIN)
+  async approveUser(@Param('id') id: string, @Request() req) {
+    const user = await this.userService.findOne(id);
+    
+    // Check if user belongs to the same organization
+    if (user.organizationId !== req.user.organizationId) {
+      throw new Error('User does not belong to your organization');
     }
-  }
-
-  @Post(':id/reject')
-  async rejectUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      return await this.userService.updateApprovalStatus(id, ApprovalStatus.REJECTED);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Post(':id/activate')
-  async activateUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      return await this.userService.update(id, { status: UserStatus.ACTIVE });
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+    
+    return this.userService.updateApprovalStatus(id, ApprovalStatus.APPROVED);
   }
 
   @Post(':id/deactivate')
-  async deactivateUser(@Param('id') id: string, @Req() req: RequestWithUser) {
-    try {
-      const user = await this.userService.findById(id);
-      
-      // Check if user belongs to the organization
-      if (user.organizationId !== req.user.organizationId) {
-        throw new HttpException('User not found in your organization', HttpStatus.NOT_FOUND);
-      }
-      
-      return await this.userService.update(id, { status: UserStatus.INACTIVE });
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+  @Roles(UserRole.ORG_ADMIN)
+  async deactivateUser(@Param('id') id: string, @Request() req) {
+    const user = await this.userService.findOne(id);
+    
+    // Check if user belongs to the same organization
+    if (user.organizationId !== req.user.organizationId) {
+      throw new Error('User does not belong to your organization');
     }
+    
+    return this.userService.update(id, { isActivated: false });
   }
 }
