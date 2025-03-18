@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/quantumtrust
+      - MONGODB_URI=mongodb://mongodb:27017/quantumtrust
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=quantum_trust_dev_secret
+      - JWT_EXPIRATION=3600
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+
+  # Frontend
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+
+  # PostgreSQL
+  postgres:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=quantumtrust
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MongoDB
+  mongodb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  # Redis
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  mongodb_data:
