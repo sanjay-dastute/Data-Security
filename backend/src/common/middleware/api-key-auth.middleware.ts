@@ -115,7 +115,7 @@ export class ApiKeyAuthMiddleware implements NestMiddleware {
       const organizations = await this.organizationRepository.find();
       
       for (const org of organizations) {
-        if (org.settings && org.settings.org_api_key === orgApiKey) {
+        if (org.settings && org.settings.api_key === orgApiKey) {
           return org;
         }
       }
