@@ -18,5 +18,5 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/minimal/**/*"]
+  "include": ["src/minimal/**/*", "src/main-minimal.ts"]
 }

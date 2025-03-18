@@ -1,16 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 
-// Create database directory if it doesn't exist
-const dbDir = path.join(__dirname, '../db');
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
-}
-
 // Connect to SQLite database
-const db = new sqlite3.Database(path.join(__dirname, '../quantumtrust.sqlite'));
+const db = new sqlite3.Database('quantumtrust.sqlite');
 
 // Create tables
 db.serialize(() => {
@@ -46,7 +41,7 @@ db.serialize(() => {
   `);
 
   // Insert test organization
-  const orgId = generateUUID();
+  const orgId = uuidv4();
   db.run(`
     INSERT OR IGNORE INTO organizations (id, name, email, phone)
     VALUES (?, ?, ?, ?)
@@ -54,16 +49,16 @@ db.serialize(() => {
 
   // Insert test users
   Promise.all([
-    hashPassword('Admin@123'),
-    hashPassword('Org@123'),
-    hashPassword('User@123')
+    bcrypt.hash('Admin@123', 10),
+    bcrypt.hash('Org@123', 10),
+    bcrypt.hash('User@123', 10)
   ]).then(([adminHash, orgAdminHash, userHash]) => {
     // Admin user
     db.run(`
       INSERT OR IGNORE INTO users (id, username, email, password, approved_addresses, role, is_active, approval_status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      generateUUID(),
+      uuidv4(),
       'admin1',
       'admin@quantumtrust.com',
       adminHash,
@@ -78,7 +73,7 @@ db.serialize(() => {
       INSERT OR IGNORE INTO users (id, username, email, password, approved_addresses, role, organizationId, is_active, approval_status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      generateUUID(),
+      uuidv4(),
       'orgadmin1',
       'orgadmin@quantumtrust.com',
       orgAdminHash,
@@ -94,7 +89,7 @@ db.serialize(() => {
       INSERT OR IGNORE INTO users (id, username, email, password, approved_addresses, role, organizationId, is_active, approval_status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      generateUUID(),
+      uuidv4(),
       'user1',
       'user@quantumtrust.com',
       userHash,
@@ -111,16 +106,3 @@ db.serialize(() => {
 
 // Close the database connection
 db.close();
-
-// Helper functions
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
-async function hashPassword(password) {
-  return await bcrypt.hash(password, 10);
-}

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { HealthModule } from './health.module';
-import { AuthModule } from './auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthController } from './controllers/auth.controller';
+import { AuthService } from './services/auth.service';
+import { HealthController } from './controllers/health.controller';
 import { User } from './entities/user.entity';
 import { Organization } from './entities/organization.entity';
 
@@ -17,8 +19,13 @@ import { Organization } from './entities/organization.entity';
       entities: [User, Organization],
       synchronize: true,
     }),
-    HealthModule,
-    AuthModule,
+    TypeOrmModule.forFeature([User, Organization]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'quantum_trust_secret_key',
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
+  controllers: [AuthController, HealthController],
+  providers: [AuthService],
 })
 export class AppModule {}
