@@ -1,8 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
 
 // Connect to SQLite database
 const db = new sqlite3.Database('quantumtrust.sqlite');
