@@ -94,9 +94,9 @@ export class KeyService {
     const newKey = this.keysRepository.create({
       user_id: createKeyDto.user_id,
       organization_id: createKeyDto.organization_id,
-      key_type: createKeyDto.key_type,
+      key_type: createKeyDto.key_type as any, // Type conversion between DTO and entity enums
       key_data: keyData,
-      timer_interval: createKeyDto.timer_interval,
+      timer_interval: createKeyDto.timer_interval || 0,
       expires_at: createKeyDto.expires_at,
       version: 1,
       status: KeyStatus.ACTIVE,
@@ -107,7 +107,7 @@ export class KeyService {
     
     // Log key creation to blockchain
     await this.blockchainService.logKeyEvent({
-      key_id: savedKey.key_id,
+      key_id: savedKey.key_id || savedKey.id,
       user_id: savedKey.user_id,
       organization_id: savedKey.organization_id,
       event_type: 'created',
@@ -118,7 +118,7 @@ export class KeyService {
       },
     });
     
-    return this.mapToKeyResponse(savedKey);
+    return this.mapToKeyResponse(savedKey as Key);
   }
 
   async update(keyId: string, updateKeyDto: UpdateKeyDto): Promise<KeyResponseDto> {
@@ -130,7 +130,7 @@ export class KeyService {
     
     // Update key properties
     if (updateKeyDto.key_type) {
-      key.key_type = updateKeyDto.key_type;
+      key.key_type = updateKeyDto.key_type as any; // Type conversion between DTO and entity enums
     }
     
     if (updateKeyDto.timer_interval !== undefined) {
