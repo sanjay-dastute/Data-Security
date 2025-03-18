@@ -165,7 +165,7 @@ export default function Login() {
           </Box>
 
           <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Link href="/register" passHref>
+            <Link href="/register" passHref legacyBehavior>
               <MuiLink variant="body2" sx={{ color: 'primary.main' }}>
                 Don't have an account? Register
               </MuiLink>

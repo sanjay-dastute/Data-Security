@@ -251,7 +251,7 @@ export default function ResendVerification() {
           <Divider sx={{ width: '100%', mb: 2, borderColor: 'primary.light' }} />
 
           <Box sx={{ textAlign: 'center' }}>
-            <Link href="/login" passHref>
+            <Link href="/login" passHref legacyBehavior>
               <MuiLink 
                 variant="body2" 
                 sx={{ 

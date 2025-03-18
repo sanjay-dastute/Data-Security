@@ -144,26 +144,27 @@ export default function VerifyEmail() {
                 <Typography variant="body1" sx={{ mb: 4 }}>
                   Your email has been verified. You can now log in to your account.
                 </Typography>
-                <Button
-                  component={Link}
-                  href="/login"
-                  variant="contained"
-                  sx={{
-                    mt: 2,
-                    py: 1.5,
-                    px: 4,
-                    background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                    color: '#FFFFFF',
-                    fontWeight: 'bold',
-                    '&:hover': {
-                      background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
-                      transform: 'scale(1.02)',
-                      transition: 'transform 0.2s'
-                    }
-                  }}
-                >
-                  Go to Login
-                </Button>
+                <Link href="/login" passHref legacyBehavior>
+                  <Button
+                    component="a"
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      py: 1.5,
+                      px: 4,
+                      background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                      color: '#FFFFFF',
+                      fontWeight: 'bold',
+                      '&:hover': {
+                        background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                        transform: 'scale(1.02)',
+                        transition: 'transform 0.2s'
+                      }
+                    }}
+                  >
+                    Go to Login
+                  </Button>
+                </Link>
               </Box>
             )}
 
@@ -196,47 +197,49 @@ export default function VerifyEmail() {
                 </Typography>
                 
                 <Stack spacing={2} sx={{ mt: 2 }}>
-                  <Button
-                    component={Link}
-                    href="/login"
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
-                      color: '#FFFFFF',
-                      fontWeight: 'bold',
-                      '&:hover': {
-                        background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
-                        transform: 'scale(1.02)',
-                        transition: 'transform 0.2s'
-                      }
-                    }}
-                  >
-                    Go to Login
-                  </Button>
-                  <Button
-                    component={Link}
-                    href="/resend-verification"
-                    variant="outlined"
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      borderColor: 'primary.main',
-                      color: 'primary.main',
-                      fontWeight: 'bold',
-                      '&:hover': {
-                        borderColor: 'primary.dark',
-                        backgroundColor: 'primary.light',
-                        opacity: 0.1,
-                        color: 'primary.dark',
-                        transform: 'scale(1.02)',
-                        transition: 'transform 0.2s'
-                      }
-                    }}
-                  >
-                    Resend Verification Email
-                  </Button>
+                  <Link href="/login" passHref legacyBehavior>
+                    <Button
+                      component="a"
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        py: 1.5,
+                        background: 'linear-gradient(to right, #1E3A8A, #3B82F6)',
+                        color: '#FFFFFF',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          background: 'linear-gradient(to right, #1E3A8A, #4B92FF)',
+                          transform: 'scale(1.02)',
+                          transition: 'transform 0.2s'
+                        }
+                      }}
+                    >
+                      Go to Login
+                    </Button>
+                  </Link>
+                  <Link href="/resend-verification" passHref legacyBehavior>
+                    <Button
+                      component="a"
+                      variant="outlined"
+                      fullWidth
+                      sx={{
+                        py: 1.5,
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          borderColor: 'primary.dark',
+                          backgroundColor: 'primary.light',
+                          opacity: 0.1,
+                          color: 'primary.dark',
+                          transform: 'scale(1.02)',
+                          transition: 'transform 0.2s'
+                        }
+                      }}
+                    >
+                      Resend Verification Email
+                    </Button>
+                  </Link>
                 </Stack>
               </Box>
             )}
