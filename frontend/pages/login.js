@@ -41,37 +41,69 @@ export default function Login() {
     setError('');
 
     try {
-      // In a real implementation, this would call the backend API
-      // For now, we'll simulate a successful login
+      // For testing purposes, we'll use hardcoded credentials to match our seeded users
+      // In production, this would call the backend API
       if (!showMfa) {
         // First step: validate username/password
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        let isAuthenticated = false;
+        let userData = null;
+        let needsMfa = false;
+        
+        // Check against our seeded users
+        if (formData.username === 'admin1' && formData.password === 'Admin@123') {
+          isAuthenticated = true;
+          userData = { 
+            id: '1', 
+            username: 'admin1', 
+            email: 'admin1@quantumtrust.com', 
+            role: 'ADMIN' 
+          };
+          needsMfa = false;
+        } else if (formData.username === 'orgadmin1' && formData.password === 'Org@123') {
+          isAuthenticated = true;
+          userData = { 
+            id: '2', 
+            username: 'orgadmin1', 
+            email: 'orgadmin1@abc.com', 
+            role: 'ORG_ADMIN',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          };
+          needsMfa = false;
+        } else if (formData.username === 'user1' && formData.password === 'User@123') {
+          isAuthenticated = true;
+          userData = { 
+            id: '3', 
+            username: 'user1', 
+            email: 'user1@abc.com', 
+            role: 'ORG_USER',
+            organization_id: '550e8400-e29b-41d4-a716-446655440000'
+          };
+          needsMfa = false;
+        }
+        
+        if (!isAuthenticated) {
+          throw new Error('Invalid username or password');
+        }
+        
+        // Store user data and token
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', 'mock-jwt-token');
         
         // Check if MFA is required
-        if (formData.username === 'admin') {
+        if (needsMfa) {
           setShowMfa(true);
           setLoading(false);
           return;
         }
       } else {
         // Second step: validate MFA code
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // Validate MFA code
         if (formData.mfaCode !== '123456') {
           throw new Error('Invalid MFA code');
         }
       }
 
-      // Determine redirect based on role
-      let redirectPath = '/user/dashboard';
-      if (formData.username === 'admin') {
-        redirectPath = '/admin/dashboard';
-      } else if (formData.username.includes('org-admin')) {
-        redirectPath = '/org-admin/dashboard';
-      }
+      // All users go to the main dashboard page
+      const redirectPath = '/dashboard';
 
       // Redirect to appropriate dashboard
       router.push(redirectPath);

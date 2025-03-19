@@ -10,7 +10,9 @@ export default function Dashboard() {
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem('token');
-    if (!token) {
+    const storedUser = localStorage.getItem('user');
+    
+    if (!token || !storedUser) {
       router.push('/login');
       return;
     }
@@ -18,28 +20,19 @@ export default function Dashboard() {
     // Fetch user data
     const fetchUserData = async () => {
       try {
-        // In a real implementation, this would call the backend API
-        // For now, we'll simulate a successful API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // For testing purposes, we'll use the stored user data
+        // In production, this would call the backend API
+        const userData = JSON.parse(storedUser);
         
-        // Simulate user data
-        const userData = {
-          user_id: '123',
-          username: 'johndoe',
-          email: 'john@example.com',
-          role: 'admin', // or 'org_admin' or 'org_user'
-          organization_id: 'org123',
-          permissions: {
-            view_users: true,
-            edit_users: true,
-            view_organizations: true,
-            edit_organizations: true,
-          },
-          details: {
-            name: 'John Doe',
+        // Add some mock details for display
+        if (!userData.details) {
+          userData.details = {
+            name: userData.username,
             phone: '123-456-7890',
-          },
-        };
+            address: '123 Main St',
+            department: 'Security'
+          };
+        }
         
         setUser(userData);
         setLoading(false);
