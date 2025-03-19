@@ -1,16 +1,16 @@
-version: '3.8'
 services:
   # Database services
   postgres:
     image: postgres:14
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: quantumtrust
+      POSTGRES_PASSWORD: quantumtrust_password
       POSTGRES_DB: quantumtrust
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    command: postgres -c 'max_connections=200'
 
   redis:
     image: redis:7
