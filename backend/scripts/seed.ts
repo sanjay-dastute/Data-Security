@@ -11,13 +11,14 @@ async function bootstrap() {
   const orgService = app.get(OrganizationService);
 
   try {
-    console.log('Starting to seed test data...');
+    console.log('Starting to seed default users and organization...');
 
-    // Create test organization
+    // Create ABC Corp organization
     const org = await orgService.create({
-      name: 'Test Organization',
-      email: 'test@organization.com',
+      name: 'ABC Corp',
+      email: 'admin@abc.com',
       phone: '1234567890',
+      api_key: 'abc-org-api-key-' + Date.now(),
       settings: {
         key_timer: 300,
         storage_config: {
@@ -34,9 +35,16 @@ async function bootstrap() {
           use_hsm: false,
         },
       },
+      profile: {
+        industry: 'Big Data',
+        size: 'Enterprise',
+        compliance: ['GDPR', 'HIPAA', 'PCI-DSS'],
+        contact_email: 'contact@abc.com',
+        website: 'https://abc.com',
+      },
     });
 
-    console.log('Created test organization:', org.name);
+    console.log('Created organization:', org.name);
 
     // Hash passwords
     const adminPassword = await bcrypt.hash('Admin@123', 10);
@@ -46,7 +54,7 @@ async function bootstrap() {
     // Create admin user
     const admin = await userService.create({
       username: 'admin1',
-      email: 'admin@quantumtrust.com',
+      email: 'admin1@quantumtrust.com',
       password: adminPassword,
       role: UserRole.ADMIN,
       is_active: true,
@@ -54,12 +62,21 @@ async function bootstrap() {
       approved_addresses: [
         {
           ip: '127.0.0.1',
-          mac: '00:00:00:00:00:00'
+          mac: 'default'
         }
       ],
       details: {
         name: 'Admin User',
         phone: '1234567890',
+        position: 'System Administrator',
+        department: 'IT Security',
+      },
+      permissions: {
+        manage_users: true,
+        manage_organizations: true,
+        manage_keys: true,
+        view_logs: true,
+        manage_system: true,
       },
     });
 
@@ -68,21 +85,29 @@ async function bootstrap() {
     // Create organization admin user
     const orgAdmin = await userService.create({
       username: 'orgadmin1',
-      email: 'orgadmin@quantumtrust.com',
+      email: 'orgadmin1@abc.com',
       password: orgAdminPassword,
       role: UserRole.ORG_ADMIN,
-      organization_id: org.organization_id || org.id,
+      organizationId: org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
         {
           ip: '127.0.0.1',
-          mac: '00:00:00:00:00:00'
+          mac: 'default'
         }
       ],
       details: {
         name: 'Organization Admin',
         phone: '1234567891',
+        position: 'Security Officer',
+        department: 'Data Security',
+      },
+      permissions: {
+        manage_org_users: true,
+        manage_org_keys: true,
+        view_org_logs: true,
+        manage_org_settings: true,
       },
     });
 
@@ -96,33 +121,40 @@ async function bootstrap() {
     // Create regular user
     const user = await userService.create({
       username: 'user1',
-      email: 'user@quantumtrust.com',
+      email: 'user1@abc.com',
       password: userPassword,
       role: UserRole.ORG_USER,
-      organization_id: org.organization_id || org.id,
+      organizationId: org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
         {
           ip: '127.0.0.1',
-          mac: '00:00:00:00:00:00'
+          mac: 'default'
         }
       ],
       details: {
         name: 'Regular User',
         phone: '1234567892',
+        position: 'Data Analyst',
+        department: 'Research',
+      },
+      permissions: {
+        encrypt_data: true,
+        decrypt_data: true,
+        view_own_logs: true,
       },
     });
 
     console.log('Created regular user:', user.username);
 
-    console.log('Test data seeded successfully!');
-    console.log('Test credentials:');
+    console.log('Default data seeded successfully!');
+    console.log('Default credentials:');
     console.log('Admin: admin1 / Admin@123');
     console.log('Org Admin: orgadmin1 / Org@123');
     console.log('User: user1 / User@123');
   } catch (error) {
-    console.error('Error seeding test data:', error);
+    console.error('Error seeding default data:', error);
   } finally {
     await app.close();
   }
