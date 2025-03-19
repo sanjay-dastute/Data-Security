@@ -262,8 +262,12 @@ export class BatchProcessingService {
           }
 
           // Encrypt file
+          // Read file content from storage
+          const fileContent = await this.storageService.getData(file.encrypted_file_path);
+          
+          // Encrypt file content
           const encryptionResult = await this.encryptionService.encryptData(
-            await this.storageService.getData(file.encrypted_file_path),
+            fileContent,
             batchProcess.key_id,
             batchProcess.fields
           );

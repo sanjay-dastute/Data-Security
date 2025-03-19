@@ -81,7 +81,7 @@ export class BreachDetectionFilter implements ExceptionFilter {
   
   private async logSecurityEvent(request: Request, exception: HttpException): Promise<void> {
     try {
-      const userId = request.user?.userId || 'anonymous';
+      const userId = request.user?.id || request.user?.user_id || 'anonymous';
       const clientIp = request.ip;
       const clientMac = request.headers['x-client-mac'] || 'unknown';
       
