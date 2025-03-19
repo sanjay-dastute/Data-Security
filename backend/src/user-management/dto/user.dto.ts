@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsEnum, IsUUID, IsBoolean, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsUUID, IsBoolean, IsOptional, IsObject, IsArray } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
@@ -17,6 +17,22 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID()
   organization_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+
+  @IsOptional()
+  @IsString()
+  approval_status?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  mfa_enabled?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  approved_addresses?: Array<{ ip: string; mac: string }>;
 
   @IsOptional()
   @IsObject()
@@ -66,6 +82,7 @@ export class UpdateUserDto {
 }
 
 export class UserResponseDto {
+  id?: string; // Add this property
   user_id: string;
   username: string;
   email: string;

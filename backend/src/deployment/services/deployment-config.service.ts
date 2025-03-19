@@ -82,8 +82,8 @@ export class DeploymentConfigService {
     if (updateDto.provider) config.provider = updateDto.provider;
     if (updateDto.isDefault !== undefined) config.is_default = updateDto.isDefault;
     if (updateDto.replicas) config.replicas = updateDto.replicas;
-    if (updateDto.cpuLimit) config.cpu_limit = updateDto.cpuLimit;
-    if (updateDto.memoryLimit) config.memory_limit = updateDto.memoryLimit;
+    if (updateDto.cpuLimit) config.cpu_limit = Number(updateDto.cpuLimit);
+    if (updateDto.memoryLimit) config.memory_limit = Number(updateDto.memoryLimit);
 
     // Update credentials if provided
     if (this.hasCredentials(updateDto)) {

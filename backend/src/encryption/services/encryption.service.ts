@@ -25,7 +25,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for encryption
-      if (key.key_type !== KeyType.ENCRYPTION) {
+      if (String(key.key_type) !== String(KeyType.ENCRYPTION)) {
         throw new BadRequestException('The provided key is not an encryption key');
       }
       
@@ -111,7 +111,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for encryption
-      if (key.key_type !== KeyType.ENCRYPTION) {
+      if (String(key.key_type) !== String(KeyType.ENCRYPTION)) {
         throw new BadRequestException('The provided key is not an encryption key');
       }
       
@@ -201,7 +201,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for signing
-      if (key.key_type !== KeyType.SIGNATURE) {
+      if (String(key.key_type) !== String(KeyType.SIGNING)) {
         throw new BadRequestException('The provided key is not a signature key');
       }
       
@@ -238,7 +238,7 @@ export class EncryptionService {
       const key = await this.keyService.findOne(keyId);
       
       // Check if key is valid for signing
-      if (key.key_type !== KeyType.SIGNATURE) {
+      if (String(key.key_type) !== String(KeyType.SIGNING)) {
         throw new BadRequestException('The provided key is not a signature key');
       }
       

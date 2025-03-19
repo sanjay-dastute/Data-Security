@@ -91,19 +91,22 @@ export class KeyService {
     }
     
     // Create key entity
-    const newKey = this.keysRepository.create({
+    const newKey = {
       user_id: createKeyDto.user_id,
       organization_id: createKeyDto.organization_id,
-      key_type: createKeyDto.key_type,
+      key_type: createKeyDto.key_type as any,
       key_data: keyData,
       timer_interval: createKeyDto.timer_interval,
       expires_at: createKeyDto.expires_at,
       version: 1,
       status: KeyStatus.ACTIVE,
-    });
+    };
+    
+    // Create entity from plain object
+    const keyEntity = this.keysRepository.create(newKey);
     
     // Save key to database
-    const savedKey = await this.keysRepository.save(newKey);
+    const savedKey = await this.keysRepository.save(keyEntity) as Key;
     
     // Log key creation to blockchain
     await this.blockchainService.logKeyEvent({
@@ -113,7 +116,7 @@ export class KeyService {
       event_type: 'created',
       timestamp: new Date(),
       metadata: {
-        key_type: savedKey.key_type,
+        key_type: String(savedKey.key_type),
         version: savedKey.version,
       },
     });
@@ -130,7 +133,7 @@ export class KeyService {
     
     // Update key properties
     if (updateKeyDto.key_type) {
-      key.key_type = updateKeyDto.key_type;
+      key.key_type = updateKeyDto.key_type as any;
     }
     
     if (updateKeyDto.timer_interval !== undefined) {
@@ -338,7 +341,7 @@ export class KeyService {
       key_id: key.key_id,
       user_id: key.user_id,
       organization_id: key.organization_id,
-      key_type: key.key_type,
+      key_type: key.key_type as any,
       created_at: key.created_at,
       expires_at: key.expires_at,
       version: key.version,
