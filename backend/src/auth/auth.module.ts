@@ -14,6 +14,7 @@ import { IpMacController } from './controllers/ip-mac.controller';
 import { EmailService } from './services/email.service';
 import { EmailVerificationService } from './services/email-verification.service';
 import { EmailVerificationController } from './controllers/email-verification.controller';
+import { UserManagementModule } from '../user-management/user-management.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { EmailVerificationController } from './controllers/email-verification.co
         },
       }),
     }),
+    UserManagementModule, // Import UserManagementModule to access UserService
   ],
   controllers: [AuthController, IpMacController, EmailVerificationController],
   providers: [
