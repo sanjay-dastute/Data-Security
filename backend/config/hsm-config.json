@@ -1,0 +1,13 @@
+{
+  "enabled": false,
+  "provider": "THALES",
+  "ip": "",
+  "port": "",
+  "slot": "",
+  "pin": "",
+  "label": "",
+  "libraryPath": "",
+  "useForKeyGeneration": true,
+  "useForEncryption": true,
+  "useForDecryption": true
+}

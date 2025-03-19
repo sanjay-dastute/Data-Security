@@ -1,0 +1,44 @@
+{
+  "providers": [
+    {
+      "type": "AWS",
+      "name": "AWS",
+      "enabled": false,
+      "region": "us-east-1",
+      "accessKey": "",
+      "secretKey": "",
+      "resourceAllocation": 50
+    },
+    {
+      "type": "AZURE",
+      "name": "Azure",
+      "enabled": false,
+      "region": "eastus",
+      "tenantId": "",
+      "clientId": "",
+      "clientSecret": "",
+      "resourceAllocation": 30
+    },
+    {
+      "type": "GOOGLE_CLOUD",
+      "name": "Google Cloud",
+      "enabled": false,
+      "region": "us-central1",
+      "projectId": "",
+      "serviceAccountKey": "",
+      "resourceAllocation": 20
+    },
+    {
+      "type": "ON_PREMISES",
+      "name": "On-Premises",
+      "enabled": false,
+      "endpoint": "",
+      "username": "",
+      "password": "",
+      "resourceAllocation": 100
+    }
+  ],
+  "syncKeys": true,
+  "autoFailover": true,
+  "primaryProvider": "AWS"
+}
