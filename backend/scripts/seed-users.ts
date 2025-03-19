@@ -27,7 +27,8 @@ async function bootstrap() {
     console.log('Creating default organization...');
     // Create default organization
     const organization = new Organization();
-    organization.id = 'org1';
+    const orgId = '550e8400-e29b-41d4-a716-446655440000'; // UUID format
+    organization.id = orgId;
     organization.name = 'ABC Corp';
     organization.email = 'admin@abc.com';
     organization.api_key = 'abc-org-api-key-123';
@@ -76,7 +77,7 @@ async function bootstrap() {
     orgAdmin.email = 'orgadmin1@abc.com';
     orgAdmin.password = orgAdminPassword;
     orgAdmin.role = UserRole.ORG_ADMIN;
-    orgAdmin.organizationId = 'org1';
+    orgAdmin.organizationId = orgId;
     orgAdmin.is_active = true;
     orgAdmin.approval_status = ApprovalStatus.APPROVED;
     orgAdmin.approved_addresses = [{ ip: '127.0.0.1', mac: 'default' }];
@@ -95,7 +96,7 @@ async function bootstrap() {
     regularUser.email = 'user1@abc.com';
     regularUser.password = userPassword;
     regularUser.role = UserRole.ORG_USER;
-    regularUser.organizationId = 'org1';
+    regularUser.organizationId = orgId;
     regularUser.is_active = true;
     regularUser.approval_status = ApprovalStatus.APPROVED;
     regularUser.approved_addresses = [{ ip: '127.0.0.1', mac: 'default' }];

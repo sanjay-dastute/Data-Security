@@ -11,6 +11,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SanitizeInterceptor } from './common/interceptors/sanitize.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { BreachDetectionFilter } from './common/filters/breach-detection.filter';
+import { BlockchainService } from './encryption/services/blockchain.service';
 
 async function bootstrap() {
   // Check if TLS certificates exist for HTTPS
@@ -84,16 +85,16 @@ async function bootstrap() {
   // Apply global interceptors
   app.useGlobalInterceptors(
     new SanitizeInterceptor(),
-    app.get(LoggingInterceptor),
+    new LoggingInterceptor(app.get(BlockchainService)),
   );
   
   // Apply global filters
   app.useGlobalFilters(
-    app.get(BreachDetectionFilter),
+    new BreachDetectionFilter(app.get(BlockchainService)),
   );
   
-  // Compression
-  app.use(compression());
+  // Compression - temporarily disabled
+  // app.use(compression());
   
   // Global prefix
   app.setGlobalPrefix('api');

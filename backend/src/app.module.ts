@@ -65,13 +65,13 @@ import { HealthModule } from './health/health.module';
       }),
     }),
     
-    // GraphQL
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      playground: process.env.NODE_ENV !== 'production',
-    }),
+    // GraphQL - temporarily disabled for testing
+    // GraphQLModule.forRoot<ApolloDriverConfig>({
+    //   driver: ApolloDriver,
+    //   autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+    //   sortSchema: true,
+    //   playground: process.env.NODE_ENV !== 'production',
+    // }),
     
     // Core modules
     CommonModule,
