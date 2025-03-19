@@ -54,11 +54,48 @@ export class StorageService {
    */
   async getData(
     storageId: string,
+    storageType: StorageType,
     storageConfig: Record<string, any>,
-  ): Promise<{ data: Buffer }> {
-    // Temporary implementation to fix TypeScript errors
-    this.logger.log(`Retrieving data from storage: ${storageId}`);
-    return { data: Buffer.from('mock-data') };
+    userId: string,
+    organizationId?: string,
+  ): Promise<Buffer> {
+    try {
+      this.logger.log(`Retrieving data from storage: ${storageId}, type: ${storageType}`);
+      
+      // Log retrieval attempt to blockchain
+      await this.blockchainService.logEvent({
+        user_id: userId,
+        event_type: 'data_retrieval',
+        timestamp: new Date(),
+        metadata: {
+          organization_id: organizationId,
+          storage_id: storageId,
+          storage_type: storageType,
+        },
+      });
+      
+      switch (storageType) {
+        case StorageType.AWS_S3:
+          return await this.getDataFromS3(storageId, storageConfig);
+        case StorageType.AZURE_BLOB:
+          return await this.getDataFromAzure(storageId, storageConfig);
+        case StorageType.GOOGLE_CLOUD:
+          return await this.getDataFromGCP(storageId, storageConfig);
+        case StorageType.SQL_DATABASE:
+          return await this.getDataFromSqlDatabase(storageId, storageConfig);
+        case StorageType.NOSQL_DATABASE:
+          return await this.getDataFromNoSqlDatabase(storageId, storageConfig);
+        case StorageType.ON_PREMISES:
+          return await this.getDataFromOnPremises(storageId, storageConfig);
+        case StorageType.CUSTOM:
+          return await this.getDataFromCustom(storageId, storageConfig);
+        default:
+          return await this.getDataFromLocal(storageId);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to retrieve data from storage: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve data from storage: ${error.message}`);
+    }
   }
 
   /**
@@ -74,13 +111,13 @@ export class StorageService {
   ): Promise<{ storage_path: string; storage_type: StorageType }> {
     try {
       // Log storage attempt to blockchain
-      await this.blockchainService.logKeyEvent({
-        key_id: 'storage_operation',
+      await this.blockchainService.logEvent({
         user_id: userId,
-        organization_id: organizationId,
-        event_type: 'created',
+        event_type: 'storage_operation',
         timestamp: new Date(),
         metadata: {
+          key_id: 'storage_operation',
+          organization_id: organizationId,
           file_name: fileName,
           storage_type: storageType,
         },
@@ -363,6 +400,179 @@ export class StorageService {
   private async deleteTempFile(filePath: string): Promise<void> {
     if (fs.existsSync(filePath)) {
       await promisify(fs.unlink)(filePath);
+    }
+  }
+  
+  /**
+   * Get data from AWS S3
+   */
+  private async getDataFromS3(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.bucket) {
+        throw new BadRequestException('AWS S3 bucket is required');
+      }
+
+      // In a real implementation, we would use the AWS SDK
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating S3 retrieval from ${config.bucket}/${storageId}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-s3');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from AWS S3: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from AWS S3: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from Azure Blob Storage
+   */
+  private async getDataFromAzure(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.containerName) {
+        throw new BadRequestException('Azure Blob container name is required');
+      }
+
+      // In a real implementation, we would use the Azure SDK
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating Azure Blob retrieval from ${config.containerName}/${storageId}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-azure');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from Azure Blob: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from Azure Blob: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from Google Cloud Storage
+   */
+  private async getDataFromGCP(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.bucket) {
+        throw new BadRequestException('Google Cloud Storage bucket is required');
+      }
+
+      // In a real implementation, we would use the Google Cloud SDK
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating Google Cloud Storage retrieval from ${config.bucket}/${storageId}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-gcp');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from Google Cloud: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from Google Cloud: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from SQL Database
+   */
+  private async getDataFromSqlDatabase(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.table) {
+        throw new BadRequestException('SQL table name is required');
+      }
+
+      // In a real implementation, we would use a SQL client
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating SQL retrieval from ${config.table}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-sql');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from SQL Database: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from SQL Database: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from NoSQL Database
+   */
+  private async getDataFromNoSqlDatabase(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.collection) {
+        throw new BadRequestException('NoSQL collection name is required');
+      }
+
+      // In a real implementation, we would use a NoSQL client
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating NoSQL retrieval from ${config.collection}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-nosql');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from NoSQL Database: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from NoSQL Database: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from On-Premises Storage
+   */
+  private async getDataFromOnPremises(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.path) {
+        throw new BadRequestException('On-premises storage path is required');
+      }
+
+      // In a real implementation, we would use the file system or a network share
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating on-premises retrieval from ${config.path}/${storageId}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-on-premises');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from On-Premises: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from On-Premises: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from Custom Storage
+   */
+  private async getDataFromCustom(storageId: string, config: Record<string, any>): Promise<Buffer> {
+    try {
+      // Validate config
+      if (!config.endpoint) {
+        throw new BadRequestException('Custom storage endpoint is required');
+      }
+
+      // In a real implementation, we would use a custom client or API
+      // For now, we'll just simulate the retrieval
+      this.logger.log(`Simulating custom retrieval from ${config.endpoint}/${storageId}`);
+      
+      // Return mock data
+      return Buffer.from('mock-data-from-custom');
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from Custom Storage: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from Custom Storage: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get data from Local Storage
+   */
+  private async getDataFromLocal(storageId: string): Promise<Buffer> {
+    try {
+      // Check if file exists
+      const filePath = path.join(this.tempDir, storageId);
+      if (!fs.existsSync(filePath)) {
+        throw new BadRequestException(`File not found: ${storageId}`);
+      }
+      
+      // Read file
+      return await promisify(fs.readFile)(filePath);
+    } catch (error) {
+      this.logger.error(`Failed to retrieve from Local Storage: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve from Local Storage: ${error.message}`);
     }
   }
 }
