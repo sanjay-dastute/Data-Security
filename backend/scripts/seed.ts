@@ -88,7 +88,7 @@ async function bootstrap() {
       email: 'orgadmin1@abc.com',
       password: orgAdminPassword,
       role: UserRole.ORG_ADMIN,
-      organizationId: org.id,
+      organization_id: org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
@@ -124,7 +124,7 @@ async function bootstrap() {
       email: 'user1@abc.com',
       password: userPassword,
       role: UserRole.ORG_USER,
-      organizationId: org.id,
+      organization_id: org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
