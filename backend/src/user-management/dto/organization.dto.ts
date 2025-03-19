@@ -1,4 +1,4 @@
-import { IsString, IsUUID, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsUUID, IsOptional, IsObject, IsEmail } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString()
@@ -7,6 +7,14 @@ export class CreateOrganizationDto {
   @IsOptional()
   @IsUUID()
   admin_user_id?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @IsOptional()
   @IsObject()
@@ -36,9 +44,12 @@ export class UpdateOrganizationDto {
 }
 
 export class OrganizationResponseDto {
+  id?: string; // Add this property
   organization_id: string;
   name: string;
   admin_user_id?: string;
+  email?: string;
+  phone?: string;
   settings: Record<string, any>;
   profile?: Record<string, any>; // Make profile optional since it doesn't exist in entity
   created_at: Date;

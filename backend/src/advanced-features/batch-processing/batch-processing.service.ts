@@ -261,9 +261,15 @@ export class BatchProcessingService {
             continue;
           }
 
+          // Get file content
+          const fileContent = await this.storageService.getData(
+            file.encrypted_file_path,
+            batchProcess.storage_config || {}
+          );
+          
           // Encrypt file
           const encryptionResult = await this.encryptionService.encryptData(
-            file.file_content,
+            fileContent.data,
             batchProcess.key_id,
             batchProcess.fields
           );

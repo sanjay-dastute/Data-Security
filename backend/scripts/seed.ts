@@ -71,7 +71,7 @@ async function bootstrap() {
       email: 'orgadmin@quantumtrust.com',
       password: orgAdminPassword,
       role: UserRole.ORG_ADMIN,
-      organizationId: org.id,
+      organization_id: org.organization_id || org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
@@ -89,8 +89,8 @@ async function bootstrap() {
     console.log('Created organization admin user:', orgAdmin.username);
 
     // Update organization with admin user
-    await orgService.update(org.id, {
-      admin_user_id: orgAdmin.id,
+    await orgService.update(org.organization_id || org.id, {
+      admin_user_id: orgAdmin.user_id || orgAdmin.id,
     });
 
     // Create regular user
@@ -99,7 +99,7 @@ async function bootstrap() {
       email: 'user@quantumtrust.com',
       password: userPassword,
       role: UserRole.ORG_USER,
-      organizationId: org.id,
+      organization_id: org.organization_id || org.id,
       is_active: true,
       approval_status: ApprovalStatus.APPROVED,
       approved_addresses: [
