@@ -3,9 +3,40 @@ import { useRouter } from 'next/router';
 import { Box, Typography, Container, Paper, Grid, Card, CardContent, CardHeader } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function UserDashboard() {
+import { withIronSessionSsr } from 'iron-session/next';
+
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    const user = req.session.user;
+
+    if (!user || user.role !== 'ORG_USER') {
+      return {
+        redirect: {
+          destination: '/login',
+          permanent: false,
+        },
+      };
+    }
+
+    return {
+      props: {
+        user: user
+      },
+    };
+  },
+  {
+    cookieName: "quantumtrust_session",
+    password: process.env.SESSION_SECRET || 'complex_password_at_least_32_characters',
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: 'strict'
+    },
+  },
+);
+
+export default function UserDashboard({ user }) {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   
   useEffect(() => {
     // Check if user is authenticated as regular user
