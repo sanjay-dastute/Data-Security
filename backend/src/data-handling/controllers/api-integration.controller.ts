@@ -163,9 +163,14 @@ export class ApiIntegrationController {
       // Get storage configuration
       const storageConfig = organization.settings?.storage_config || { provider: 'local' };
       
-      // Retrieve encrypted data from storage - using a temporary implementation
-      // TODO: Implement proper retrieveData method in StorageService
-      const encryptedData = Buffer.from('encrypted-data-placeholder');
+      // Retrieve encrypted data from storage
+      const encryptedData = await this.storageService.getData(
+        body.storage_id,
+        StorageType.AWS_S3, // Using AWS_S3 as default storage type
+        storageConfig,
+        'api',
+        organization.id
+      );
       
       // Decrypt data
       const decryptedData = await this.encryptionService.decryptData(
@@ -269,7 +274,7 @@ export class ApiIntegrationController {
       
       for (const org of organizations) {
         // Use api_key from Organization entity
-        if (org.settings && org.api_key === orgApiKey) {
+        if (org.api_key === orgApiKey) {
           return org;
         }
       }
