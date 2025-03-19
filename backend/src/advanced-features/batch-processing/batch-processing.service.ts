@@ -264,12 +264,15 @@ export class BatchProcessingService {
           // Get file content
           const fileContent = await this.storageService.getData(
             file.encrypted_file_path,
-            batchProcess.storage_config || {}
+            StorageType.AWS_S3, // Using AWS_S3 as default storage type
+            batchProcess.storage_config || {},
+            batchProcess.user_id,
+            batchProcess.organization_id
           );
           
           // Encrypt file
           const encryptionResult = await this.encryptionService.encryptData(
-            fileContent.data,
+            fileContent, // Use Buffer directly
             batchProcess.key_id,
             batchProcess.fields
           );
