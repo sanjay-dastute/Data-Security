@@ -39,11 +39,8 @@ export default function AdminDashboard({ user }) {
   const { loading } = useAuth();
   
   useEffect(() => {
-    // Check if user is authenticated as admin
-    if (!loading && (!user || user.role !== 'ADMIN')) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+    // No need for client-side redirect since we're using server-side auth
+  }, []);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
